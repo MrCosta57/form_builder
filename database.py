@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('mongodb+srv://admin:root@cluster0.54iiu.mongodb.net/test?retryWrites=true&w=majority')
+engine = create_engine('postgresql+psycopg2://postgres:root@localhost:5432/postgres')
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
