@@ -6,7 +6,7 @@
 body {font-family: Arial, Helvetica, sans-serif;}
 form {border: 3px solid #f1f1f1;}
 
-input[type=text], input[type=password] {
+.input{
   width: 100%;
   padding: 12px 20px;
   margin: 8px 0;
@@ -15,7 +15,7 @@ input[type=text], input[type=password] {
   box-sizing: border-box;
 }
 
-button {
+.button {
   background-color: #4CAF50;
   color: white;
   padding: 14px 20px;
@@ -25,7 +25,7 @@ button {
   width: 100%;
 }
 
-button:hover {
+.button:hover {
   opacity: 0.8;
 }
 
@@ -67,42 +67,23 @@ span.psw {
 </style>
 </head>
 <body>
-
-{% block content %}
 {% from "security/_macros.html" import render_field_with_errors, render_field, render_field_errors %}
-<h2>{{ _fsdomain('Login') }}</h2>
+{% block content %}
 
-<form action="{{ url_for_security('login') }}" method="POST" name="login_user_form">
-  <div> class="imgcontainer">
-    <img src="img_avatar2.png" alt="Avatar" class="avatar">
-  </div>
-
-  <div class="container">
-    <label for="email"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="email" required>
-
-    <label for="password"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="password" required>
-
-    <button type="submit" name="submit">Login</button>
-    <label>
-      <input type="checkbox" checked="checked" name="remember"> Remember me
-    </label>
-  </div>
-
-  <div class="container" style="background-color:#f1f1f1">
-    <button type="button" class="cancelbtn">Cancel</button>
-    <span class="psw">Forgot <a href="#">password?</a></span>
-  </div>
-</form>
-{% include "security/_menu.html" %}
+    <h2>{{ _fsdomain('Login') }}</h2>
+    <form action="{{ url_for_security('login') }}" method="POST" >
+        {{ login_user_form.hidden_tag() }}
+        {{ render_field_with_errors(login_user_form.email, class="input") }}
+        {{ render_field_with_errors(login_user_form.password, class="input") }}
+        {{ render_field_with_errors(login_user_form.remember) }}
+        {{ render_field_errors(login_user_form.csrf_token) }}
+        {{ render_field(login_user_form.submit, class="button") }}
+        <div class="container" style="background-color:#f1f1f1">
+            <button type="button" class="cancelbtn">Cancel</button>
+            <span class="psw">Forgot <a href="#">password?</a></span>
+        </div>
+    </form>
 {% endblock %}
-
-  <div class="container" style="background-color:#f1f1f1">
-    <button type="button" class="cancelbtn">Cancel</button>
-    <span class="psw">Forgot <a href="#">password?</a></span>
-  </div>
-</form>
 
 </body>
 </html>

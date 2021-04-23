@@ -1,7 +1,7 @@
 import os
 import secrets
 
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, render_template
 from flask_security import Security, current_user, auth_required, hash_password, logout_user, \
     SQLAlchemySessionUserDatastore
 from database import db_session, init_db
@@ -24,7 +24,7 @@ app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
 # Generate a good salt using: secrets.SystemRandom().getrandbits(128)
 app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT",
-                                                      str(secrets.SystemRandom().getrandbits(128)))
+                                                      'ciao')
 
 # Setup Flask-Security
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
@@ -44,7 +44,7 @@ def create_user():
 @app.route("/")
 @auth_required()
 def home():
-    return render_template_string('Hello {{email}} !', email=current_user.email)
+    return render_template('index.html')
 
 
 @app.route("/logout")
@@ -56,3 +56,6 @@ def logout():
 
 if __name__ == '__main__':
     app.run()
+    user = user_datastore.find_user(current_user)
+    if user.has_role("admin"):
+        print('ciao')
