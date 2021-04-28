@@ -1,85 +1,22 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body {font-family: Arial, Helvetica, sans-serif;}
-form {border: 3px solid #f1f1f1;}
-
-.input{
-  width: 100%;
-  padding: 12px 20px;
-  margin: 8px 0;
-  display: inline-block;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
-}
-
-.button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 14px 20px;
-  margin: 8px 0;
-  border: none;
-  cursor: pointer;
-  width: 100%;
-}
-
-.button:hover {
-  opacity: 0.8;
-}
-
-.cancelbtn {
-  width: auto;
-  padding: 10px 18px;
-  background-color: #f44336;
-}
-
-.imgcontainer {
-  text-align: center;
-  margin: 24px 0 12px 0;
-}
-
-img.avatar {
-  width: 40%;
-  border-radius: 50%;
-}
-
-.container {
-  padding: 16px;
-}
-
-span.psw {
-  float: right;
-  padding-top: 16px;
-}
-
-/* Change styles for span and cancel button on extra small screens */
-@media screen and (max-width: 300px) {
-  span.psw {
-     display: block;
-     float: none;
-  }
-  .cancelbtn {
-     width: 100%;
-  }
-}
-</style>
-</head>
-<body>
+{% extends "login.html"%}
 {% from "security/_macros.html" import render_field_with_errors, render_field, render_field_errors %}
 {% block content %}
 
     <h2>{{ _fsdomain('Login') }}</h2>
-    <form action="{{ url_for_security('login') }}" method="POST" >
+    <form class="user" action="{{ url_for_security('login') }}" method="POST" >
         {{ login_user_form.hidden_tag() }}
-        {{ render_field_with_errors(login_user_form.email, class="input") }}
-        {{ render_field_with_errors(login_user_form.password, class="input") }}
-        {{ render_field_with_errors(login_user_form.remember) }}
+        <div class="form-group">
+            {{ render_field_with_errors(login_user_form.email, class="form-control form-control-user",id="exampleInputEmail",placeholder="Enter Email Address...") }}
+        </div>
+        <div class="form-group">
+            {{ render_field_with_errors(login_user_form.password, class="form-control form-control-user", id="exampleInputPassword", placeholder="Password") }}
+        </div>
+        <div class="form-group">
+                {{ render_field_with_errors(login_user_form.remember) }}
+        </div>
         {{ render_field_errors(login_user_form.csrf_token) }}
-        {{ render_field(login_user_form.submit, class="button") }}
+        {{ render_field(login_user_form.submit, class="btn btn-primary btn-user btn-block") }}
         <div class="container" style="background-color:#f1f1f1">
-            <button type="button" class="cancelbtn">Cancel</button>
             <span class="psw">Forgot <a href="#">password?</a></span>
         </div>
     </form>
