@@ -5,6 +5,46 @@ from sqlalchemy import Boolean, DateTime, Column, Integer, \
     String, ForeignKey
 
 
+class Roles(Base, RoleMixin):
+    __tablename__ = 'roles'
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(80), unique=True)
+    description = Column(String(255))
+
+
+class Users(Base, UserMixin):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), unique=True)
+    username = Column(String(255), unique=True, nullable=True)
+    password = Column(String(255), nullable=False)
+    last_login_at = Column(DateTime())
+    current_login_at = Column(DateTime())
+    last_login_ip = Column(String(100))
+    current_login_ip = Column(String(100))
+    login_count = Column(Integer)
+    active = Column(Boolean())
+    fs_uniquifier = Column(String(255), unique=True, nullable=False)
+    confirmed_at = Column(DateTime())
+
+    roles = relationship('Roles', secondary='roles_users', backref=backref('users', lazy='dynamic'))
+    forms_created = relationship('Forms', back_populates='creator')
+    answered_forms = relationship('Forms', secondary='filled_by', back_populates='user_answer')
+
+
+class Forms(Base):
+    __tablename__ = 'forms'
+    id = Column(Integer, primary_key=True)
+    dataCreation = Column(DateTime())
+    description = Column(String(255))
+    creator_id = Column(Integer, ForeignKey(Users.id), nullable=False)
+
+    creator = relationship('Users', back_populates="forms_created")
+    user_answer = relationship('Users', secondary='filled_by', back_populates='answered_forms')
+    questions = relationship('Questions', secondary='forms_questions')
+    answers = relationship('Answers', back_populates='form')
+
+
 # Tables for n to n relationship
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
@@ -13,10 +53,10 @@ class RolesUsers(Base):
     role_id = Column('role_id', Integer(), ForeignKey(User.id))
 
 
-class CompiledBy(Base):
-    __tablename__ = 'compiled_by'
-    user_id = Column('user_id', Integer(), ForeignKey(User.id), primary_key=True)
-    form_id = Column('form_id', Integer(), ForeignKey(Form.id), primary_key=True)
+class FilledBy(Base):
+    __tablename__ = 'filled_by'
+    user_id = Column('user_id', Integer(), ForeignKey('users.id'), primary_key=True)
+    form_id = Column('form_id', Integer(), ForeignKey('forms.id'), primary_key=True)
 
 
 class TagsQuestions(Base):
@@ -85,21 +125,48 @@ class Question(Base):
     open = relationship('Open', back_populates='question')
 
 
-class Open(Base):
-    __tablename__ = 'open'
+
+class SingleQuestions(Base):
+    __tablename__ = 'single_question'
+    idS = Column(Integer, ForeignKey(Questions.id), primary_key=True)
+
+
+class PossibleAnswersS(Base):
+    __tablename__ = 'possible_answers_s'
+    idPosAnswS = Column(Integer, ForeignKey(SingleQuestions.idS), primary_key=True)
+    content = Column(String, primary_key=True)
+
+
+class OpenQuestions(Base):
+    __tablename__ = 'open_questions'
+    id = Column(Integer,  ForeignKey(Questions.id), primary_key=True)
+
+
+class MultipleChoiceQuestions(Base):
+    __tablename__ = 'multiple_choice_question'
+    id = Column(Integer, ForeignKey(Questions.id), primary_key=True)
+
+
+class PossibleAnswersM(Base):
+    __tablename__ = 'possible_answers_m'
+    idPosAnswM = Column(Integer, ForeignKey(MultipleChoiceQuestions.id), primary_key=True)
+    content = Column(String, primary_key=True)
+
+
+class Answers(Base):
+    __tablename__ = 'answers'
     id = Column(Integer, primary_key=True)
-    question = relationship('Question', back_populates='open')
+    form_id = Column(Integer, ForeignKey(Forms.id), nullable=False)
+    question_id = Column(Integer, ForeignKey(Questions.id), nullable=False)
+
+    question = relationship('Questions', back_populates='answers')
+    text = relationship('SeqAnswers', back_populates='info')
+    form = relationship('Forms', back_populates='answers')
 
 
-class MultipleChoice(Base):
-    __tablename__ = 'multiple_choice'
-    id = Column(Integer, primary_key=True)
+class SeqAnswers(Base):
+    __tablename__ = 'seq_answers'
+    id = Column(Integer, ForeignKey('answers.id'), primary_key=True)
+    content = Column(String, primary_key=True)
 
-    question = relationship('Question', back_populates='multiple_choice')
-
-
-class Single(Base):
-    __tablename__ = 'single'
-    id = Column(Integer, primary_key=True)
-
-    question = relationship('Question', back_populates='single')
+    info = relationship('Answers', back_populates='text')

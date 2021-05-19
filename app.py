@@ -52,13 +52,13 @@ def create_user():
 @app.route("/")
 @auth_required()
 def home():
-    return render_template('index.html')
+    return "Hello frome home"
 
 
-@app.route("/login.html")
+@app.route("/login")
 @auth_required()
 def login():
-    return render_template('login.html')
+    return "hello from login"
 
 
 @app.route("/logout")
