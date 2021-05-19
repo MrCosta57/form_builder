@@ -8,9 +8,6 @@ from models import User, Role
 from flask_babelex import Babel
 from dotenv import load_dotenv
 
-# Load .env for security key
-load_dotenv()
-
 # SETUP FLASK
 # Create app and setup Babel communication
 app = Flask(__name__)
@@ -21,6 +18,15 @@ babel.domain = 'flask_user'
 babel.translation_directories = 'translations'
 
 # SETUP FLASK_SECURITY
+
+if not os.path.isfile('.env'):
+    confFile = open(".env", 'w')
+    confFile.write('SECRET_KEY='+str(secrets.token_urlsafe())+'\n')
+    confFile.write('SECURITY_PASSWORD_SALT='+str(secrets.SystemRandom().getrandbits(128)))
+    confFile.close()
+
+load_dotenv()
+
 # Generate a nice key using secrets.token_urlsafe()
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
@@ -65,7 +71,7 @@ def login():
 @auth_required()
 def logout():
     logout_user()
-    return render_template_string('Logout Done')
+    return 'Logout Done'
 
 
 if __name__ == '__main__':
