@@ -5,13 +5,27 @@ from sqlalchemy import Boolean, DateTime, Column, Integer, \
     String, ForeignKey
 
 
+# Tables for n to n relationship
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
     id = Column(Integer(), primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
-    role_id = Column('role_id', Integer(), ForeignKey('role.id'))
+    user_id = Column('user_id', Integer(), ForeignKey(User.id))
+    role_id = Column('role_id', Integer(), ForeignKey(User.id))
 
 
+class CompiledBy(Base):
+    __tablename__ = 'compiled_by'
+    user_id = Column('user_id', Integer(), ForeignKey(User.id), primary_key=True)
+    form_id = Column('form_id', Integer(), ForeignKey(Form.id), primary_key=True)
+
+
+class TagsQuestions(Base):
+    __tablename__ = 'tags_questions'
+    tag_id = Column('tag_id', Integer(), ForeignKey(Tag.id), primary_key=True)
+    question_id = Column('question_id', Integer(), ForeignKey(Question.id), primary_key=True)
+
+
+# Tables with data
 class Role(Base, RoleMixin):
     __tablename__ = 'role'
     id = Column(Integer(), primary_key=True)
@@ -33,5 +47,59 @@ class User(Base, UserMixin):
     active = Column(Boolean())
     fs_uniquifier = Column(String(255), unique=True, nullable=False)
     confirmed_at = Column(DateTime())
-    roles = relationship('Role', secondary='roles_users',
-                         backref=backref('users', lazy='dynamic'))
+
+    roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
+    forms_created = relationship(Form, back_populates='creator')
+    answered_forms = relationship(Form, secondary='compiled_by', back_populates='user_answer')
+
+
+class Form(Base):
+    __tablename__ = 'form'
+    id = Column(Integer, primary_key=True)
+    dataCreation = Column(DateTime())
+    description = Column(String(255))
+    creator_id = Column(Integer, ForeignKey(User.id))
+
+    creator = relationship(User, back_populates="forms_created")
+    user_answer = relationship('User', secondary='compiled_by', back_populates='answered_forms')
+
+
+class Tag(Base):
+    __tablename__ = 'tag'
+    id = Column(Integer, primary_key=True)
+    argument = Column(String(255))
+
+    questions = relationship('Question', secondary=TagsQuestions, back_populates='tags')
+
+
+class Question(Base):
+    __tablename__ = 'question'
+    id = Column(Integer, primary_key=True)
+    file = Column(String(255))
+    text = Column(String(255))
+
+    tags = relationship('Tag', secondary=TagsQuestions, back_populates='tags')
+    answers = relationship('Answer', back_populates='question')
+    multiple_choice = relationship('MultipleChoice', back_populates='question')
+    single = relationship('Single', back_populates='question')
+    open = relationship('Open', back_populates='question')
+
+
+class Open(Base):
+    __tablename__ = 'open'
+    id = Column(Integer, primary_key=True)
+    question = relationship('Question', back_populates='open')
+
+
+class MultipleChoice(Base):
+    __tablename__ = 'multiple_choice'
+    id = Column(Integer, primary_key=True)
+
+    question = relationship('Question', back_populates='multiple_choice')
+
+
+class Single(Base):
+    __tablename__ = 'single'
+    id = Column(Integer, primary_key=True)
+
+    question = relationship('Question', back_populates='single')
