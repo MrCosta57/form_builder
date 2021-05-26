@@ -166,7 +166,7 @@ class Answers(Base):
 
 class SeqAnswers(Base):
     __tablename__ = 'seq_answers'
-    id = Column(Integer, ForeignKey('answers.id'), primary_key=True)
+    id = Column(Integer, ForeignKey(Answers.id), primary_key=True)
     content = Column(String, primary_key=True)
 
     info = relationship('Answers', back_populates='text')

@@ -50,21 +50,20 @@ def create_user():
     init_db()
     if not user_datastore.find_user(email="test@me.com"):
         user_datastore.create_user(email="test@me.com", password=hash_password("password"))
-    session.commit()
-    close_session(session)
+    birthday_form = Forms(name='Festa Compleanno', dataCreation=date.today(),
+                          description='Invitation for birthday party',
+                          creator_id=1)
+    birthday_q1 = Questions(text="What time do you prefer?")
+    birthday_q1_details = OpenQuestions(id=birthday_q1.id)
+    db_session.add_all([birthday_form, birthday_q1, birthday_q1_details])
+    db_session.commit()
 
 
-# Views
+# HomePage
 @app.route("/")
 @auth_required()
 def home():
     return "Hello frome home"
-
-
-@app.route("/login")
-@auth_required()
-def login():
-    return "hello from login"
 
 
 @app.route("/logout")
