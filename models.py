@@ -49,8 +49,8 @@ class Forms(Base):
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
     id = Column(Integer(), primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey(User.id))
-    role_id = Column('role_id', Integer(), ForeignKey(User.id))
+    user_id = Column('user_id', Integer(), ForeignKey('users.id'))
+    role_id = Column('role_id', Integer(), ForeignKey('roles.id'))
 
 
 class FilledBy(Base):
@@ -61,69 +61,35 @@ class FilledBy(Base):
 
 class TagsQuestions(Base):
     __tablename__ = 'tags_questions'
-    tag_id = Column('tag_id', Integer(), ForeignKey(Tag.id), primary_key=True)
-    question_id = Column('question_id', Integer(), ForeignKey(Question.id), primary_key=True)
+    tag_id = Column('tag_id', Integer(), ForeignKey('tags.id'), primary_key=True)
+    question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
 
 
-# Tables with data
-class Role(Base, RoleMixin):
-    __tablename__ = 'role'
-    id = Column(Integer(), primary_key=True)
-    name = Column(String(80), unique=True)
-    description = Column(String(255))
+class FormsQuestions(Base):
+    __tablename__ = 'forms_questions'
+    form_id = Column('form_id', Integer(), ForeignKey('forms.id'), primary_key=True)
+    question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
 
 
-class User(Base, UserMixin):
-    __tablename__ = 'user'
-    id = Column(Integer, primary_key=True)
-    email = Column(String(255), unique=True)
-    username = Column(String(255), unique=True, nullable=True)
-    password = Column(String(255), nullable=False)
-    last_login_at = Column(DateTime())
-    current_login_at = Column(DateTime())
-    last_login_ip = Column(String(100))
-    current_login_ip = Column(String(100))
-    login_count = Column(Integer)
-    active = Column(Boolean())
-    fs_uniquifier = Column(String(255), unique=True, nullable=False)
-    confirmed_at = Column(DateTime())
-
-    roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
-    forms_created = relationship(Form, back_populates='creator')
-    answered_forms = relationship(Form, secondary='compiled_by', back_populates='user_answer')
-
-
-class Form(Base):
-    __tablename__ = 'form'
-    id = Column(Integer, primary_key=True)
-    dataCreation = Column(DateTime())
-    description = Column(String(255))
-    creator_id = Column(Integer, ForeignKey(User.id))
-
-    creator = relationship(User, back_populates="forms_created")
-    user_answer = relationship('User', secondary='compiled_by', back_populates='answered_forms')
-
-
-class Tag(Base):
-    __tablename__ = 'tag'
+class Tags(Base):
+    __tablename__ = 'tags'
     id = Column(Integer, primary_key=True)
     argument = Column(String(255))
 
-    questions = relationship('Question', secondary=TagsQuestions, back_populates='tags')
+    questions = relationship('Questions', secondary='tags_questions', back_populates='tags')
 
 
-class Question(Base):
-    __tablename__ = 'question'
+class Questions(Base):
+    __tablename__ = 'questions'
     id = Column(Integer, primary_key=True)
     file = Column(String(255))
     text = Column(String(255))
 
-    tags = relationship('Tag', secondary=TagsQuestions, back_populates='tags')
-    answers = relationship('Answer', back_populates='question')
-    multiple_choice = relationship('MultipleChoice', back_populates='question')
-    single = relationship('Single', back_populates='question')
-    open = relationship('Open', back_populates='question')
-
+    tags = relationship('Tags', secondary='tags_questions', back_populates='questions')
+    answers = relationship('Answers', back_populates='question')
+    multiple_choice = relationship('MultipleChoiceQuestions')
+    single = relationship('SingleQuestions')
+    open = relationship('OpenQuestions')
 
 
 class SingleQuestions(Base):
