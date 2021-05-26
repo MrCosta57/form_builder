@@ -35,6 +35,7 @@ class Users(Base, UserMixin):
 class Forms(Base):
     __tablename__ = 'forms'
     id = Column(Integer, primary_key=True)
+    name = Column(String(255))
     dataCreation = Column(DateTime())
     description = Column(String(255))
     creator_id = Column(Integer, ForeignKey(Users.id), nullable=False)

@@ -7,6 +7,7 @@ from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
 from dotenv import load_dotenv
+from datetime import date
 
 # SETUP FLASK
 # Create app and setup Babel communication
@@ -20,8 +21,8 @@ babel.translation_directories = 'translations'
 
 if not os.path.isfile('.env'):
     confFile = open(".env", 'w')
-    confFile.write('SECRET_KEY='+str(secrets.token_urlsafe())+'\n')
-    confFile.write('SECURITY_PASSWORD_SALT='+str(secrets.SystemRandom().getrandbits(128)))
+    confFile.write('SECRET_KEY=' + str(secrets.token_urlsafe()) + '\n')
+    confFile.write('SECURITY_PASSWORD_SALT=' + str(secrets.SystemRandom().getrandbits(128)))
     confFile.close()
 
 load_dotenv()
@@ -61,9 +62,8 @@ def create_user():
 
 # HomePage
 @app.route("/")
-@auth_required()
 def home():
-    return "Hello frome home"
+    return "Hello frome home!\n"
 
 
 @app.route("/logout")
@@ -71,6 +71,13 @@ def home():
 def logout():
     logout_user()
     return 'Logout Done'
+
+
+@app.route("/form")
+@auth_required()
+def form():
+    r1 = db_session.query(Forms.name).where(Forms.creator == current_user)
+    return r1.all()
 
 
 if __name__ == '__main__':
