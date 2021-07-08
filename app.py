@@ -46,7 +46,6 @@ user_datastore = SQLAlchemySessionUserDatastore(db_session, Users, Roles)
 security = Security(app, user_datastore)
 
 
-# Create a user to test with
 @app.before_first_request
 def create_user():
     if not user_datastore.find_user(email="test@me.com"):
