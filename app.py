@@ -250,13 +250,12 @@ def template_contacts():
                         FormsQuestions(form_id=3, question_id=8),
                         FormsQuestions(form_id=3, question_id=9)])
     db_session.commit()
-    return
 
 
 # HomePage
 @app.route("/")
 def home():
-    return "Hello from home!\n"
+    return render_template("index.html")
 
 
 @app.route("/logout")
