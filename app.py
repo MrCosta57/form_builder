@@ -59,7 +59,8 @@ def init():
 
 
 def create_admin_user():
-    user_datastore.create_user(id=1, email="admin@db.com", password=hash_password("password"))
+    user_datastore.create_user(id=0, email="admin@db.com", password=hash_password("password"),
+                               name="Admin", surname="Admin", date=date.today())
     db_session.commit()
 
 
@@ -192,7 +193,7 @@ def init_base_question():
 def template_party():
     db_session.add(Forms(id=0, name='Party Form', dataCreation=date.today(),
                          description='Invito per una festa',
-                         creator_id=1))
+                         creator_id=0))
     db_session.commit()
 
     db_session.add_all([FormsQuestions(form_id=0, question_id=0),
@@ -207,7 +208,7 @@ def template_party():
 def template_meets():
     db_session.add(Forms(id=1, name='Meets Form', dataCreation=date.today(),
                          description='Meeting',
-                         creator_id=1))
+                         creator_id=0))
     db_session.commit()
 
     db_session.add_all([FormsQuestions(form_id=1, question_id=0),
@@ -223,7 +224,7 @@ def template_meets():
 def template_events():
     db_session.add(Forms(id=2, name='Events Form', dataCreation=date.today(),
                          description='Evento',
-                         creator_id=1))
+                         creator_id=0))
     db_session.commit()
 
     db_session.add_all([FormsQuestions(form_id=2, question_id=0),
@@ -238,7 +239,7 @@ def template_events():
 def template_contacts():
     db_session.add(Forms(id=3, name='Form Informativo', dataCreation=date.today(),
                          description='Informazioni personali',
-                         creator_id=1))
+                         creator_id=0))
     db_session.commit()
 
     db_session.add_all([FormsQuestions(form_id=3, question_id=0),
@@ -255,7 +256,7 @@ def template_contacts():
 # HomePage
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return "Ciao da Home page" # render_template("index.html")
 
 
 @app.route("/logout")
@@ -269,7 +270,39 @@ def logout():
 @auth_required()
 def form():
     # r1 = db_session.query(Forms.name).where(Forms.creator == current_user)
-    return "Ciao da form"
+    # Passo al template un oggetto di tipo Form
+    return "Ciao da form (visualizzazione di tutti i form creati e possibilità di crearne di nuovi)"
+
+
+@app.route("/form/<form_id>/edit")
+@auth_required()
+def form_edit(form_id):
+    # query con form id: ...
+    # Passo al template un oggetto di tipo Form, poi nel template farò le query in caso
+    return "Ciao da form_id edit"
+
+
+@app.route("/form/<form_id>/viewform")
+@auth_required()
+def form_view(form_id):
+    # query con form id: ...
+    # Passo al template un oggetto di tipo Form, poi nel template farò le query in caso
+    return "Ciao da form_id viewform"
+
+
+@app.route("/profile")
+@auth_required()
+def user_profile():
+    # pagina che mostra le info utente, da vedere se crearne un'altra per la modifica delle info
+    # query che ricava le info dal current user e le passa alla pagina profile.html
+    userQuery = db_session.query(Users).filter(Users.id==current_user.id).first()  # TODO: da vedere, es filter_by(current_user=username)
+
+    return render_template("profile.html", user=userQuery)
+
+#   Stampare lista:
+#   {% for u in user %}
+#   <li>{{u.name}}</li>
+#   {% endfor %}
 
 
 if __name__ == '__main__':
