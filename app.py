@@ -1,28 +1,53 @@
 import os
 import secrets
 from flask import Flask, render_template
+from flask_mail import Mail
 from flask_security import Security, current_user, auth_required, logout_user, \
     SQLAlchemySessionUserDatastore
+from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
+from wtforms import TextField, DateField
 
 from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
 from dotenv import load_dotenv
-from datetime import date
-import os
-import stat
-
+from datetime import date, datetime
 
 # SETUP FLASK
-# Create app and setup Babel communication
+# Create app, setup Babel communication and Mail configuration
+
 app = Flask(__name__)
+
 app.config['DEBUG'] = True
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USERNAME'] = 'Info.progbd.dblegends@gmail.com'
+app.config['MAIL_PASSWORD'] = 'db_legends00'
+app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
+
+# Generate a nice key using secrets.token_urlsafe()
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+# Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
+# Generate a good salt using: secrets.SystemRandom().getrandbits(128)
+app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT")
+
+app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_CONFIRMABLE'] = True
+# app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
+app.config['SECURITY_POST_LOGIN_VIEW'] = '/form'
+# app.config['SECURITY_RECOVERABLE'] = True
+# app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
+
+mail = Mail(app)
 babel = Babel(app)
+
 # Monkeypatching Flask-babelex
 babel.domain = 'flask_user'
 babel.translation_directories = 'translations'
-# SETUP FLASK_SECURITY
+# SETUP FLASK_SECURITY => .env file
 
 if not os.path.isfile('.env'):
     confFile = open('.env', 'w')
@@ -32,23 +57,19 @@ if not os.path.isfile('.env'):
 
 load_dotenv()
 
-# Generate a nice key using secrets.token_urlsafe()
-app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
-# Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
-# Generate a good salt using: secrets.SystemRandom().getrandbits(128)
-app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT")
 
-app.config['SECURITY_REGISTERABLE'] = True
-# app.config['SECURITY_CONFIRMABLE'] = True
-# app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
-app.config['SECURITY_POST_LOGIN_VIEW'] = '/form'
-# app.config['SECURITY_RECOVERABLE'] = True
-# app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
+class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
+    name = TextField('Nome', [Required()])
+    surname = TextField('Cognome', [Required()])
+    date = DateField('Data di nascita', format='%Y-%m-%d', default=datetime.now())
+    username = TextField('Username', [Required()])
+
 
 init_db()
+
 # Linking flask-security with user and role table
 user_datastore = SQLAlchemySessionUserDatastore(db_session, Users, Roles)
-security = Security(app, user_datastore)
+security = Security(app, user_datastore, confirm_register_form=ExtendedConfirmRegisterForm)
 
 
 @app.before_first_request
