@@ -1,13 +1,18 @@
 import os
 import secrets
-from flask import Flask, render_template_string, render_template
-from flask_security import Security, current_user, auth_required, hash_password, logout_user, \
+from flask import Flask, render_template
+from flask_security import Security, current_user, auth_required, logout_user, \
     SQLAlchemySessionUserDatastore
+from flask_security.utils import hash_password
+
 from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
 from dotenv import load_dotenv
 from datetime import date
+import os
+import stat
+
 
 # SETUP FLASK
 # Create app and setup Babel communication
@@ -20,7 +25,7 @@ babel.translation_directories = 'translations'
 # SETUP FLASK_SECURITY
 
 if not os.path.isfile('.env'):
-    confFile = open(".env", 'w')
+    confFile = open('.env', 'w')
     confFile.write('SECRET_KEY=' + str(secrets.token_urlsafe()) + '\n')
     confFile.write('SECURITY_PASSWORD_SALT=' + str(secrets.SystemRandom().getrandbits(128)))
     confFile.close()
@@ -256,7 +261,7 @@ def template_contacts():
 # HomePage
 @app.route("/")
 def home():
-    return "Ciao da Home page" # render_template("index.html")
+    return "Ciao da Home page"  # render_template("index.html")
 
 
 @app.route("/logout")
@@ -295,9 +300,9 @@ def form_view(form_id):
 def user_profile():
     # pagina che mostra le info utente, da vedere se crearne un'altra per la modifica delle info
     # query che ricava le info dal current user e le passa alla pagina profile.html
-    userQuery = db_session.query(Users).filter(Users.id==current_user.id).first()  # TODO: da vedere, es filter_by(current_user=username)
-
-    return render_template("profile.html", user=userQuery)
+    user_query = db_session.query(Users).filter(Users.id == current_user.id).first()
+    # TODO: da vedere, es filter_by(current_user=username)
+    return render_template("profile.html", user=user_query)
 
 #   Stampare lista:
 #   {% for u in user %}

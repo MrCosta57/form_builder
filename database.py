@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('postgresql+psycopg2://postgres:root@localhost:5432/form', pool_size=10, max_overflow=20)
+engine = create_engine('postgresql+psycopg2://postgres:andremuna00@localhost:5432/form', pool_size=10, max_overflow=20)
 
 Base = declarative_base()
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
