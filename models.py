@@ -20,7 +20,7 @@ class Users(Base, UserMixin):
     date = Column(DateTime(), nullable=False)
 
     email = Column(String(255), unique=True)
-    username = Column(String(255), unique=True, nullable=True)
+    username = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())

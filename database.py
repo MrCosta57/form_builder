@@ -2,7 +2,13 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine('postgresql+psycopg2://postgres:andremuna00@localhost:5432/form', pool_size=20, max_overflow=20)
+# DB CONNECTION SETTINGS
+user = "postgres"
+psw = "root"
+ipAddr = "localhost"
+port = "5432"
+dbName = "form"
+engine = create_engine('postgresql+psycopg2://'+user+':'+psw+'@'+ipAddr+':'+port+'/'+dbName, pool_size=15, max_overflow=50)
 
 Base = declarative_base()
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))

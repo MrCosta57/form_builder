@@ -86,7 +86,7 @@ def init():
 
 def create_admin_user():
     user_datastore.create_user(id=0, email="admin@db.com", password=hash_password("password"),
-                               name="Admin", surname="Admin", date=date.today())
+                               username="admin", name="Admin", surname="Admin", date=datetime.now())
     db_session.commit()
 
 
@@ -325,10 +325,18 @@ def user_profile():
     # TODO: da vedere, es filter_by(current_user=username)
     return render_template("profile.html", user=user_query)
 
+
 #   Stampare lista:
 #   {% for u in user %}
 #   <li>{{u.name}}</li>
 #   {% endfor %}
+
+@app.route("/edit_profile")
+@auth_required()
+def Edit(request):
+    drinker = request.user.get_profile()
+    context = {'drinker': drinker}
+    return render_to_response('edit.html', context, context_instance=RequestContext(request))
 
 
 if __name__ == '__main__':
