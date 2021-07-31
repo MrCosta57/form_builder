@@ -20,7 +20,7 @@ from datetime import date, datetime
 app = Flask(__name__)
 init_db()
 
-# ELENCO CONFIG
+# LIST OF CONFIGS
 app.config['DEBUG'] = True
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 465
@@ -61,7 +61,6 @@ class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
 # Linking flask-security with user and role table
 user_datastore = SQLAlchemySessionUserDatastore(db_session, Users, Roles)
 
-
 security = Security(app, user_datastore, confirm_register_form=ExtendedConfirmRegisterForm)
 mail = Mail(app)
 babel = Babel(app)
@@ -91,46 +90,46 @@ def create_admin_user():
 
 
 def populate_tags():
-    db_session.add_all([Tags(id=0, argument="Informazioni personali"),
-                        Tags(id=1, argument="Organizzazione"),
-                        Tags(id=2, argument="Altro"),
-                        Tags(id=3, argument="Scuola"),
-                        Tags(id=4, argument="Lavoro"),
-                        Tags(id=5, argument="Animali"),
-                        Tags(id=6, argument="Scienza"),
-                        Tags(id=7, argument="Viaggio"),
-                        Tags(id=8, argument="Ambiente"),
-                        Tags(id=9, argument="Sondaggi")])
+    db_session.add_all([Tags(argument="Informazioni personali"),
+                        Tags(argument="Organizzazione"),
+                        Tags(argument="Altro"),
+                        Tags(argument="Scuola"),
+                        Tags(argument="Lavoro"),
+                        Tags(argument="Animali"),
+                        Tags(argument="Scienza"),
+                        Tags(argument="Viaggio"),
+                        Tags(argument="Ambiente"),
+                        Tags(argument="Sondaggi")])
     db_session.commit()
 
 
 def init_base_question():
-    db_session.add_all([Questions(id=0, text="Nome"),
-                        Questions(id=1, text="Cognome"),
-                        Questions(id=2, text="Data Nascita"),
-                        Questions(id=3, text="Età"),
-                        Questions(id=4, text="Fascia d'età"),
-                        Questions(id=5, text="Lavoro"),
-                        Questions(id=6, text="Sesso"),
-                        Questions(id=7, text="Mail"),
-                        Questions(id=8, text="Paese di residenza"),
-                        Questions(id=9, text="Via residenza"),
-                        Questions(id=10, text="Inserisci l'orario che preferisci"),
-                        Questions(id=11, text="Inserisci una data che preferisci"),
-                        Questions(id=12, text="In quanti parteciperete?"),
-                        Questions(id=13, text="Inserisci il giorno che preferisci"),
-                        Questions(id=14, text="Scegli due giorni della settimana che preferisci"),
-                        Questions(id=15, text="parteciperai all'evento?"),
-                        Questions(id=16, text="Inserisci un breve commento"),
-                        Questions(id=17, text="Valuta questo sondaggio"),
-                        Questions(id=18, text="Come hai conosciuto questo evento?"),
-                        Questions(id=19, text="Hai intolleranze alimentari, se si quali?"),
-                        Questions(id=20, text="Che corsi hai seguito? "),
-                        Questions(id=21, text="che materie studi?"),
-                        Questions(id=22, text="Fai la raccolta differenziata?"),
-                        Questions(id=23, text="Quali stati hai visitato?"),
-                        Questions(id=24, text="Possiedi animali?"),
-                        Questions(id=25, text="Animale preferito")])
+    db_session.add_all([Questions(text="Nome"),
+                        Questions(text="Cognome"),
+                        Questions(text="Data Nascita"),
+                        Questions(text="Età"),
+                        Questions(text="Fascia d'età"),
+                        Questions(text="Lavoro"),
+                        Questions(text="Sesso"),
+                        Questions(text="Mail"),
+                        Questions(text="Paese di residenza"),
+                        Questions(text="Via residenza"),
+                        Questions(text="Inserisci l'orario che preferisci"),
+                        Questions(text="Inserisci una data che preferisci"),
+                        Questions(text="In quanti parteciperete?"),
+                        Questions(text="Inserisci il giorno che preferisci"),
+                        Questions(text="Scegli due giorni della settimana che preferisci"),
+                        Questions(text="parteciperai all'evento?"),
+                        Questions(text="Inserisci un breve commento"),
+                        Questions(text="Valuta questo sondaggio"),
+                        Questions(text="Come hai conosciuto questo evento?"),
+                        Questions(text="Hai intolleranze alimentari, se si quali?"),
+                        Questions(text="Che corsi hai seguito? "),
+                        Questions(text="che materie studi?"),
+                        Questions(text="Fai la raccolta differenziata?"),
+                        Questions(text="Quali stati hai visitato?"),
+                        Questions(text="Possiedi animali?"),
+                        Questions(text="Animale preferito")])
     db_session.commit()
 
     db_session.add_all([OpenQuestions(id=0),
@@ -301,6 +300,27 @@ def form():
     return render_template("forms_list.html", user=user_query, forms=form)
 
 
+@app.route("/form/form_create", methods=['GET', 'POST'])
+def form_create():
+    if request.method == "POST":
+        req = request.form
+        nome = req.get("name")
+        descrizione = req.get("description")
+        db_session.add(Forms(name=nome, dataCreation=date.today(),
+                             description=descrizione,
+                             creator_id=current_user.id))
+        db_session.commit()
+        return redirect(url_for('form'))
+
+    return render_template("form_create.html", user=current_user)
+
+
+@app.route("/form/<form_id>/add_question")
+def form_add_question(form_id):
+    form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    return render_template("add_question.html", form=form)
+
+
 @app.route("/form/<form_id>/edit")
 @auth_required()
 def form_edit(form_id):
@@ -323,9 +343,7 @@ def form_view(form_id):
 def user_profile():
     # pagina che mostra le info utente, da vedere se crearne un'altra per la modifica delle info
     # query che ricava le info dal current user e le passa alla pagina profile.html
-    user_query = db_session.query(Users).filter(Users.id == current_user.id).first()
-    # TODO: da vedere, es filter_by(current_user=username)
-    return render_template("profile.html", user=user_query)
+    return render_template("profile.html", user=current_user)
 
 
 #   Stampare lista:
@@ -333,12 +351,12 @@ def user_profile():
 #   <li>{{u.name}}</li>
 #   {% endfor %}
 
-@app.route("/edit_profile")
-@auth_required()
-def Edit(request):
-    drinker = request.user.get_profile()
-    context = {'drinker': drinker}
-    return render_to_response('edit.html', context, context_instance=RequestContext(request))
+# @app.route("/edit_profile")
+# @auth_required()
+# def Edit(request):
+#    drinker = request.user.get_profile()
+#    context = {'drinker': drinker}
+#    return render_to_response('edit.html', context, context_instance=RequestContext(request))
 
 
 if __name__ == '__main__':

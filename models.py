@@ -7,14 +7,14 @@ from sqlalchemy import Boolean, DateTime, Column, Integer, \
 
 class Roles(Base, RoleMixin):
     __tablename__ = 'roles'
-    id = Column(Integer(), primary_key=True)
+    id = Column(Integer(), primary_key=True, autoincrement=True)
     name = Column(String(80), unique=True)
     description = Column(String(255))
 
 
 class Users(Base, UserMixin):
     __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     surname = Column(String(255), nullable=False)
     date = Column(DateTime(), nullable=False)
@@ -38,7 +38,7 @@ class Users(Base, UserMixin):
 
 class Forms(Base):
     __tablename__ = 'forms'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255))
     dataCreation = Column(DateTime())
     description = Column(String(255))
@@ -78,7 +78,7 @@ class FormsQuestions(Base):
 
 class Tags(Base):
     __tablename__ = 'tags'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     argument = Column(String(255))
 
     questions = relationship('Questions', secondary='tags_questions', back_populates='tags')
@@ -86,7 +86,7 @@ class Tags(Base):
 
 class Questions(Base):
     __tablename__ = 'questions'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     file = Column(String(255))
     text = Column(String(255))
 
@@ -130,7 +130,7 @@ class PossibleAnswersM(Base):
 
 class Answers(Base):
     __tablename__ = 'answers'
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     form_id = Column(Integer, ForeignKey(Forms.id), nullable=False)
     question_id = Column(Integer, ForeignKey(Questions.id), nullable=False)
 
