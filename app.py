@@ -18,7 +18,9 @@ from datetime import date, datetime
 # Create app, setup Babel communication and Mail configuration
 
 app = Flask(__name__)
+init_db()
 
+# ELENCO CONFIG
 app.config['DEBUG'] = True
 app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
 app.config['MAIL_PORT'] = 465
@@ -27,35 +29,26 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_USERNAME'] = 'Info.progbd.dblegends@gmail.com'
 app.config['MAIL_PASSWORD'] = 'db_legends00'
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
-
-# Generate a nice key using secrets.token_urlsafe()
-app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
-# Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
-# Generate a good salt using: secrets.SystemRandom().getrandbits(128)
-app.config['SECURITY_PASSWORD_SALT'] = os.environ.get("SECURITY_PASSWORD_SALT")
-
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECURITY_CONFIRMABLE'] = True
 # app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
 app.config['SECURITY_POST_LOGIN_VIEW'] = '/form'
 # app.config['SECURITY_RECOVERABLE'] = True
 # app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
-
-mail = Mail(app)
-babel = Babel(app)
-
-# Monkeypatching Flask-babelex
-babel.domain = 'flask_user'
-babel.translation_directories = 'translations'
-# SETUP FLASK_SECURITY => .env file
+# Generate a nice key using secrets.token_urlsafe()
 
 if not os.path.isfile('.env'):
     confFile = open('.env', 'w')
     confFile.write('SECRET_KEY=' + str(secrets.token_urlsafe()) + '\n')
+    # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
+    # Generate a good salt using: secrets.SystemRandom().getrandbits(128)
     confFile.write('SECURITY_PASSWORD_SALT=' + str(secrets.SystemRandom().getrandbits(128)))
     confFile.close()
 
 load_dotenv()
+
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
 
 
 class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
@@ -65,11 +58,17 @@ class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
     username = TextField('Username', [Required()])
 
 
-init_db()
-
 # Linking flask-security with user and role table
 user_datastore = SQLAlchemySessionUserDatastore(db_session, Users, Roles)
+
+
 security = Security(app, user_datastore, confirm_register_form=ExtendedConfirmRegisterForm)
+mail = Mail(app)
+babel = Babel(app)
+
+# Monkeypatching Flask-babelex
+babel.domain = 'flask_user'
+babel.translation_directories = 'translations'
 
 
 @app.before_first_request
@@ -86,7 +85,8 @@ def init():
 
 def create_admin_user():
     user_datastore.create_user(id=0, email="admin@db.com", password=hash_password("password"),
-                               username="admin", name="Admin", surname="Admin", date=datetime.now())
+                               username="admin", name="Admin", surname="Admin", date=datetime.now(),
+                               confirmed_at=datetime.now())
     db_session.commit()
 
 
