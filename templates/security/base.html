@@ -13,8 +13,8 @@
 
         {%- block styles %}
             <!--styles -->
-            <link href="../static/css/bootstrap.css" rel="stylesheet">
-            <link href="../static/css/style.css" type="text/css" rel="stylesheet"/>
+            <link href="/static/css/bootstrap.css" rel="stylesheet">
+            <link href="/static/css/style.css" type="text/css" rel="stylesheet"/>
 
             <!-- The HTML5 shim, for IE6-8 support of HTML5 elements -->
             <!--[if lt IE 9]>
@@ -29,7 +29,7 @@
         <section id="page-header" class="parallax">
             <div class="overlay"></div>
             <div class="container">
-                <h1>Access Page</h1>
+                <h1>{% block main_title %}{{ title|default }}{% endblock main_title %}</h1>
             </div>
         </section>
         <!--End page-header -->

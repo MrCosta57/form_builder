@@ -1,0 +1,26 @@
+{% extends "/security/base.html" %}
+{% block title %}Form Create{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome {{user.name}}</h1>
+    </div>
+
+    <div class="container">
+        <div class="form-group">
+            <div class="input-group">
+                <form method="POST" name="create_form">
+                    <div class="form-group">
+                        <label>Nome Form</label><br>
+                        <input type="text" id="name" name="name" class="form-control"><br><br>
+
+                        <label>Descrizione Form</label><br>
+                        <input type="text" id="description" name="description" class="form-control"><br><br>
+                    </div>
+                    <input type="submit" value="Submit" class="btn btn-primary"><br><br>
+                </form>
+                <br><br><br><br>
+            </div>
+        </div>
+    </div>
+{% endblock %}

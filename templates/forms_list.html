@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "/security/base.html" %}
 {% block title %}Forms{% endblock %}
 
 {% block content %}
@@ -12,6 +12,9 @@
         {% for f in forms %}
         <li><a href="/form/{{f.id}}/viewform">{{f.name}}</a></li>
         {% endfor %}
+    </div>
+    <div class="container">
+        <a href="/form/form_create">CREA FORM</a>
     </div>
     <br><br><br>
 {% endblock %}
