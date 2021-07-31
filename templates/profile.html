@@ -1,17 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User Profile</title>
-</head>
+{% extends "base.html" %}
+{% block title %}User Profile{% endblock %}
 
-<body>
-    <div>
+{% block content %}
+    <div class="container">
     <h1>Welcome {{user.name}}</h1>
         <h4>These are your profile information</h4><br>
     </div>
 
-    <div>
+    <div class="container">
         <p><b>Name:</b> {{user.name}}</p>
         <p><b>Surname:</b> {{user.name}}</p>
         <p><b>Birthday Date:</b> {{user.date}}</p>
@@ -19,6 +15,4 @@
         <p><b>Email:</b> {{user.email}}</p>
         <p><a href="/edit_profile/">Edit Profile</a>
     </div>
-
-</body>
-</html>
+{% endblock %}

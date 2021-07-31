@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Forms{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>Welcome {{user.name}}</h1>
+        <h4>This is the form: <b>{{form.name}}. Here the questions:</b></h4><br>
+    </div>
+
+    <div class="container">
+        <div class="form-group">
+            <div class="input-group">
+                <form action="" method="POST" name="change_password_form">
+                    {% for q in questions %}
+                    <div class="form-group">
+                        <label>{{q.text}}</label><br>
+
+                        {% if q.open %}
+                            <input type="text" class="form-control"><br><br>
+                        {% elif q.single %}
+                            {% for q1 in q.single%}
+                                <br><br>
+                                {% for a in q1.possible_answers%}
+                                    <label>{{a.content}}</label>
+                                    <input type="radio" name="{{q.id}}"><br><br>
+                                {% endfor %}
+                            {% endfor %}
+                        {% elif q.multiple_choice %}
+                            {% for q1 in q.multiple_choice%}
+                                <br><br>
+                                {% for a in q1.possible_answers%}
+                                    <div class="form-check-group">
+                                        <label>{{a.content}}</label>
+                                        <input type="checkbox" name="{{q.id}}" class="form-check"><br><br>
+                                    </div>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <input type="submit" value="Submit" class="btn btn-primary"><br><br>
+                </form>
+                <br><br><br><br>
+            </div>
+        </div>
+    </div>
+{% endblock %}

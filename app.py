@@ -282,7 +282,7 @@ def template_contacts():
 # HomePage
 @app.route("/")
 def home():
-    return "Ciao da Home page"  # render_template("index.html")
+    return render_template("home_page.html", user=current_user)
 
 
 @app.route("/logout")
@@ -295,9 +295,10 @@ def logout():
 @app.route("/form")
 @auth_required()
 def form():
-    # r1 = db_session.query(Forms.name).where(Forms.creator == current_user)
+    user_query = db_session.query(Users).filter(Users.id == current_user.id).first()
+    form = db_session.query(Forms).filter(Forms.creator_id == user_query.id)
     # Passo al template un oggetto di tipo Form
-    return "Ciao da form (visualizzazione di tutti i form creati e possibilità di crearne di nuovi)"
+    return render_template("forms_list.html", user=user_query, forms=form)
 
 
 @app.route("/form/<form_id>/edit")
@@ -313,7 +314,8 @@ def form_edit(form_id):
 def form_view(form_id):
     # query con form id: ...
     # Passo al template un oggetto di tipo Form, poi nel template farò le query in caso
-    return "Ciao da form_id viewform"
+    form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    return render_template("form.html", user=current_user, questions=form.questions, form=form)
 
 
 @app.route("/profile")

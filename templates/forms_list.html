@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Forms{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+    <h1>Welcome {{user.name}}</h1>
+        <h4>This is the list of the form you created</h4><br>
+    </div>
+
+    <div class="container">
+        {% for f in forms %}
+        <li><a href="/form/{{f.id}}/viewform">{{f.name}}</a></li>
+        {% endfor %}
+    </div>
+    <br><br><br>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}HomePage{% endblock %}
+
+{% block content %}
+    <div class="container">
+    <h1>Welcome {{user.name}}</h1>
+        <h4>Here there are all the useful links:</h4><br>
+        <a href="/profile">PROFILE</a><br>
+        <a href="/form">FORM</a><br>
+        <a href="/login">LOGIN</a><br>
+        <a href="/register">REGISTER</a><br>
+        <a href="{{ url_for_security('send_confirmation') }}">CONFIRM EMAIL</a><br>
+        <a href="/logout">LOGOUT</a><br>
+    </div>
+    <br><br>
+{% endblock %}

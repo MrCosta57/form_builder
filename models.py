@@ -101,6 +101,8 @@ class SingleQuestions(Base):
     __tablename__ = 'single_question'
     idS = Column(Integer, ForeignKey(Questions.id), primary_key=True)
 
+    possible_answers = relationship('PossibleAnswersS')
+
 
 class PossibleAnswersS(Base):
     __tablename__ = 'possible_answers_s'
@@ -116,6 +118,8 @@ class OpenQuestions(Base):
 class MultipleChoiceQuestions(Base):
     __tablename__ = 'multiple_choice_question'
     id = Column(Integer, ForeignKey(Questions.id), primary_key=True)
+
+    possible_answers = relationship('PossibleAnswersM')
 
 
 class PossibleAnswersM(Base):
