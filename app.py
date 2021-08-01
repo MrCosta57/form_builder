@@ -329,12 +329,29 @@ def form_edit(form_id):
     return "Ciao da form_id edit"
 
 
-@app.route("/form/<form_id>/viewform")
+@app.route("/form/<form_id>/viewform", methods=['GET', 'POST'])
 @auth_required()
 def form_view(form_id):
-    # query con form id: ...
-    # Passo al template un oggetto di tipo Form, poi nel template farò le query in caso
     form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    if request.method == "POST":
+        req = request.form
+        for q in form.questions:
+            if not q.multiple_choice:
+                text = [req.get(str(q.id))]
+            else:
+                text = req.getlist(str(q.id))
+            db_session.add(Answers(form_id=form_id, question_id=q.id, user_id=current_user.id))
+            db_session.commit()
+            ans_id = db_session.query(Answers.id).filter(Answers.form_id == form_id).filter(
+                Answers.question_id == q.id).filter(Answers.user_id == current_user.id).first()
+            if text:
+                for t in text:
+                    db_session.add(SeqAnswers(id=ans_id[0], content=t))
+            else:
+                db_session.add(SeqAnswers(id=ans_id[0], content=''))
+            db_session.commit()
+        return redirect(url_for('home'))
+
     return render_template("form.html", user=current_user, questions=form.questions, form=form)
 
 

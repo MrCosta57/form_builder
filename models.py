@@ -133,6 +133,7 @@ class Answers(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     form_id = Column(Integer, ForeignKey(Forms.id), nullable=False)
     question_id = Column(Integer, ForeignKey(Questions.id), nullable=False)
+    user_id = Column(Integer, ForeignKey(Users.id), nullable=False)
 
     question = relationship('Questions', back_populates='answers')
     text = relationship('SeqAnswers', back_populates='info')

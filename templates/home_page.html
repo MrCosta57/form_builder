@@ -6,12 +6,12 @@
     <div class="container">
     <h1>Welcome {{user.name}}</h1>
         <h4>Here there are all the useful links:</h4><br>
-        <a href="/profile">PROFILE</a><br>
-        <a href="/form">FORM</a><br>
-        <a href="/login">LOGIN</a><br>
-        <a href="/register">REGISTER</a><br>
-        <a href="{{ url_for_security('send_confirmation') }}">CONFIRM EMAIL</a><br>
-        <a href="/logout">LOGOUT</a><br>
+        <a href="/profile"><button type="button" class="btn btn-primary">PROFILE</button></a><br><br><br>
+        <a href="/form"><button type="button" class="btn btn-primary">FORM</button></a><br><br><br>
+        <a href="/login"><button type="button" class="btn btn-primary">LOGIN</button></a><br><br><br>
+        <a href="{{ url_for_security('register') }}"><button type="button" class="btn btn-primary">REGISTER</button></a><br><br><br>
+        <a href="{{ url_for_security('send_confirmation') }}"><button type="button" class="btn btn-primary">CONFIRM EMAIL</button></a><br><br><br>
+        <a href="/logout"><button type="button" class="btn btn-primary">LOGOUT</button></a><br><br><br>
     </div>
     <br><br>
 {% endblock %}
