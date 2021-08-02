@@ -375,11 +375,6 @@ def user_profile():
     return render_template("profile.html", user=current_user)
 
 
-#   Stampare lista:
-#   {% for u in user %}
-#   <li>{{u.name}}</li>
-#   {% endfor %}
-
 # @app.route("/edit_profile")
 # @auth_required()
 # def Edit(request):

@@ -138,6 +138,7 @@ class Answers(Base):
     question = relationship('Questions', back_populates='answers')
     text = relationship('SeqAnswers', back_populates='info')
     form = relationship('Forms', back_populates='answers')
+    user = relationship('Users')
 
 
 class SeqAnswers(Base):
