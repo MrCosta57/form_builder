@@ -288,7 +288,7 @@ def home():
 @auth_required()
 def logout():
     logout_user()
-    return 'Logout Done'
+    return redirect(url_for('home'))
 
 
 @app.route("/form")
@@ -352,7 +352,19 @@ def form_view(form_id):
             db_session.commit()
         return redirect(url_for('home'))
 
-    return render_template("form.html", user=current_user, questions=form.questions, form=form)
+    if current_user.id == form.creator_id:  # TODO: INVERTIRE L'IFF
+        return render_template("form.html", user=current_user, questions=form.questions, form=form)
+    else:
+        return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
+
+
+@app.route("/form/<form_id>/answers")
+@auth_required()
+def form_answers(form_id):
+    answers = db_session.query(Answers).filter(Answers.form_id == form_id)
+    total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(Answers.user_id).count()
+    form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    return render_template("form_answers.html", user=current_user, answers=answers, form=form, total_answers=total_answers)
 
 
 @app.route("/profile")
@@ -373,7 +385,7 @@ def user_profile():
 # def Edit(request):
 #    drinker = request.user.get_profile()
 #    context = {'drinker': drinker}
-#    return render_to_response('edit.html', context, context_instance=RequestContext(request))
+#    return render_to_response('form_edit.html', context, context_instance=RequestContext(request))
 
 
 if __name__ == '__main__':
