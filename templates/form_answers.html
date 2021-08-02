@@ -20,48 +20,94 @@
                             {{t.content}}; &nbsp;&nbsp;&nbsp;&nbsp;
                         {% endfor %}
                     </li>
-                    {% if q.single %}
-                        <canvas id={{q.id}} width="600" height="600"></canvas>
-                        <script>
-                            var ctx = document.getElementById( {{q.id}} ).getContext("2d");
-                            var myChart = new Chart(ctx, {
-                                        type: 'bar',
-                                        data: {
-                                            labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-                                            datasets: [{
-                                                label: '# of Votes',
-                                                data: [12, 19, 3, 5, 2, 3],
-                                                backgroundColor: [
-                                                    'rgba(255, 99, 132, 0.2)',
-                                                    'rgba(54, 162, 235, 0.2)',
-                                                    'rgba(255, 206, 86, 0.2)',
-                                                    'rgba(75, 192, 192, 0.2)',
-                                                    'rgba(153, 102, 255, 0.2)',
-                                                    'rgba(255, 159, 64, 0.2)'
-                                                ],
-                                                borderColor: [
-                                                    'rgba(255, 99, 132, 1)',
-                                                    'rgba(54, 162, 235, 1)',
-                                                    'rgba(255, 206, 86, 1)',
-                                                    'rgba(75, 192, 192, 1)',
-                                                    'rgba(153, 102, 255, 1)',
-                                                    'rgba(255, 159, 64, 1)'
-                                                ],
-                                                borderWidth: 1
-                                            }]
-                                        },
-                                        options: {
-                                            scales: {
-                                                y: {
-                                                    beginAtZero: true
-                                                }
-                                            }
-                                        }
-                                    });
-                        </script>
-                    {% endif %}
+
                 {% endif %}
             {% endfor %}
+            {% if q.single %}
+                <canvas id={{q.id}} width="300" height="300"></canvas>
+                <script>
+                    var ctx = document.getElementById( {{q.id}} ).getContext("2d");
+                    /*crea variabili contatori per ogni tipo ri risposta*/
+                    {% for q1 in q.single %}
+                        {% for x in q1.possible_answers %}
+                            var {{x.content}} = 0
+                        {% endfor %}
+                    {% endfor %}
+
+                    /*aumenta i contatori in base al numero di risposte date*/
+                    {% for a in answers%}
+                        {% if a.question_id == q.id%}
+                            {% for t in a.text %}
+                                {{t.content}}++;
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    var myChart = new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            /*le labels sono i tipi di possibili risposte*/
+                            labels: [{% for q1 in q.single %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
+                            datasets: [{
+                                label: '{{q.text}}',
+                                /*richiama le variabili*/
+                                data: [{% for q1 in q.single %}{% for x in q1.possible_answers %}{{x.content}}, {% endfor %}{% endfor %}],
+                                borderWidth: 1,
+                                backgroundColor: ['Green','Red','Blue','Purple','Orange','Yellow']
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            maintainAspectRatio: false
+                        }
+                    });
+                </script>
+            {% endif %}
+            {% if q.multiple_choice %}
+                <canvas id={{q.id}} width="300" height="300"></canvas>
+                <script>
+                    var ctx = document.getElementById( {{q.id}} ).getContext("2d");
+                    /*crea variabili contatori per ogni tipo ri risposta*/
+                    {% for q1 in q.multiple_choice %}
+                        {% for x in q1.possible_answers %}
+                            var {{x.content}} = 0
+                        {% endfor %}
+                    {% endfor %}
+
+                    /*aumenta i contatori in base al numero di risposte date*/
+                    {% for a in answers%}
+                        {% if a.question_id == q.id%}
+                            {% for t in a.text %}
+                                {{t.content}}++;
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    var myChart = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            /*le labels sono i tipi di possibili risposte*/
+                            labels: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
+                            datasets: [{
+                                label: '{{q.text}}',
+                                /*richiama le variabili*/
+                                data: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}{{x.content}}, {% endfor %}{% endfor %}],
+                                borderWidth: 1,
+                                backgroundColor: ['Green','Red','Blue','Purple','Orange','Yellow','Black']
+                            }]
+                        },
+                        options: {
+                            responsive: false,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    labels: {
+                                        boxWidth: 0,
+                                    }
+                                }
+                            }
+                        }
+                    });
+                </script>
+            {% endif %}
         <br><br>
         {% endfor %}
     </div>

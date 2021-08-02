@@ -118,7 +118,7 @@ def init_base_question():
                         Questions(text="Inserisci una data che preferisci"),
                         Questions(text="In quanti parteciperete?"),
                         Questions(text="Inserisci il giorno che preferisci"),
-                        Questions(text="Scegli due giorni della settimana che preferisci"),
+                        Questions(text="Scegli i giorni della settimana che preferisci"),
                         Questions(text="parteciperai all'evento?"),
                         Questions(text="Inserisci un breve commento"),
                         Questions(text="Valuta questo sondaggio"),
@@ -352,7 +352,7 @@ def form_view(form_id):
             db_session.commit()
         return redirect(url_for('home'))
 
-    if current_user.id == form.creator_id:  # TODO: INVERTIRE L'IFF
+    if True: #TODO: current_user.id != form.creator_id:
         return render_template("form.html", user=current_user, questions=form.questions, form=form)
     else:
         return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
