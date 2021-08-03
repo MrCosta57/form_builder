@@ -1,0 +1,168 @@
+{% extends "/security/base.html" %}
+{% block title %}Forms Answers{% endblock %}
+
+{% block content %}
+    <form name="import_choose" action="#" method="POST" >
+        <div class="container">
+            <h3>Vuoi importare delle domande già create?</h3>
+            <label>
+                <select name="choose" onChange="seleziona_tag(this)">
+                    <option value="" selected> </option>
+                    <option value="si">Si</option>
+                    <option value="no">No</option>
+                </select>
+            </label>
+            <span id="seleziona tag">
+
+            </span>
+            <span id="nuovo tag">
+
+            </span>
+            <span id ="seleziona tipo di domanda">
+
+            </span>
+            <span id="inserisci domanda">
+
+            </span>
+            <span id="inserisci possibili risposte">
+
+            </span>
+            <span id="submit">
+
+            </span>
+        </div>
+    </form>
+    	<script type='text/javascript'>
+            var v_choose = null;
+
+            function seleziona_tag(choose) {
+                v_choose = choose.value;
+                var box = document.getElementById('seleziona tag');
+                var box2 = document.getElementById('nuovo tag');
+                var box3 = document.getElementById('seleziona tipo di domanda');
+                var box4 = document.getElementById('inserisci domanda');
+                var box5 = document.getElementById('inserisci possibili risposte');
+                var box6 = document.getElementById('submit');
+                box2.innerHTML = '';
+                box3.innerHTML = '';
+                box4.innerHTML = '';
+                box5.innerHTML = '';
+                box6.innerHTML = '';
+
+                if (v_choose === "si") {
+                    box.innerHTML = '<h3>Seleziona argomento domanda</h3>' +
+                        '<select name="tag_choose" onChange="inserisci_domanda(this)">\n' +
+                        '                <option value="" selected> </option>\n' +
+                        '                {% for t in tags %}\n' +
+                        '                <option value="{{t.argument}}">{{t.argument}}</option>\n' +
+                        '                {% endfor %}\n' +
+                        '            </select>';
+                } else if(v_choose === "no") {
+                    box.innerHTML = '<h3>Seleziona argomento domanda</h3>' +
+                        '<select name="tag_choose" onChange="nuovo_tag(this); tipo_domanda()">\n' +
+                        '                <option value="" selected> </option>\n' +
+                        '                {% for t in tags %}\n' +
+                        '                <option value="{{t.argument}}">{{t.argument}}</option>\n' +
+                        '                {% endfor %}\n' +
+                        '                <option value="nuovo">Nuovo</option>\n' +
+                        '            </select>';
+                }
+            }
+
+            function nuovo_tag(tag_choose) {
+                var v_tag = tag_choose.value;
+                var box = document.getElementById('nuovo tag');
+                var box2 = document.getElementById('inserisci domanda');
+                var box3 = document.getElementById('inserisci possibili risposte');
+                var box4 = document.getElementById('submit');
+                box2.innerHTML = '';
+                box3.innerHTML = '';
+                box4.innerHTML = '';
+                if (v_tag === "nuovo") {
+                    box.innerHTML = '<h3>Inserisci nuovo tag</h3>' +
+                        '<input type="text" class="form-control" id="tag_aggiunto" name="tag_aggiunto"><br><br>';
+                } else {
+                    box.innerHTML = '';
+                }
+            }
+
+            function tipo_domanda() {
+                var box = document.getElementById('seleziona tipo di domanda');
+                var box2 = document.getElementById('inserisci domanda');
+                var box3 = document.getElementById('inserisci possibili risposte');
+                var box4 = document.getElementById('submit');
+                box2.innerHTML = '';
+                box3.innerHTML = '';
+                box4.innerHTML = '';
+                if (v_choose === "no") {
+                    box.innerHTML = '<h3>Seleziona tipo domanda</h3>' +
+                        '<label>\n' +
+                        '                <select name="tipo_domanda" onChange="inserisci_domanda(this)">\n' +
+                        '                    <option value="" selected> </option>\n' +
+                        '                    <option value="open">open</option>\n' +
+                        '                    <option value="single">single</option>\n' +
+                        '                    <option value="multiple_choice">multiple choice</option>\n' +
+                        '                </select>\n' +
+                        '            </label>';
+                } else {
+                    box.innerHTML = '';
+                }
+            }
+
+            function inserisci_domanda(tipo) {
+                var box = document.getElementById('inserisci domanda');
+                var box2 = document.getElementById('inserisci possibili risposte');
+                var box3 = document.getElementById('submit');
+                box2.innerHTML = '';
+                box3.innerHTML = '';
+                if (v_choose === "no") {
+                    var tipo = tipo.value;
+                    box.innerHTML = '<h3>Inserisci testo domanda</h3>' +
+                        '<input type="text" class="form-control" id="text_question" name="text_question"><br><br>';
+                    if(tipo === 'single' || tipo === 'multiple_choice'){
+                        box.innerHTML+= '<h3>Quante possibili risposte vuoi mettere?</h3>' +
+                            '<input type="text" class="form-control" id="number_answers" name="number_answers" onKeyUp="possibili_risposte(this); submit_f()"><br><br>';
+                    }
+                } else {
+                    var tag = tipo.value;
+                    var str = '<h3>Seleziona domanda</h3>' +
+                        '<select name="question_choose" onChange="submit_f()">\n'+
+                        '<option value="" selected> </option>\n';
+                    {% for q in questions %}
+                        {% for t in q.tags %}
+                            if( '{{t.argument}}' === tag){
+                                str +='<option value="{{q.id}}">{{q.text}}</option>\n';
+                            }
+                        {% endfor %}
+                    {% endfor %}
+
+                    str +='</select>';
+                    box.innerHTML = str;
+                }
+
+            }
+
+            function possibili_risposte(number) {
+                var box = document.getElementById('inserisci possibili risposte');
+                var v_number = number.value;
+                if(v_number===""){
+                    box.innerHTML='';
+                }else{
+                    if(isNaN(v_number)===true){
+                        box.innerHTML='';
+                    }else{
+                        var righe = "";
+                        for(i=1; i<=v_number; i++){
+                            righe = righe + "Risposta n° "+i+" : <input class = 'form-control' type='text' name='"+i+"'/><br/>";
+                        }
+                        box.innerHTML=righe;
+                    }
+                }
+            }
+
+            function submit_f() {
+                var box = document.getElementById('submit');
+                box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>'
+            }
+        </script>
+{% endblock %}
