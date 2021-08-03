@@ -19,9 +19,9 @@
                     {{ render_field_with_errors(register_user_form.password_confirm, class_="form-control") }}
                     {% endif %}
                     {{ render_field(register_user_form.submit, class="btn btn-primary") }}
+                    <br>Already signed up? Please <a href="{{ url_for('security.login') }}">log in</a>.
+                    <br><br>
                 </form>
-                <p>Already signed up? Please <a href="{{ url_for('security.login') }}">log in</a>.
-                </p>
             </div>
         </div>
     </div>

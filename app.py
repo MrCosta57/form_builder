@@ -31,10 +31,10 @@ app.config['MAIL_PASSWORD'] = 'db_legends00'
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECURITY_CONFIRMABLE'] = True
-# app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
-app.config['SECURITY_POST_LOGIN_VIEW'] = '/form'
-# app.config['SECURITY_RECOVERABLE'] = True
-# app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
+app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
+app.config['SECURITY_POST_LOGIN_VIEW'] = '/'
+app.config['SECURITY_RECOVERABLE'] = True
+app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
 # Generate a nice key using secrets.token_urlsafe()
 
 if not os.path.isfile('.env'):
@@ -353,7 +353,7 @@ def form_add_question(form_id):
 
                 number = req.get("number_answers")
 
-                for i in range(1, int(number)+1):
+                for i in range(1, int(number) + 1):
                     cont = req.get(str(i))
                     db_session.add(PossibleAnswersS(idPosAnswS=id_q, content=cont))
                 db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
@@ -367,12 +367,13 @@ def form_add_question(form_id):
 
                 number = req.get("number_answers")
 
-                for i in range(1, int(number)+1):
+                for i in range(1, int(number) + 1):
                     cont = req.get(str(i))
                     db_session.add(PossibleAnswersM(idPosAnswM=id_q, content=cont))
                 db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
             db_session.commit()
         return redirect(url_for('form_edit', form_id=form_id))
+
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)
     return render_template("question_add.html", form=form, tags=tags, questions=questions)
@@ -408,7 +409,7 @@ def form_view(form_id):
             db_session.commit()
         return redirect(url_for('home'))
 
-    if True: #TODO: current_user.id != form.creator_id:
+    if current_user.id != form.creator_id:
         return render_template("form.html", user=current_user, questions=form.questions, form=form)
     else:
         return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
@@ -418,9 +419,11 @@ def form_view(form_id):
 @auth_required()
 def form_answers(form_id):
     answers = db_session.query(Answers).filter(Answers.form_id == form_id)
-    total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(Answers.user_id).count()
+    total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
+        Answers.user_id).count()
     form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    return render_template("form_answers.html", user=current_user, answers=answers, form=form, total_answers=total_answers)
+    return render_template("form_answers.html", user=current_user, answers=answers, form=form,
+                           total_answers=total_answers)
 
 
 @app.route("/profile")
@@ -429,14 +432,6 @@ def user_profile():
     # pagina che mostra le info utente, da vedere se crearne un'altra per la modifica delle info
     # query che ricava le info dal current user e le passa alla pagina profile.html
     return render_template("profile.html", user=current_user)
-
-
-# @app.route("/edit_profile")
-# @auth_required()
-# def Edit(request):
-#    drinker = request.user.get_profile()
-#    context = {'drinker': drinker}
-#    return render_to_response('form_edit.html', context, context_instance=RequestContext(request))
 
 
 if __name__ == '__main__':

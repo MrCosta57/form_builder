@@ -13,14 +13,13 @@
                         {{ render_field_with_errors(login_user_form.email, class_="form-control") }}
                         {{ render_field_with_errors(login_user_form.password, class_="form-control input-password") }}
                         {{ render_field_with_errors(login_user_form.remember, class_="form-check") }}
-                        <br>
                         {{ render_field_errors(login_user_form.csrf_token) }}
                         <br>
-                        {{ render_field(login_user_form.submit, class="btn btn-primary") }}
+                        {{ render_field(login_user_form.submit, class="btn btn-primary") }}<br>
+                        <a href="{{ url_for_security('forgot_password', _external=True) }}">Forgot password?</a><br>
+                        Not yet signed up? Please <a href="{{url_for('security.register') }}">register for an account</a>.
+                        <br><br>
                     </form>
-                    <p>
-                    Not yet signed up? Please <a href="{{url_for('security.register') }}">register for an account</a>.
-                    </p>
                 </div>
             </div>
         </div>

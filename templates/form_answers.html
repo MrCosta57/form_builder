@@ -27,10 +27,11 @@
                 <canvas id={{q.id}} width="300" height="300"></canvas>
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
-                    /*crea variabili contatori per ogni tipo ri risposta*/
+                    /*crea variabili contatori per ogni tipo di risposta*/
                     {% for q1 in q.single %}
                         {% for x in q1.possible_answers %}
-                            var {{x.content}} = 0
+                            //Codice python per la creazione di variabili "lecite"
+                            var _{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %} = 0
                         {% endfor %}
                     {% endfor %}
 
