@@ -39,21 +39,29 @@
                     {% for a in answers%}
                         {% if a.question_id == q.id%}
                             {% for t in a.text %}
-                                {{t.content}}++;
+                                _{% for c in t.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}++;
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
                     var myChart = new Chart(ctx, {
-                        type: 'pie',
+                        type: 'doughnut',
                         data: {
                             /*le labels sono i tipi di possibili risposte*/
                             labels: [{% for q1 in q.single %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
                             datasets: [{
                                 label: '{{q.text}}',
                                 /*richiama le variabili*/
-                                data: [{% for q1 in q.single %}{% for x in q1.possible_answers %}{{x.content}}, {% endfor %}{% endfor %}],
+                                data: [{% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
                                 borderWidth: 1,
-                                backgroundColor: ['Green','Red','Blue','Purple','Orange','Yellow']
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.4)',
+                                    'rgba(54, 162, 235, 0.4)',
+                                    'rgba(255, 206, 86, 0.4)',
+                                    'rgba(75, 192, 192, 0.4)',
+                                    'rgba(153, 102, 255, 0.4)',
+                                    'rgba(255, 159, 64, 0.4)',
+                                    'rgba(238, 130, 238, 0.4)'
+                                ]
                             }]
                         },
                         options: {
@@ -70,7 +78,7 @@
                     /*crea variabili contatori per ogni tipo ri risposta*/
                     {% for q1 in q.multiple_choice %}
                         {% for x in q1.possible_answers %}
-                            var {{x.content}} = 0
+                            var _{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %} = 0
                         {% endfor %}
                     {% endfor %}
 
@@ -78,7 +86,7 @@
                     {% for a in answers%}
                         {% if a.question_id == q.id%}
                             {% for t in a.text %}
-                                {{t.content}}++;
+                                _{% for c in t.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}++;
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
@@ -90,9 +98,17 @@
                             datasets: [{
                                 label: '{{q.text}}',
                                 /*richiama le variabili*/
-                                data: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}{{x.content}}, {% endfor %}{% endfor %}],
+                                data: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
                                 borderWidth: 1,
-                                backgroundColor: ['Green','Red','Blue','Purple','Orange','Yellow','Black']
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.4)',
+                                    'rgba(54, 162, 235, 0.4)',
+                                    'rgba(255, 206, 86, 0.4)',
+                                    'rgba(75, 192, 192, 0.4)',
+                                    'rgba(153, 102, 255, 0.4)',
+                                    'rgba(255, 159, 64, 0.4)',
+                                    'rgba(238, 130, 238, 0.4)'
+                                ]
                             }]
                         },
                         options: {

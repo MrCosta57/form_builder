@@ -10,9 +10,32 @@
 
     <div class="container">
         {% for f in forms %}
-        <li><a href="/form/{{f.id}}/viewform">{{f.name}}</a>&nbsp;&nbsp;&nbsp;
+        <li>{{f.name}}&nbsp;&nbsp;&nbsp;
             <a href="/form/{{f.id}}/edit"><button type="button" class="btn btn-primary">EDIT</button></a>&nbsp;&nbsp;&nbsp;
-            <a href="/form/{{f.id}}/answers"><button type="button" class="btn btn-primary">ANSWERS</button></a>
+            <a href="/form/{{f.id}}/answers"><button type="button" class="btn btn-primary">ANSWERS</button></a>&nbsp;&nbsp;&nbsp;
+            <button onclick="copyToClipboard{{f.id}}('http://127.0.0.1:5000/form/{{f.id}}/viewform')" type="button" class="btn btn-primary">COPY SHAREABLE LINK</button>
+            <script>
+                const copyToClipboard{{f.id}} = str => {
+                      const el = document.createElement('textarea');
+                      el.value = str;
+                      el.setAttribute('readonly', '');
+                      el.style.position = 'absolute';
+                      el.style.left = '-9999px';
+                      document.body.appendChild(el);
+                      const selected =
+                        document.getSelection().rangeCount > 0
+                          ? document.getSelection().getRangeAt(0)
+                          : false;
+                      el.select();
+                      document.execCommand('copy');
+                      document.body.removeChild(el);
+                      if (selected) {
+                        document.getSelection().removeAllRanges();
+                        document.getSelection().addRange(selected);
+                      }
+                      alert('Copied: '+ str);
+                    };
+            </script>
         </li>
         <br><br>
         {% endfor %}

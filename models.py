@@ -33,7 +33,6 @@ class Users(Base, UserMixin):
 
     roles = relationship('Roles', secondary='roles_users', backref=backref('users', lazy='dynamic'))
     forms_created = relationship('Forms', back_populates='creator')
-    answered_forms = relationship('Forms', secondary='filled_by', back_populates='user_answer')
 
 
 class Forms(Base):
@@ -45,7 +44,6 @@ class Forms(Base):
     creator_id = Column(Integer, ForeignKey(Users.id), nullable=False)
 
     creator = relationship('Users', back_populates="forms_created")
-    user_answer = relationship('Users', secondary='filled_by', back_populates='answered_forms')
     questions = relationship('Questions', secondary='forms_questions')
     answers = relationship('Answers', back_populates='form')
 

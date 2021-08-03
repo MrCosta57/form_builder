@@ -392,6 +392,11 @@ def form_view(form_id):
     form = db_session.query(Forms).filter(Forms.id == form_id).first()
     if request.method == "POST":
         req = request.form
+        exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
+            Answers.user_id == current_user.id).first()
+        print(exist_answers)
+        if exist_answers:
+            return render_template("error.html", message="Hai già compilato questo form")
         for q in form.questions:
             if not q.multiple_choice:
                 text = [req.get(str(q.id))]
