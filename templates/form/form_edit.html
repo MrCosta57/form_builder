@@ -12,7 +12,7 @@
     <div class="container">
         <ol>
         {% for q in questions %}
-            <li>{{q.text}}</li><br>
+            <li>{{q.text}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/form/{{form.id}}/{{q.id}}"><button type="button" class="btn btn-primary">EDIT QUESTION</button></a></li><br>
             {% if q.single %}
                 {% for q1 in q.single%}
                     <br>
