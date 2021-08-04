@@ -24,6 +24,9 @@
             <span id="inserisci domanda">
 
             </span>
+            <span id ="mostra domanda">
+
+            </span>
             <span id="inserisci possibili risposte">
 
             </span>
@@ -41,13 +44,15 @@
                 var box2 = document.getElementById('nuovo tag');
                 var box3 = document.getElementById('seleziona tipo di domanda');
                 var box4 = document.getElementById('inserisci domanda');
-                var box5 = document.getElementById('inserisci possibili risposte');
-                var box6 = document.getElementById('submit');
+                var box5 = document.getElementById('mostra domanda');
+                var box6 = document.getElementById('inserisci possibili risposte');
+                var box7 = document.getElementById('submit');
                 box2.innerHTML = '';
                 box3.innerHTML = '';
                 box4.innerHTML = '';
                 box5.innerHTML = '';
                 box6.innerHTML = '';
+                box7.innerHTML = '';
 
                 if (v_choose === "si") {
                     box.innerHTML = '<h3>Select the question tag argument</h3>' +
@@ -73,11 +78,13 @@
                 var v_tag = tag_choose.value;
                 var box = document.getElementById('nuovo tag');
                 var box2 = document.getElementById('inserisci domanda');
+                var box5 = document.getElementById('mostra domanda');
                 var box3 = document.getElementById('inserisci possibili risposte');
                 var box4 = document.getElementById('submit');
                 box2.innerHTML = '';
                 box3.innerHTML = '';
                 box4.innerHTML = '';
+                box5.innerHTML = '';
                 if (v_tag === "nuovo") {
                     box.innerHTML = '<h3>Insert the new tag argument</h3>' +
                         '<input type="text" class="form-control" id="tag_aggiunto" name="tag_aggiunto"><br><br>';
@@ -89,11 +96,13 @@
             function tipo_domanda() {
                 var box = document.getElementById('seleziona tipo di domanda');
                 var box2 = document.getElementById('inserisci domanda');
+                var box5 = document.getElementById('mostra domanda');
                 var box3 = document.getElementById('inserisci possibili risposte');
                 var box4 = document.getElementById('submit');
                 box2.innerHTML = '';
                 box3.innerHTML = '';
                 box4.innerHTML = '';
+                box5.innerHTML = '';
                 if (v_choose === "no") {
                     box.innerHTML = '<h3>Select a question type</h3>' +
                         '<label>\n' +
@@ -113,8 +122,10 @@
                 var box = document.getElementById('inserisci domanda');
                 var box2 = document.getElementById('inserisci possibili risposte');
                 var box3 = document.getElementById('submit');
+                var box4 = document.getElementById('mostra domanda');
                 box2.innerHTML = '';
                 box3.innerHTML = '';
+                box4.innerHTML = '';
                 if (v_choose === "no") {
                     var tipo = tipo.value;
                     if(tipo === 'open')
@@ -134,7 +145,9 @@
                     {% for q in questions %}
                         {% for t in q.tags %}
                             if( '{{t.argument}}' === tag){
-                                str +='<option value="{{q.id}}">{{q.text}}</option>\n';
+                                {% if q not in form.questions%}
+                                    str +='<option value="{{q.id}}">{{q.text}}</option>\n';
+                                {% endif %}
                             }
                         {% endfor %}
                     {% endfor %}
@@ -143,6 +156,33 @@
                     box.innerHTML = str;
                 }
 
+            }
+            function mostra_domanda(id) {
+                var box = document.getElementById('mostra domanda');
+                var id_q = id.value;
+                {% for q in questions %}
+                    if({{q.id}} == id_q){
+                        box.innerHTML = '<p><b>Question Peview:</b><br>{{q.text}}</p>\n'+
+                        '            {% if q.single %}\n' +
+                        '                {% for q1 in q.single%}\n'+
+                        '                    <ul>\n' +
+                        '                    {% for a in q1.possible_answers%}\n' +
+                        '                        <li >{{a.content}}</li>\n' +
+                        '                    {% endfor %}\n' +
+                        '                    </ul>\n' +
+                        '                {% endfor %}\n' +
+                        '            {% elif q.multiple_choice %}\n' +
+                        '                {% for q1 in q.multiple_choice%}\n' +
+                        '                    <ul type="square">\n' +
+                        '                    {% for a in q1.possible_answers%}\n' +
+                        '                        <li >{{a.content}}</li>\n' +
+                        '                    {% endfor %}\n' +
+                        '                    </ul>\n' +
+                        '                {% endfor %}\n' +
+                        '            {% endif %}\n' +
+                            '<br>';
+                    }
+                {% endfor %}
             }
 
             function possibili_risposte(number) {

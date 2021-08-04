@@ -94,19 +94,32 @@ def form_create():
     if request.method == "POST":
         req = request.form
         # TODO: controllare che non esiste un form dello stesso utente con lo stesso nome
+        choose = req.get("choose")
         nome = req.get("name")
         exist_form = db_session.query(Forms).filter(Forms.name == nome).filter(
-            Forms.user_id == current_user.id).first()
+            Forms.creator_id == current_user.id).first()
         if exist_form:
             return render_template("error.html", message="Hai già creato un form con questo nome")
         descrizione = req.get("description")
-        db_session.add(Forms(name=nome, dataCreation=date.today(),
-                             description=descrizione,
-                             creator_id=current_user.id))
-        db_session.commit()
-        return redirect(url_for('form'))
+        if choose == "si":
+            template = req.get("template")
+            if template == "party":
+                template_party(current_user.id, nome, descrizione)
+            if template == "events":
+                template_events(current_user.id, nome, descrizione)
+            if template == "info":
+                template_contacts(current_user.id, nome, descrizione)
+            if template == "meeting":
+                template_meets(current_user.id, nome, descrizione)
 
-    return render_template("form_create.html", user=current_user)
+        else:
+            db_session.add(Forms(name=nome, dataCreation=date.today(),
+                                 description=descrizione,
+                                 creator_id=current_user.id))
+        db_session.commit()
+        return redirect(url_for('form_management_BP.form'))
+    forms = db_session.query(Forms)
+    return render_template("form_create.html", user=current_user, forms=forms)
 
 
 # Add a question to a specific form

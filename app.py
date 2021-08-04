@@ -80,10 +80,10 @@ def init():
         create_admin_user()
         populate_tags()
         init_base_question()
-        template_party(1)
-        template_meets(1)
-        template_events(1)
-        template_contacts(1)
+        template_party(1, "Party Form", "Invito per una festa")
+        template_meets(1, "Meets Form", "Meeting")
+        template_events(1, "Events Form", "Evento")
+        template_contacts(1, "Form Informativo", "Informazioni personali")
 
 
 def create_admin_user():

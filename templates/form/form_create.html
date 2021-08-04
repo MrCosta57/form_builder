@@ -8,14 +8,209 @@
             <div class="input-group">
                 <form method="POST" name="create_form">
                     <div class="form-group">
-                        <label>Nome Form</label><br>
-                        <input type="text" id="name" name="name" class="form-control"><br><br>
+                        <h3>Would you like to import a form template?</h3>
+                        <label>
+                            <select name="choose" onChange="import_template(this)">
+                                <option value="" selected> </option>
+                                <option value="si">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </label>
+                        <br>
+                        <span id="name">
 
-                        <label>Descrizione Form</label><br>
-                        <input type="text" id="description" name="description" class="form-control"><br><br>
+                        </span>
+                        <span id="choose">
+
+                        </span>
+                        <span id="mostra form">
+
+                        </span>
+                        <span id="submit">
+                        </span>
                     </div>
-                    <input type="submit" value="Submit" class="btn btn-primary"><br><br>
+
                 </form>
+                <script type='text/javascript'>
+                    var v_choose = null;
+
+                    function import_template(choose) {
+                        v_choose = choose.value;
+                        var box = document.getElementById('name');
+                        var box2 = document.getElementById('choose');
+                        var box3 = document.getElementById('submit');
+                        var box4 = document.getElementById('mostra form');
+                        box2.innerHTML = '';
+                        box3.innerHTML = '';
+                        box4.innerHTML = '';
+
+                        if (v_choose === "si") {
+                            box.innerHTML = '<label>Form Name</label><br>\n' +
+                                '            <input type="text" id="name" name="name" class="form-control"><br><br>' +
+                                '            <label>Descrizione Form</label><br>\n' +
+                                '            <input type="text" id="description" name="description" class="form-control"><br><br>';
+                            box2.innerHTML = '<label>Template Name</label><br>\n'+
+                                             '<select name="template" onChange="mostra_form(this); submit_f(this)">\n' +
+                                '                                <option value="" selected> </option>\n' +
+                                '                                <option value="party">Party</option>\n' +
+                                '                                <option value="events">Event</option>\n' +
+                                '                                <option value="info">General Info</option>\n' +
+                                '                                <option value="meeting">Meeting</option>\n' +
+                                '                            </select>'
+                        } else if(v_choose === "no") {
+                            box.innerHTML = '<label>Form Name</label><br>\n' +
+                                '            <input type="text" id="name" name="name" class="form-control" onkeyup="submit_f()"><br><br>' +
+                                '            <label>Form Description</label><br>\n' +
+                                '            <input type="text" id="description" name="description" class="form-control"><br><br>';
+                        }
+                    }
+
+                    function mostra_form(v) {
+                        var box = document.getElementById('mostra form');
+                        var value = v.value;
+                        if(value === "party")
+                        {
+                            box.innerHTML = '<div class="container">\n' +
+                                '        <p><b>Template Questions Peview:</b></p>\n'+
+                                '        <ol>\n' +
+                                '        {% for f in forms %}\n' +
+                                '        {% if f.id == 1 %}\n' +
+                                '        {% for q in f.questions %}\n' +
+                                '            <li>{{q.text}}</li>\n' +
+                                '            {% if q.single %}\n' +
+                                '                {% for q1 in q.single%}\n' +
+                                '                    <ul>\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% elif q.multiple_choice %}\n' +
+                                '                {% for q1 in q.multiple_choice%}\n' +
+                                '                    <ul type="square">\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        </ol>' +
+                                '</div>'
+                        }
+                        else if(value === "events")
+                        {
+                            box.innerHTML = '<div class="container">\n' +
+                                '        <p><b>Template Questions Peview:</b></p>\n'+
+                                '        <ol>\n' +
+                                '        {% for f in forms %}\n' +
+                                '        {% if f.id == 3 %}\n' +
+                                '        {% for q in f.questions %}\n' +
+                                '            <li>{{q.text}}</li>\n' +
+                                '            {% if q.single %}\n' +
+                                '                {% for q1 in q.single%}\n' +
+                                '                    <ul>\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% elif q.multiple_choice %}\n' +
+                                '                {% for q1 in q.multiple_choice%}\n' +
+                                '                    <ul type="square">\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        </ol>' +
+                                '</div>'
+                        }
+                        else if(value === "info")
+                        {
+                            box.innerHTML = '<div class="container">\n' +
+                                '        <p><b>Template Questions Peview:</b></p>\n'+
+                                '        <ol>\n' +
+                                '        {% for f in forms %}\n' +
+                                '        {% if f.id == 4 %}\n' +
+                                '        {% for q in f.questions %}\n' +
+                                '            <li>{{q.text}}</li>\n' +
+                                '            {% if q.single %}\n' +
+                                '                {% for q1 in q.single%}\n' +
+                                '                    <ul>\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% elif q.multiple_choice %}\n' +
+                                '                {% for q1 in q.multiple_choice%}\n' +
+                                '                    <ul type="square">\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        </ol>' +
+                                '</div>'
+                        }
+                        else if(value === "meeting")
+                        {
+                            box.innerHTML = '<div class="container">\n' +
+                                '        <p><b>Template Questions Peview:</b></p>\n'+
+                                '        <ol>\n' +
+                                '        {% for f in forms %}\n' +
+                                '        {% if f.id == 2 %}\n' +
+                                '        {% for q in f.questions %}\n' +
+                                '            <li>{{q.text}}</li>\n' +
+                                '            {% if q.single %}\n' +
+                                '                {% for q1 in q.single%}\n' +
+                                '                    <ul>\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% elif q.multiple_choice %}\n' +
+                                '                {% for q1 in q.multiple_choice%}\n' +
+                                '                    <ul type="square">\n' +
+                                '                    {% for a in q1.possible_answers%}\n' +
+                                '                        <li >{{a.content}}</li>\n' +
+                                '                    {% endfor %}\n' +
+                                '                    </ul>\n' +
+                                '                {% endfor %}\n' +
+                                '            {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        {% endif %}\n' +
+                                '        {% endfor %}\n' +
+                                '        </ol>' +
+                                '</div>'
+                        }
+                        else if(value === "")
+                        {
+                            box.innerHTML='';
+                        }
+                    }
+
+                    function submit_f(v) {
+                        var box = document.getElementById('submit');
+                        var value = v.value;
+                        if(value !== "")
+                            box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
+                        else
+                            box.innerHTML = '';
+                    }
+                </script>
                 <br><br><br><br>
             </div>
         </div>
