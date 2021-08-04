@@ -6,34 +6,32 @@
         <h1>Welcome {{user.name}}</h1>
         <h4>This is the form: <b>{{form.name}}</b>. </h4>
         <h6>{{form.description}}</h6>
-        <h4>Here the questions:</h4><br>
+        <h4>Here the questions:</h4>
     </div>
 
     <div class="container">
         <ol>
         {% for q in questions %}
-            <li>{{q.text}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/form/{{form.id}}/{{q.id}}"><button type="button" class="btn btn-primary">EDIT QUESTION</button></a></li><br>
+            <li>{{q.text}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/form/{{form.id}}/{{q.id}}">
+                <button type="button" class="btn btn-green">EDIT QUESTION</button></a></li>
             {% if q.single %}
                 {% for q1 in q.single%}
-                    <br>
                     <ul>
                     {% for a in q1.possible_answers%}
                         <li >{{a.content}}</li>
                     {% endfor %}
                     </ul>
-                    <br>
                 {% endfor %}
             {% elif q.multiple_choice %}
                 {% for q1 in q.multiple_choice%}
-                    <br>
                     <ul type="square">
                     {% for a in q1.possible_answers%}
                         <li >{{a.content}}</li>
                     {% endfor %}
                     </ul>
-                    <br>
                 {% endfor %}
             {% endif %}
+            <br>
         {% endfor %}
         </ol>
 

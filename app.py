@@ -1,6 +1,6 @@
 import os
 import secrets
-from flask import Flask, render_template, redirect, url_for, send_from_directory
+from flask import Flask, render_template, redirect, url_for, send_from_directory, request
 from flask_mail import Mail
 from flask_security import Security, current_user, auth_required, logout_user, \
     SQLAlchemySessionUserDatastore
@@ -8,7 +8,7 @@ from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
 from wtforms import TextField, DateField
 
-from form_management_BP import form_management_BP
+from form_management_BP import form_management_BP, template_party, template_meets, template_events, template_contacts
 from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
@@ -71,6 +71,7 @@ babel = Babel(app)
 # Monkeypatching Flask-babelex
 babel.domain = 'flask_user'
 babel.translation_directories = 'translations'
+
 
 # Populate database
 @app.before_first_request
@@ -218,77 +219,6 @@ def init_base_question():
     db_session.commit()
 
 
-def template_party(id_user):
-    db_session.add(Forms(name='Party Form', dataCreation=date.today(),
-                         description='Invito per una festa',
-                         creator_id=id_user))
-    db_session.commit()
-
-    id_f = db_session.query(Forms.id).filter(Forms.name == 'Party Form').filter(Forms.creator_id == id_user).first()[0]
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=11),
-                        FormsQuestions(form_id=id_f, question_id=15),
-                        FormsQuestions(form_id=id_f, question_id=13),
-                        FormsQuestions(form_id=id_f, question_id=16)])
-    db_session.commit()
-
-
-def template_meets(id_user):
-    db_session.add(Forms(name='Meets Form', dataCreation=date.today(),
-                         description='Meeting',
-                         creator_id=id_user))
-    db_session.commit()
-
-    id_f = db_session.query(Forms.id).filter(Forms.name == 'Meets Form').filter(Forms.creator_id == id_user).first()[0]
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=4),
-                        FormsQuestions(form_id=id_f, question_id=7),
-                        FormsQuestions(form_id=id_f, question_id=8),
-                        FormsQuestions(form_id=id_f, question_id=13),
-                        FormsQuestions(form_id=id_f, question_id=20)])
-    db_session.commit()
-
-
-def template_events(id_user):
-    db_session.add(Forms(name='Events Form', dataCreation=date.today(),
-                         description='Evento',
-                         creator_id=id_user))
-    db_session.commit()
-
-    id_f = db_session.query(Forms.id).filter(Forms.name == 'Events Form').filter(Forms.creator_id == id_user).first()[0]
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=3),
-                        FormsQuestions(form_id=id_f, question_id=5),
-                        FormsQuestions(form_id=id_f, question_id=16),
-                        FormsQuestions(form_id=id_f, question_id=20)])
-    db_session.commit()
-
-
-def template_contacts(id_user):
-    db_session.add(Forms(name='Form Informativo', dataCreation=date.today(),
-                         description='Informazioni personali',
-                         creator_id=id_user))
-    db_session.commit()
-
-    id_f = db_session.query(Forms.id).filter(Forms.name == 'Form Informativo').filter(Forms.creator_id == id_user).first()[0]
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=5),
-                        FormsQuestions(form_id=id_f, question_id=6),
-                        FormsQuestions(form_id=id_f, question_id=7),
-                        FormsQuestions(form_id=id_f, question_id=8),
-                        FormsQuestions(form_id=id_f, question_id=9),
-                        FormsQuestions(form_id=id_f, question_id=10)])
-    db_session.commit()
-
-
 # HomePage
 @app.route("/")
 def home():
@@ -310,10 +240,28 @@ def logout():
 
 
 # Visualize the user profile
-@app.route("/profile")
+@app.route("/profile", methods=['GET', 'POST'])
 @auth_required()
 def user_profile():
+    if request.method == 'POST':
+        # TODO: L'ADMIN NON PUO' CANCELLARE IL PROFILE
+        id_user = current_user.id
+        logout_user()
+        db_session.query(Users).filter(Users.id == id_user).delete()
+        db_session.commit()
+        return redirect(url_for("home"))
+
     return render_template("profile.html", user=current_user)
+
+
+@app.route("/profile/edit", methods=['GET', 'POST'])
+@auth_required()
+def edit_profile():
+    if request.method == 'POST':
+        # TODO: DA FARE QUI a anche nella pagina html
+        return redirect(url_for('user_profile'))
+
+    return render_template("edit_profile.html", user=current_user)
 
 
 # Run the app

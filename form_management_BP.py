@@ -7,6 +7,78 @@ from models import *
 form_management_BP = Blueprint('form_management_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
 
+def template_party(id_user, name, description):
+    db_session.add(Forms(name=name, dataCreation=date.today(),
+                         description=description,
+                         creator_id=id_user))
+    db_session.commit()
+
+    id_f = db_session.query(Forms.id).filter(Forms.name == name).filter(Forms.creator_id == id_user).first()[0]
+
+    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
+                        FormsQuestions(form_id=id_f, question_id=2),
+                        FormsQuestions(form_id=id_f, question_id=11),
+                        FormsQuestions(form_id=id_f, question_id=15),
+                        FormsQuestions(form_id=id_f, question_id=13),
+                        FormsQuestions(form_id=id_f, question_id=16)])
+    db_session.commit()
+
+
+def template_meets(id_user, name, description):
+    db_session.add(Forms(name=name, dataCreation=date.today(),
+                         description=description,
+                         creator_id=id_user))
+    db_session.commit()
+
+    id_f = db_session.query(Forms.id).filter(Forms.name == name).filter(Forms.creator_id == id_user).first()[0]
+
+    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
+                        FormsQuestions(form_id=id_f, question_id=2),
+                        FormsQuestions(form_id=id_f, question_id=4),
+                        FormsQuestions(form_id=id_f, question_id=7),
+                        FormsQuestions(form_id=id_f, question_id=8),
+                        FormsQuestions(form_id=id_f, question_id=13),
+                        FormsQuestions(form_id=id_f, question_id=20)])
+    db_session.commit()
+
+
+def template_events(id_user, name, description):
+    db_session.add(Forms(name=name, dataCreation=date.today(),
+                         description=description,
+                         creator_id=id_user))
+    db_session.commit()
+
+    id_f = db_session.query(Forms.id).filter(Forms.name == name).filter(Forms.creator_id == id_user).first()[0]
+
+    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
+                        FormsQuestions(form_id=id_f, question_id=2),
+                        FormsQuestions(form_id=id_f, question_id=3),
+                        FormsQuestions(form_id=id_f, question_id=5),
+                        FormsQuestions(form_id=id_f, question_id=16),
+                        FormsQuestions(form_id=id_f, question_id=20)])
+    db_session.commit()
+
+
+def template_contacts(id_user, name, description):
+    db_session.add(Forms(name=name, dataCreation=date.today(),
+                         description=description,
+                         creator_id=id_user))
+    db_session.commit()
+
+    id_f = \
+    db_session.query(Forms.id).filter(Forms.name == name).filter(Forms.creator_id == id_user).first()[0]
+
+    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
+                        FormsQuestions(form_id=id_f, question_id=2),
+                        FormsQuestions(form_id=id_f, question_id=5),
+                        FormsQuestions(form_id=id_f, question_id=6),
+                        FormsQuestions(form_id=id_f, question_id=7),
+                        FormsQuestions(form_id=id_f, question_id=8),
+                        FormsQuestions(form_id=id_f, question_id=9),
+                        FormsQuestions(form_id=id_f, question_id=10)])
+    db_session.commit()
+
+
 # Endpoint for the list of forms of the current user
 @form_management_BP.route("/")
 @auth_required()
@@ -105,7 +177,7 @@ def form_add_question(form_id):
                 # link the question with form
                 db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
             db_session.commit()
-        return redirect(url_for('form_edit', form_id=form_id))
+        return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)
@@ -192,7 +264,7 @@ def form_edit_question(form_id, question_id):
                 db_session.query(FormsQuestions).filter(form_id=form_id).filter(question_id=question_id) \
                     .update({FormsQuestions.question_id: id_q}, synchronize_session=False)
             db_session.commit()
-        return redirect(url_for('form_edit', form_id=form_id))
+        return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)

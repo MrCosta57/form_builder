@@ -156,6 +156,9 @@ textarea:focus, input[type="text"]:focus, input[type="password"]:focus, input[ty
 	position:relative;
 }
 
+.container{
+	margin-bottom: 2%;
+}
 .title-box {
 	border-bottom-width: 0px;
 	margin-bottom: 75px;
@@ -313,7 +316,6 @@ section {
 
 .btn-green:hover, .btn-green:focus {
 	color: #FFF;
-	background:transparent;
 	border-color: #FFF;
 }
 
@@ -2234,8 +2236,9 @@ ul.timeline {
 /*-----------------------------------------------------------------*/
 
 #page-header {
-	background:url('../images/page-header.jpg');
+	background:url('../images/wallpaper.jpg');
 	padding: 130px 0px 80px;
+	margin-bottom: 4%;
 	text-align: center;
 }
 
