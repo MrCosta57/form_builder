@@ -1,6 +1,6 @@
 import os
 import secrets
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, send_from_directory
 from flask_mail import Mail
 from flask_security import Security, current_user, auth_required, logout_user, \
     SQLAlchemySessionUserDatastore
@@ -8,6 +8,7 @@ from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
 from wtforms import TextField, DateField
 
+from form_management_BP import form_management_BP
 from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
@@ -15,9 +16,9 @@ from dotenv import load_dotenv
 from datetime import date, datetime
 
 # SETUP FLASK
-# Create app, setup Babel communication and Mail configuration
-
+# Create app, setup Babel communication and Mail configuration, BluePrint Registration
 app = Flask(__name__)
+app.register_blueprint(form_management_BP)
 init_db()
 
 # LIST OF CONFIGS
@@ -291,7 +292,13 @@ def template_contacts(id_user):
 # HomePage
 @app.route("/")
 def home():
-    return render_template("home_page.html", user=current_user)
+    return render_template("index.html", user=current_user)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/images'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 # Logout
@@ -300,244 +307,6 @@ def home():
 def logout():
     logout_user()
     return redirect(url_for('home'))
-
-
-# Endpoint for the list of forms of the current user
-@app.route("/form")
-@auth_required()
-def form():
-    user_query = db_session.query(Users).filter(Users.id == current_user.id).first()
-    form = db_session.query(Forms).filter(Forms.creator_id == user_query.id)
-    return render_template("forms_list.html", user=user_query, forms=form)
-
-
-# Create a form
-@app.route("/form/form_create", methods=['GET', 'POST'])
-def form_create():
-    if request.method == "POST":
-        req = request.form
-        # TODO: controllare che non esiste un form dello stesso utente con lo stesso nome
-        nome = req.get("name")
-        exist_form = db_session.query(Forms).filter(Forms.name == nome).filter(
-            Forms.user_id == current_user.id).first()
-        if exist_form:
-            return render_template("error.html", message="Hai già creato un form con questo nome")
-        descrizione = req.get("description")
-        db_session.add(Forms(name=nome, dataCreation=date.today(),
-                             description=descrizione,
-                             creator_id=current_user.id))
-        db_session.commit()
-        return redirect(url_for('form'))
-
-    return render_template("form_create.html", user=current_user)
-
-
-# Add a question to a specific form
-@app.route("/form/<form_id>/add_question", methods=['GET', 'POST'])
-def form_add_question(form_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    if request.method == "POST":
-        req = request.form
-        # Question already exists
-        if req.get("choose") == "si":
-            id_q = req.get("question_choose")
-            db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
-            db_session.commit()
-        # new Question
-        else:
-            tag = req.get("tag_choose")
-            # new Tag
-            if tag == "nuovo":
-                new_tag = req.get("tag_aggiunto")
-                # add the tag to the database
-                db_session.add(Tags(argument=new_tag))
-                db_session.commit()
-                tag = new_tag
-            tipo_domanda = req.get("tipo_domanda")
-            text_question = req.get("text_question")
-            id_t = (db_session.query(Tags.id).filter(Tags.argument == tag).first())[0]
-            # Type of the question
-            if tipo_domanda == "open":
-                # add the new question
-                db_session.add(Questions(text=text_question))
-                db_session.commit()
-                id_q = (db_session.query(Questions.id).filter(Questions.text == text_question).first())[0]
-                db_session.add(OpenQuestions(id=id_q))
-                db_session.commit()
-                # link the question with tag and form
-                db_session.add(TagsQuestions(tag_id=id_t, question_id=id_q))
-                db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
-            elif tipo_domanda == "single":
-                # add the new question
-                db_session.add(Questions(text=text_question))
-                db_session.commit()
-                id_q = (db_session.query(Questions.id).filter(Questions.text == text_question).first())[0]
-                db_session.add(SingleQuestions(id=id_q))
-                db_session.commit()
-                db_session.add(TagsQuestions(tag_id=id_t, question_id=id_q))
-                # add the possibile answers
-                number = req.get("number_answers")
-
-                for i in range(1, int(number) + 1):
-                    cont = req.get(str(i))
-                    db_session.add(PossibleAnswersS(idPosAnswS=id_q, content=cont))
-                # link the question with form
-                db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
-            elif tipo_domanda == "multiple_choice":
-                # add the new question
-                db_session.add(Questions(text=text_question))
-                db_session.commit()
-                id_q = (db_session.query(Questions.id).filter(Questions.text == text_question).first())[0]
-                db_session.add(MultipleChoiceQuestions(id=id_q))
-                db_session.commit()
-                db_session.add(TagsQuestions(tag_id=id_t, question_id=id_q))
-                # add the possibile answers
-                number = req.get("number_answers")
-
-                for i in range(1, int(number) + 1):
-                    cont = req.get(str(i))
-                    db_session.add(PossibleAnswersM(idPosAnswM=id_q, content=cont))
-                # link the question with form
-                db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
-            db_session.commit()
-        return redirect(url_for('form_edit', form_id=form_id))
-
-    tags = db_session.query(Tags)
-    questions = db_session.query(Questions)
-    return render_template("question_add.html", form=form, tags=tags, questions=questions)
-
-
-# Editing a specific form
-@app.route("/form/<form_id>/edit")
-@auth_required()
-def form_edit(form_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
-
-
-@app.route("/form/<form_id>/<question_id>", methods=['GET', 'POST'])
-def form_edit_question(form_id, question_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    if request.method == "POST":
-        req = request.form
-        # Question already exists
-        if req.get("choose") == "si":
-            id_q = req.get("question_choose")
-            db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(FormsQuestions.question_id == question_id)\
-                .update({FormsQuestions.question_id: id_q}, synchronize_session=False)
-            db_session.commit()
-        # new Question
-        else:
-            tag = req.get("tag_choose")
-            # new Tag
-            if tag == "nuovo":
-                new_tag = req.get("tag_aggiunto")
-                # add the tag to the database
-                db_session.add(Tags(argument=new_tag))
-                db_session.commit()
-                tag = new_tag
-            tipo_domanda = req.get("tipo_domanda")
-            text_question = req.get("text_question")
-            id_t = (db_session.query(Tags.id).filter(Tags.argument == tag).first())[0]
-            # Type of the question
-            if tipo_domanda == "open":
-                # add the new question
-                db_session.add(Questions(text=text_question))
-                db_session.commit()
-                id_q = (db_session.query(Questions.id).filter(Questions.text == text_question).first())[0]
-                db_session.add(OpenQuestions(id=id_q))
-                db_session.commit()
-                # link the question with tag and form
-                db_session.add(TagsQuestions(tag_id=id_t, question_id=id_q))
-                db_session.query(FormsQuestions).filter(form_id=form_id).filter(question_id=question_id) \
-                    .update({FormsQuestions.question_id: id_q}, synchronize_session=False)
-            elif tipo_domanda == "single":
-                # add the new question
-                db_session.add(Questions(text=text_question))
-                db_session.commit()
-                id_q = (db_session.query(Questions.id).filter(Questions.text == text_question).first())[0]
-                db_session.add(SingleQuestions(id=id_q))
-                db_session.commit()
-                db_session.add(TagsQuestions(tag_id=id_t, question_id=id_q))
-                # add the possibile answers
-                number = req.get("number_answers")
-
-                for i in range(1, int(number) + 1):
-                    cont = req.get(str(i))
-                    db_session.add(PossibleAnswersS(idPosAnswS=id_q, content=cont))
-                # link the question with form
-                db_session.query(FormsQuestions).filter(form_id=form_id).filter(question_id=question_id) \
-                    .update({FormsQuestions.question_id: id_q}, synchronize_session=False)
-            elif tipo_domanda == "multiple_choice":
-                # add the new question
-                db_session.add(Questions(text=text_question))
-                db_session.commit()
-                id_q = (db_session.query(Questions.id).filter(Questions.text == text_question).first())[0]
-                db_session.add(MultipleChoiceQuestions(id=id_q))
-                db_session.commit()
-                db_session.add(TagsQuestions(tag_id=id_t, question_id=id_q))
-                # add the possibile answers
-                number = req.get("number_answers")
-
-                for i in range(1, int(number) + 1):
-                    cont = req.get(str(i))
-                    db_session.add(PossibleAnswersM(idPosAnswM=id_q, content=cont))
-                # link the question with form
-                db_session.query(FormsQuestions).filter(form_id=form_id).filter(question_id=question_id) \
-                    .update({FormsQuestions.question_id: id_q}, synchronize_session=False)
-            db_session.commit()
-        return redirect(url_for('form_edit', form_id=form_id))
-
-    tags = db_session.query(Tags)
-    questions = db_session.query(Questions)
-    return render_template("question_add.html", form=form, tags=tags, questions=questions)
-
-
-# Compiling a specific form
-@app.route("/form/<form_id>/viewform", methods=['GET', 'POST'])
-@auth_required()
-def form_view(form_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    if request.method == "POST":
-        req = request.form
-        # check if the user already answered the form
-        exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
-            Answers.user_id == current_user.id).first()
-        if exist_answers:
-            return render_template("error.html", message="Hai già compilato questo form")
-        for q in form.questions:
-            if not q.multiple_choice:
-                text = [req.get(str(q.id))]
-            else:
-                text = req.getlist(str(q.id))
-            db_session.add(Answers(form_id=form_id, question_id=q.id, user_id=current_user.id))
-            db_session.commit()
-            ans_id = db_session.query(Answers.id).filter(Answers.form_id == form_id).filter(
-                Answers.question_id == q.id).filter(Answers.user_id == current_user.id).first()
-            if text:
-                for t in text:
-                    db_session.add(SeqAnswers(id=ans_id[0], content=t))
-            else:
-                db_session.add(SeqAnswers(id=ans_id[0], content=''))
-            db_session.commit()
-        return redirect(url_for('home'))
-
-    if current_user.id != form.creator_id:
-        return render_template("form.html", user=current_user, questions=form.questions, form=form)
-    else:
-        return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
-
-
-# Visualize the answers of a specific form
-@app.route("/form/<form_id>/answers")
-@auth_required()
-def form_answers(form_id):
-    answers = db_session.query(Answers).filter(Answers.form_id == form_id)
-    total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
-        Answers.user_id).count()
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    return render_template("form_answers.html", user=current_user, answers=answers, form=form,
-                           total_answers=total_answers)
 
 
 # Visualize the user profile
