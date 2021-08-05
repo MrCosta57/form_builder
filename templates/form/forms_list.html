@@ -10,39 +10,49 @@
 
     <div class="container">
         {% for f in forms %}
-        <li>{{f.name}}&nbsp;&nbsp;&nbsp;
-            <a href="/form/{{f.id}}/edit"><button type="button" class="btn btn-primary">EDIT</button></a>&nbsp;&nbsp;&nbsp;
-            <a href="/form/{{f.id}}/answers"><button type="button" class="btn btn-primary">ANSWERS</button></a>&nbsp;&nbsp;&nbsp;
-            <button onclick="copyToClipboard{{f.id}}('http://127.0.0.1:5000/form/{{f.id}}/viewform')" type="button" class="btn btn-primary">COPY SHAREABLE LINK</button>
-            <script>
-                const copyToClipboard{{f.id}} = str => {
-                      const el = document.createElement('textarea');
-                      el.value = str;
-                      el.setAttribute('readonly', '');
-                      el.style.position = 'absolute';
-                      el.style.left = '-9999px';
-                      document.body.appendChild(el);
-                      const selected =
-                        document.getSelection().rangeCount > 0
-                          ? document.getSelection().getRangeAt(0)
-                          : false;
-                      el.select();
-                      document.execCommand('copy');
-                      document.body.removeChild(el);
-                      if (selected) {
-                        document.getSelection().removeAllRanges();
-                        document.getSelection().addRange(selected);
-                      }
-                      alert('Copied: '+ str);
-                    };
-            </script>
-        </li>
-        <br><br>
+            <form name="form_delete" method="POST">
+                <li>
+                    {{f.name}}&nbsp;&nbsp;&nbsp;
+                    <a href="/form/{{f.id}}/edit"><button type="button" class="btn btn-primary">EDIT</button></a>&nbsp;&nbsp;&nbsp;
+                    <a href="/form/{{f.id}}/answers"><button type="button" class="btn btn-primary">ANSWERS</button></a>&nbsp;&nbsp;&nbsp;
+                    <button onclick="copyToClipboard{{f.id}}('http://127.0.0.1:5000/form/{{f.id}}/viewform')" type="button" class="btn btn-primary">COPY SHAREABLE LINK</button>
+                    <input type="hidden" name="form" value="{{f.id}}">
+                    {% if f.id != 1 and f.id != 2 and f.id != 3 and f.id !=4 %}
+                        <input type="submit" value="DELETE" class = "btn btn-danger">
+                    {% endif %}
+
+                    <script>
+                        const copyToClipboard{{f.id}} = str => {
+                              const el = document.createElement('textarea');
+                              el.value = str;
+                              el.setAttribute('readonly', '');
+                              el.style.position = 'absolute';
+                              el.style.left = '-9999px';
+                              document.body.appendChild(el);
+                              const selected =
+                                document.getSelection().rangeCount > 0
+                                  ? document.getSelection().getRangeAt(0)
+                                  : false;
+                              el.select();
+                              document.execCommand('copy');
+                              document.body.removeChild(el);
+                              if (selected) {
+                                document.getSelection().removeAllRanges();
+                                document.getSelection().addRange(selected);
+                              }
+                              alert('Copied: '+ str);
+                            };
+                    </script>
+                </li>
+            </form>
+            <br><br>
         {% endfor %}
     </div>
+
     <div class="container">
         <a href="/form/form_create"><button type="button" class="btn btn-primary">CREA FORM</button></a>
         <br><br>
     </div>
+
     <br><br><br>
 {% endblock %}

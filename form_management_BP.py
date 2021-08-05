@@ -8,30 +8,59 @@ from form_function import *
 form_management_BP = Blueprint('form_management_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
 
-# Endpoint for the list of forms of the current user
-@form_management_BP.route("/")
+# Endpoint for the list of forms of the current user.
+# From here you can: edit the form; copy the link of the form; create a new form; delete a Form
+#                    check all the anserw of the form
+@form_management_BP.route("/", methods=['GET', 'POST'])
 @auth_required()
 def form():
-    user_query = db_session.query(Users).filter(Users.id == current_user.id).first()
-    form = db_session.query(Forms).filter(Forms.creator_id == user_query.id)
-    return render_template("forms_list.html", user=user_query, forms=form)
+    # richiesta in post di eliminare il form, viene passato id attraverso hidden form
+    if request.method == 'POST':
+        req = request.form
+        f_id = req.get("form")
+
+        # elimino link tra domande e form
+        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == f_id).delete()
+        db_session.commit()
+
+        # elimino tutte le risposte del form
+        answers = db_session.query(Answers).filter(Answers.form_id == f_id)
+        for a in answers:
+            db_session.query(SeqAnswers).filter(SeqAnswers.id == a.id).delete()
+        answers.delete()
+
+        # infine elimino il form
+        db_session.query(Forms).filter(Forms.id == f_id).delete()
+        db_session.commit()
+        return redirect(url_for('form_management_BP.form'))
+
+    # GET sull'endpoint
+    forms_list = db_session.query(Forms).filter(Forms.creator_id == current_user.id)
+    return render_template("forms_list.html", user=current_user, forms=forms_list)
 
 
-# Create a form
+# Permette di creare o importare un form specificando nome e descrizione
 @form_management_BP.route("/form_create", methods=['GET', 'POST'])
 def form_create():
     if request.method == "POST":
         req = request.form
-        # TODO: controllare che non esiste un form dello stesso utente con lo stesso nome
-        choose = req.get("choose")
-        nome = req.get("name")
+
+        choose = req.get("choose")  # Per controllare se si vuole importare o no template
+
+        nome = req.get("name")  # nome del form
+
+        # Controlliamo che l'utente non abbia un form con lo stesso nome
         exist_form = db_session.query(Forms).filter(Forms.name == nome).filter(
             Forms.creator_id == current_user.id).first()
         if exist_form:
             return render_template("error.html", message="Hai già creato un form con questo nome")
-        descrizione = req.get("description")
+
+        descrizione = req.get("description")  # descrizione del form
+
+        # caso import template
         if choose == "si":
-            template = req.get("template")
+            template = req.get("template")  # scelta del template da parte dell'utente
+
             if template == "party":
                 template_party(current_user.id, nome, descrizione)
             if template == "events":
@@ -41,6 +70,7 @@ def form_create():
             if template == "meeting":
                 template_meets(current_user.id, nome, descrizione)
 
+        # Creazione di un nuovo form
         else:
             db_session.add(Forms(name=nome, dataCreation=date.today(),
                                  description=descrizione,
@@ -48,7 +78,8 @@ def form_create():
         db_session.commit()
         return redirect(url_for('form_management_BP.form'))
 
-    forms_template = db_session.query(Forms)
+    # GET, passati template per anteprima
+    forms_template = db_session.query(Forms).filter( (Forms.id == 1) | (Forms.id == 2) | (Forms.id == 3) | (Forms.id == 4))
     return render_template("form_create.html", user=current_user, forms=forms_template)
 
 
@@ -64,16 +95,23 @@ def form_add_question(form_id):
         else:
             return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
+    # GET, necessario passare tutti i tags e question esistenti per caso di import
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)
     return render_template("question_add.html", form=form, tags=tags, questions=questions, edit=False)
 
 
 # Editing a specific form
-@form_management_BP.route("/<form_id>/edit")
+@form_management_BP.route("/<form_id>/edit", methods=['GET', 'POST'])
 @auth_required()
 def form_edit(form_id):
     form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    if request.method == "POST":
+        req = request.form
+        id_q = req.get("question")
+        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(FormsQuestions.question_id == id_q).delete()
+        db_session.commit()
+        return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
     return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
 
 
