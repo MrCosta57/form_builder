@@ -58,8 +58,11 @@ def form_add_question(form_id):
     form = db_session.query(Forms).filter(Forms.id == form_id).first()
     if request.method == "POST":
         req = request.form
-        question_db("add", req, form_id, -1)
-        return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
+        message = question_db("add", req, form_id, -1)
+        if message:
+            return render_template("error.html", message=message)
+        else:
+            return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)
@@ -100,7 +103,11 @@ def form_edit_question(form_id, question_id):
                     db_session.add(PossibleAnswersS(idPosAnswS=question_id, content=cont))
             db_session.commit()
         else:
-            question_db("edit", req, form_id, question_id)
+            message = question_db("edit", req, form_id, question_id)
+            if message:
+                return render_template("error.html", message=message)
+            else:
+                return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     tags = db_session.query(Tags)
