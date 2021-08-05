@@ -26,7 +26,7 @@ def question_db(type, req, form_id, question_id):
         if tag == "nuovo":
             new_tag = req.get("tag_aggiunto")  # form input text tag
             # add the tag to the database
-            if db_session.query(Tags.id).filter(Tags.argument == new_tag):
+            if db_session.query(Tags).filter(Tags.argument == new_tag).first():
                 return "ESISTE GIA QUESTO TAG"
             db_session.add(Tags(argument=new_tag))
             db_session.commit()
