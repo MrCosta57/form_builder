@@ -4,14 +4,28 @@
 {% block content %}
     <form name="import_choose" action="#" method="POST" >
         <div class="container">
-            <h3>Would you like to import some existing questions?</h3>
-            <label>
-                <select name="choose" onChange="seleziona_tag(this)">
-                    <option value="" selected> </option>
-                    <option value="si">Yes</option>
-                    <option value="no">No</option>
-                </select>
-            </label>
+            {% if not edit or q.open%}
+                <h3>Would you like to import some existing questions?</h3>
+                <label>
+                    <select name="choose" onChange="seleziona_tag(this)">
+                        <option value="" selected> </option>
+                        <option value="si">Yes</option>
+                        <option value="no">No</option>
+                    </select>
+                </label>
+            {% elif q.multiple_choice or q.single %}
+                <h3>What would you like to change?</h3>
+                <label>
+                    <select name="change" onChange="check(this)">
+                        <option value="" selected> </option>
+                        <option value="question">Question</option>
+                        <option value="possible_a">Possible Answers</option>
+                    </select>
+                </label>
+            {% endif %}
+            <span id="modifica">
+
+            </span>
             <span id="seleziona tag">
 
             </span>
@@ -37,6 +51,38 @@
     </form>
     	<script type='text/javascript'>
             var v_choose = null;
+            function check(c) {
+                v_c = c.value;
+                var box = document.getElementById('modifica');
+                var box2 = document.getElementById('nuovo tag');
+                var box3 = document.getElementById('seleziona tipo di domanda');
+                var box4 = document.getElementById('inserisci domanda');
+                var box5 = document.getElementById('mostra domanda');
+                var box6 = document.getElementById('inserisci possibili risposte');
+                var box7 = document.getElementById('submit');
+                box2.innerHTML = '';
+                box3.innerHTML = '';
+                box4.innerHTML = '';
+                box5.innerHTML = '';
+                box6.innerHTML = '';
+                box7.innerHTML = '';
+
+                if (v_c === "question") {
+                    box.innerHTML = '<h3>Would you like to import some existing questions?</h3>\n' +
+                        '                <label>\n' +
+                        '                    <select name="choose" onChange="seleziona_tag(this)">\n' +
+                        '                        <option value="" selected> </option>\n' +
+                        '                        <option value="si">Yes</option>\n' +
+                        '                        <option value="no">No</option>\n' +
+                        '                    </select>\n' +
+                        '                </label>'
+                } else if(v_c === "possible_a") {
+                    box.innerHTML = '<h3>How many possible answers do you want to put?</h3>\n' +
+                            '        <input id="n" type="text" class="form-control" id="number_answers" name="number_answers" value="{{number}}" onkeyup="possibili_risposte(this)"><br><br>';
+                    possibili_risposte(document.getElementById('n'))
+                    submit_f()
+                }
+            }
 
             function seleziona_tag(choose) {
                 v_choose = choose.value;
@@ -195,7 +241,29 @@
                         box.innerHTML='';
                     }else{
                         var righe = "";
-                        for(i=1; i<=v_number; i++){
+                        var i=1;
+                        {% if edit %}
+                            {% if q.single %}
+                                {% for q1 in q.single%}
+                                    {% for a in q1.possible_answers%}
+                                        if(i<=v_number) {
+                                            righe = righe + "Risposta n° " + i + " : <input class = 'form-control' type='text' value='{{a.content}}' name='" + i + "'/><br/>";
+                                            i++;
+                                        }
+                                    {% endfor %}
+                                {% endfor %}
+                            {% elif q.multiple_choice %}
+                                {% for q1 in q.multiple_choice%}
+                                    {% for a in q1.possible_answers%}
+                                        if(i<=v_number) {
+                                            righe = righe + "Risposta n° " + i + " : <input class = 'form-control' type='text' value='{{a.content}}' name='" + i + "'/><br/>";
+                                            i++;
+                                        }
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endif %}
+                        for(i; i<=v_number; i++){
                             righe = righe + "Risposta n° "+i+" : <input class = 'form-control' type='text' name='"+i+"'/><br/>";
                         }
                         box.innerHTML=righe;

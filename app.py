@@ -8,7 +8,8 @@ from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
 from wtforms import TextField, DateField
 
-from form_management_BP import form_management_BP, template_party, template_meets, template_events, template_contacts
+from form_function import *
+from form_management_BP import form_management_BP
 from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
