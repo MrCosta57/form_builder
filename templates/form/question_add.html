@@ -4,6 +4,37 @@
 {% block content %}
     <form name="import_choose" action="#" method="POST" >
         <div class="container">
+            {%if edit%}
+                <span id="mostra domanda corrente"></span>
+                <script>
+                    var id_q={{q.id}};
+                    {% for q in questions %}
+                        if({{q.id}} == id_q){
+                            document.getElementById('mostra domanda corrente').innerHTML = '<p><b>The current question is:</b>' +
+                            '          <br>{{q.text}}</p>\n'+
+                            '            {% if q.single %}\n' +
+                            '                {% for q1 in q.single%}\n'+
+                            '                    <ul>\n' +
+                            '                    {% for a in q1.possible_answers%}\n' +
+                            '                        <li >{{a.content}}</li>\n' +
+                            '                    {% endfor %}\n' +
+                            '                    </ul>\n' +
+                            '                {% endfor %}\n' +
+                            '            {% elif q.multiple_choice %}\n' +
+                            '                {% for q1 in q.multiple_choice%}\n' +
+                            '                    <ul type="square">\n' +
+                            '                    {% for a in q1.possible_answers%}\n' +
+                            '                        <li >{{a.content}}</li>\n' +
+                            '                    {% endfor %}\n' +
+                            '                    </ul>\n' +
+                            '                {% endfor %}\n' +
+                            '            {% endif %}\n' +
+                            '<br>';
+                        }
+                {% endfor %}
+                </script>
+
+            {%endif%}
             {% if not edit or q.open%}
                 <h3>Would you like to import some existing questions?</h3>
                 <label>

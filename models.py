@@ -1,8 +1,8 @@
 from database import Base
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Boolean, DateTime, Column, Integer, \
-    String, ForeignKey
+from sqlalchemy import Boolean, Column, Integer, \
+    String, ForeignKey, Date, DateTime
 
 
 class Roles(Base, RoleMixin):
@@ -17,16 +17,12 @@ class Users(Base, UserMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     surname = Column(String(255), nullable=False)
-    date = Column(DateTime(), nullable=False)
+    date = Column(Date(), nullable=False)
 
     email = Column(String(255), unique=True)
     username = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
-    last_login_at = Column(DateTime())
-    current_login_at = Column(DateTime())
-    last_login_ip = Column(String(100))
-    current_login_ip = Column(String(100))
-    login_count = Column(Integer)
+
     active = Column(Boolean())
     fs_uniquifier = Column(String(255), unique=True, nullable=False)
     confirmed_at = Column(DateTime())

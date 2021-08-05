@@ -1,0 +1,18 @@
+{% extends "/security/base.html" %}
+{% block title %}Edit Form Info{% endblock %}
+{% block main_title%}Edit Form Info{%endblock main_title%}
+{% block content %}
+
+<div class="container">
+    <form method="post" name="edit_form_main_info" class="form-group">
+      <label>Name: </label>
+      <input type="text" id="name" name="name" class="form-control" value="{{form.name}}">
+      <label>Description: </label>
+      <input type="text" id="description" name="description" class="form-control" value="{{form.description}}">
+
+      <input type="submit" value="Modify" class="btn btn-primary">
+    </form>
+</div>
+
+
+{% endblock %}

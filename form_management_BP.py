@@ -115,6 +115,19 @@ def form_edit(form_id):
     return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
 
 
+@form_management_BP.route("/<form_id>/editMainInfo", methods=['GET', 'POST'])
+@auth_required()
+def form_edit_main_info(form_id):
+    form_query = db_session.query(Forms).filter(Forms.id == form_id)
+    if request.method == 'POST':
+        req = request.form
+        form_query.update({"name": req.get("name"), "description": req.get("description")})
+        db_session.commit()
+        return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
+
+    return render_template("form_edit_main_info.html", form=form_query.first())
+
+
 @form_management_BP.route("/<form_id>/<question_id>", methods=['GET', 'POST'])
 def form_edit_question(form_id, question_id):
     form = db_session.query(Forms).filter(Forms.id == form_id).first()

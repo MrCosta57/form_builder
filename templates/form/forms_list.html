@@ -13,12 +13,12 @@
             <form name="form_delete" method="POST">
                 <li>
                     {{f.name}}&nbsp;&nbsp;&nbsp;
-                    <a href="/form/{{f.id}}/edit"><button type="button" class="btn btn-primary">EDIT</button></a>&nbsp;&nbsp;&nbsp;
-                    <a href="/form/{{f.id}}/answers"><button type="button" class="btn btn-primary">ANSWERS</button></a>&nbsp;&nbsp;&nbsp;
+                    <a href="/form/{{f.id}}/edit"><button type="button" class="btn btn-primary">EDIT</button></a>&nbsp;&nbsp;
+                    <a href="/form/{{f.id}}/answers"><button type="button" class="btn btn-primary">ANSWERS</button></a>&nbsp;&nbsp;
                     <button onclick="copyToClipboard{{f.id}}('http://127.0.0.1:5000/form/{{f.id}}/viewform')" type="button" class="btn btn-primary">COPY SHAREABLE LINK</button>
                     <input type="hidden" name="form" value="{{f.id}}">
                     {% if f.id != 1 and f.id != 2 and f.id != 3 and f.id !=4 %}
-                        <input type="submit" value="DELETE" class = "btn btn-danger">
+                        &nbsp;&nbsp;<input type="submit" value="DELETE" class = "btn btn-danger">
                     {% endif %}
 
                     <script>

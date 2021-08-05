@@ -36,7 +36,9 @@ app.config['SECURITY_CONFIRMABLE'] = True
 app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
 app.config['SECURITY_POST_LOGIN_VIEW'] = '/'
 app.config['SECURITY_RECOVERABLE'] = True
+app.config['SECURITY_CHANGEABLE'] = True
 app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
+
 
 # Generate a nice key using secrets.token_urlsafe()
 if not os.path.isfile('.env'):
@@ -57,7 +59,7 @@ app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
 class ExtendedConfirmRegisterForm(ConfirmRegisterForm):
     name = TextField('Nome', [Required()])
     surname = TextField('Cognome', [Required()])
-    date = DateField('Data di nascita', format='%Y-%m-%d', default=datetime.now())
+    date = DateField('Data di nascita', format='%d-%m-%Y', default=date.today())
     username = TextField('Username', [Required()])
 
 
@@ -89,134 +91,8 @@ def init():
 
 def create_admin_user():
     user_datastore.create_user(email="admin@db.com", password=hash_password("password"),
-                               username="admin", name="Admin", surname="Admin", date=datetime.now(),
+                               username="admin", name="Admin", surname="Admin", date=date.today(),
                                confirmed_at=datetime.now())
-    db_session.commit()
-
-
-def populate_tags():
-    db_session.add_all([Tags(argument="Informazioni personali"),
-                        Tags(argument="Organizzazione"),
-                        Tags(argument="Altro"),
-                        Tags(argument="Scuola"),
-                        Tags(argument="Lavoro"),
-                        Tags(argument="Animali"),
-                        Tags(argument="Scienza"),
-                        Tags(argument="Viaggio"),
-                        Tags(argument="Ambiente"),
-                        Tags(argument="Sondaggi")])
-    db_session.commit()
-
-
-def init_base_question():
-    db_session.add_all([Questions(text="Nome"),
-                        Questions(text="Cognome"),
-                        Questions(text="Data Nascita"),
-                        Questions(text="Età"),
-                        Questions(text="Fascia d'età"),
-                        Questions(text="Lavoro"),
-                        Questions(text="Sesso"),
-                        Questions(text="Mail"),
-                        Questions(text="Paese di residenza"),
-                        Questions(text="Via residenza"),
-                        Questions(text="Inserisci l'orario che preferisci"),
-                        Questions(text="Inserisci una data che preferisci"),
-                        Questions(text="In quanti parteciperete?"),
-                        Questions(text="Inserisci il giorno che preferisci"),
-                        Questions(text="Scegli i giorni della settimana che preferisci"),
-                        Questions(text="parteciperai all'evento?"),
-                        Questions(text="Inserisci un breve commento"),
-                        Questions(text="Valuta questo sondaggio"),
-                        Questions(text="Come hai conosciuto questo evento?"),
-                        Questions(text="Hai intolleranze alimentari, se si quali?"),
-                        Questions(text="Che corsi hai seguito? "),
-                        Questions(text="che materie studi?"),
-                        Questions(text="Fai la raccolta differenziata?"),
-                        Questions(text="Quali stati hai visitato?"),
-                        Questions(text="Possiedi animali?"),
-                        Questions(text="Animale preferito")])
-    db_session.commit()
-
-    db_session.add_all([OpenQuestions(id=1),
-                        OpenQuestions(id=2),
-                        OpenQuestions(id=3),
-                        OpenQuestions(id=4),
-                        SingleQuestions(idS=5),
-                        OpenQuestions(id=6),
-                        SingleQuestions(idS=7),
-                        OpenQuestions(id=8),
-                        OpenQuestions(id=9),
-                        OpenQuestions(id=10),
-                        OpenQuestions(id=11),
-                        OpenQuestions(id=12),
-                        OpenQuestions(id=13),
-                        OpenQuestions(id=14),
-                        MultipleChoiceQuestions(id=15),
-                        SingleQuestions(idS=16),
-                        OpenQuestions(id=17),
-                        SingleQuestions(idS=18),
-                        OpenQuestions(id=19),
-                        OpenQuestions(id=20),
-                        OpenQuestions(id=21),
-                        OpenQuestions(id=22),
-                        SingleQuestions(idS=23),
-                        OpenQuestions(id=24),
-                        OpenQuestions(id=25),
-                        OpenQuestions(id=26),
-
-                        TagsQuestions(tag_id=1, question_id=1),
-                        TagsQuestions(tag_id=1, question_id=2),
-                        TagsQuestions(tag_id=1, question_id=3),
-                        TagsQuestions(tag_id=1, question_id=4),
-                        TagsQuestions(tag_id=1, question_id=5),
-                        TagsQuestions(tag_id=1, question_id=6),
-                        TagsQuestions(tag_id=5, question_id=6),
-                        TagsQuestions(tag_id=1, question_id=7),
-                        TagsQuestions(tag_id=1, question_id=8),
-                        TagsQuestions(tag_id=1, question_id=9),
-                        TagsQuestions(tag_id=1, question_id=10),
-                        TagsQuestions(tag_id=2, question_id=11),
-                        TagsQuestions(tag_id=2, question_id=12),
-                        TagsQuestions(tag_id=2, question_id=13),
-                        TagsQuestions(tag_id=2, question_id=14),
-                        TagsQuestions(tag_id=2, question_id=15),
-                        TagsQuestions(tag_id=3, question_id=16),
-                        TagsQuestions(tag_id=3, question_id=17),
-                        TagsQuestions(tag_id=3, question_id=18),
-                        TagsQuestions(tag_id=10, question_id=19),
-                        TagsQuestions(tag_id=2, question_id=20),
-                        TagsQuestions(tag_id=4, question_id=21),
-                        TagsQuestions(tag_id=4, question_id=22),
-                        TagsQuestions(tag_id=9, question_id=23),
-                        TagsQuestions(tag_id=8, question_id=24),
-                        TagsQuestions(tag_id=6, question_id=25),
-                        TagsQuestions(tag_id=1, question_id=25),
-                        TagsQuestions(tag_id=6, question_id=26)])
-    db_session.commit()
-
-    db_session.add_all([PossibleAnswersS(idPosAnswS=5, content="0-17"),
-                        PossibleAnswersS(idPosAnswS=5, content="18-21"),
-                        PossibleAnswersS(idPosAnswS=5, content="22-39"),
-                        PossibleAnswersS(idPosAnswS=5, content="40-69"),
-                        PossibleAnswersS(idPosAnswS=5, content="70+"),
-                        PossibleAnswersS(idPosAnswS=7, content="M"),
-                        PossibleAnswersS(idPosAnswS=7, content="F"),
-                        PossibleAnswersS(idPosAnswS=16, content="Si"),
-                        PossibleAnswersS(idPosAnswS=16, content="No"),
-                        PossibleAnswersS(idPosAnswS=18, content="1"),
-                        PossibleAnswersS(idPosAnswS=18, content="2"),
-                        PossibleAnswersS(idPosAnswS=18, content="3"),
-                        PossibleAnswersS(idPosAnswS=18, content="4"),
-                        PossibleAnswersS(idPosAnswS=18, content="5"),
-                        PossibleAnswersS(idPosAnswS=23, content="Si"),
-                        PossibleAnswersS(idPosAnswS=23, content="No"),
-                        PossibleAnswersM(idPosAnswM=15, content="lunedì"),
-                        PossibleAnswersM(idPosAnswM=15, content="martedì"),
-                        PossibleAnswersM(idPosAnswM=15, content="mercoledì"),
-                        PossibleAnswersM(idPosAnswM=15, content="giovedì"),
-                        PossibleAnswersM(idPosAnswM=15, content="venerdì"),
-                        PossibleAnswersM(idPosAnswM=15, content="sabato"),
-                        PossibleAnswersM(idPosAnswM=15, content="domenica")])
     db_session.commit()
 
 
@@ -259,7 +135,13 @@ def user_profile():
 @auth_required()
 def edit_profile():
     if request.method == 'POST':
-        # TODO: DA FARE QUI a anche nella pagina html
+        req = request.form
+        db_session.query(Users).filter(Users.id == current_user.id).update({"name": req.get("name"),
+                                                                            "surname": req.get("surname"),
+                                                                            "date": req.get("b_date"),
+                                                                            "username": req.get("username")
+                                                                            })
+        db_session.commit()
         return redirect(url_for('user_profile'))
 
     return render_template("edit_profile.html", user=current_user)

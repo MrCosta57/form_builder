@@ -1,12 +1,3 @@
-<head>
-    <!--styles -->
-    <link href="/static/css/bootstrap.css" rel="stylesheet">
-    <link href="/static/css/style.css" type="text/css" rel="stylesheet"/>
-
-    <!-- The HTML5 shim, for IE6-8 support of HTML5 elements -->
-        <!--[if lt IE 9]>
-        <![endif]-->
-</head>
 {% macro render_field_with_errors(field) %}
   <p>
     {{ field.label }} {{ field(**kwargs)|safe }}
