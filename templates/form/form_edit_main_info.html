@@ -3,16 +3,51 @@
 {% block main_title%}Edit Form Info{%endblock main_title%}
 {% block content %}
 
-<div class="container">
-    <form method="post" name="edit_form_main_info" class="form-group">
-      <label>Name: </label>
-      <input type="text" id="name" name="name" class="form-control" value="{{form.name}}">
-      <label>Description: </label>
-      <input type="text" id="description" name="description" class="form-control" value="{{form.description}}">
+    <div class="container">
+        <form method="post" name="edit_form_main_info" class="form-group">
+          <label>Name: </label>
+          <input type="text" name="name" class="form-control" value="{{form.name}}" onchange="check_uno(this)">
+          <label>Description: </label>
+          <input type="text" name="description" class="form-control" value="{{form.description}}" onchange="check_due(this)">
+          <span id = "submit"><input type="submit" value="Modify" class="btn btn-primary"><br><br></span>
+        </form>
+    </div>
 
-      <input type="submit" value="Modify" class="btn btn-primary">
-    </form>
-</div>
+    <script>
+        let name = true
+        let desc = true
+        /*controlla che il nome inserito sia corretto*/
+        function check_uno(text) {
+            const box = document.getElementById('submit');
+            const value = text.value;
+
+            if(value === "") {
+                name = false
+                box.innerHTML = '';
+            }
+            else {
+                name = true
+                if(desc)
+                    box.innerHTML = '<input type="submit" value="Modify" class="btn btn-primary"><br><br>';
+            }
+        }
+
+        /*controlla che la descrizione inserita sia corretta*/
+        function check_due(text) {
+            const box = document.getElementById('submit');
+            const value = text.value;
+
+            if(value === "") {
+                desc = false
+                box.innerHTML = '';
+            }
+            else {
+                desc = true
+                if(name)
+                    box.innerHTML = '<input type="submit" value="Modify" class="btn btn-primary"><br><br>';
+            }
+        }
+    </script>
 
 
 {% endblock %}

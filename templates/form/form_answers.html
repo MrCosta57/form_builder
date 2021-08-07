@@ -1,17 +1,30 @@
 {% extends "/security/base.html" %}
 {% block title %}Forms Answers{% endblock %}
+{% block main_title %}Form Answers{% endblock %}
+
 {% block libs%}<script src="/static/js/chart.js/dist/chart.js"></script>{%endblock%}
+
 {% block content %}
 
+    <!--Header Page-->
     <div class="container">
-    <h1>Welcome {{user.name}}</h1>
+        <h1>Welcome {{user.name}}</h1>
         <h4>This is the list of Answer of the form: {{form.name}}</h4><br>
         <h6>Number of people compiling the form: {{total_answers}}</h6>
     </div>
 
+
     <div class="container">
+        <!--For all the question in the form:
+                                    -display the text of the current question
+                                    -loop all the answers of the form finding the list of the answers of the current question
+                                    -show username and the content of the answers in a list
+                                    -if the current question is multiple or single
+                                        show a graph (bar or pie)-->
         {% for q in form.questions %}
+
             <h5>{{q.text}}</h5>
+
             {% for a in answers%}
                 {% if a.question_id == q.id%}
                     <li>
@@ -23,10 +36,13 @@
 
                 {% endif %}
             {% endfor %}
+
             {% if q.single %}
                 <canvas id={{q.id}} width="300" height="300"></canvas>
+
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
+
                     /*crea variabili contatori per ogni tipo di risposta*/
                     {% for q1 in q.single %}
                         {% for x in q1.possible_answers %}
@@ -43,6 +59,8 @@
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
+
+                    /*costruisco il grafico sul contesto del canvas*/
                     var myChart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
@@ -71,10 +89,13 @@
                     });
                 </script>
             {% endif %}
+
             {% if q.multiple_choice %}
                 <canvas id={{q.id}} width="300" height="300"></canvas>
+
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
+
                     /*crea variabili contatori per ogni tipo ri risposta*/
                     {% for q1 in q.multiple_choice %}
                         {% for x in q1.possible_answers %}
@@ -90,6 +111,8 @@
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
+
+                    /*costruisco il grafico sul contesto del canvas*/
                     var myChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
@@ -114,6 +137,7 @@
                         options: {
                             responsive: false,
                             maintainAspectRatio: false,
+                            /*rimuovo quadratino colorato su titolo grafico nel caso di bar graph*/
                             plugins: {
                                 legend: {
                                     labels: {
@@ -125,7 +149,8 @@
                     });
                 </script>
             {% endif %}
-        <br><br>
+
+            <br><br>
         {% endfor %}
     </div>
     <br><br><br>

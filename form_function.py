@@ -167,7 +167,8 @@ def question_db(type, req, form_id, question_id):
         if tipo_domanda == "open":
 
             # Check if the question already exists
-            if db_session.query(Questions).filter(Questions.text == text_question):
+            exists = db_session.query(Questions).filter(Questions.text == text_question).first()
+            if exists and exists.open:
                 return "ESISTE GIA QUESTA DOMANDA"
 
             # Add the question
@@ -252,14 +253,12 @@ def template_party(id_user, name, description):
     db_session.add(f)
     db_session.commit()
 
-    id_f = f.id
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=11),
-                        FormsQuestions(form_id=id_f, question_id=15),
-                        FormsQuestions(form_id=id_f, question_id=13),
-                        FormsQuestions(form_id=id_f, question_id=16)])
+    db_session.add_all([FormsQuestions(form_id=f.id, question_id=1),
+                        FormsQuestions(form_id=f.id, question_id=2),
+                        FormsQuestions(form_id=f.id, question_id=11),
+                        FormsQuestions(form_id=f.id, question_id=15),
+                        FormsQuestions(form_id=f.id, question_id=13),
+                        FormsQuestions(form_id=f.id, question_id=16)])
     db_session.commit()
 
 
@@ -270,15 +269,13 @@ def template_meets(id_user, name, description):
     db_session.add(f)
     db_session.commit()
 
-    id_f = f.id
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=4),
-                        FormsQuestions(form_id=id_f, question_id=7),
-                        FormsQuestions(form_id=id_f, question_id=8),
-                        FormsQuestions(form_id=id_f, question_id=13),
-                        FormsQuestions(form_id=id_f, question_id=20)])
+    db_session.add_all([FormsQuestions(form_id=f.id, question_id=1),
+                        FormsQuestions(form_id=f.id, question_id=2),
+                        FormsQuestions(form_id=f.id, question_id=4),
+                        FormsQuestions(form_id=f.id, question_id=7),
+                        FormsQuestions(form_id=f.id, question_id=8),
+                        FormsQuestions(form_id=f.id, question_id=13),
+                        FormsQuestions(form_id=f.id, question_id=20)])
     db_session.commit()
 
 
@@ -289,14 +286,12 @@ def template_events(id_user, name, description):
     db_session.add(f)
     db_session.commit()
 
-    id_f = f.id
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=3),
-                        FormsQuestions(form_id=id_f, question_id=5),
-                        FormsQuestions(form_id=id_f, question_id=16),
-                        FormsQuestions(form_id=id_f, question_id=20)])
+    db_session.add_all([FormsQuestions(form_id=f.id, question_id=1),
+                        FormsQuestions(form_id=f.id, question_id=2),
+                        FormsQuestions(form_id=f.id, question_id=3),
+                        FormsQuestions(form_id=f.id, question_id=5),
+                        FormsQuestions(form_id=f.id, question_id=16),
+                        FormsQuestions(form_id=f.id, question_id=20)])
     db_session.commit()
 
 
@@ -307,14 +302,12 @@ def template_contacts(id_user, name, description):
     db_session.add(f)
     db_session.commit()
 
-    id_f = f.id
-
-    db_session.add_all([FormsQuestions(form_id=id_f, question_id=1),
-                        FormsQuestions(form_id=id_f, question_id=2),
-                        FormsQuestions(form_id=id_f, question_id=5),
-                        FormsQuestions(form_id=id_f, question_id=6),
-                        FormsQuestions(form_id=id_f, question_id=7),
-                        FormsQuestions(form_id=id_f, question_id=8),
-                        FormsQuestions(form_id=id_f, question_id=9),
-                        FormsQuestions(form_id=id_f, question_id=10)])
+    db_session.add_all([FormsQuestions(form_id=f.id, question_id=1),
+                        FormsQuestions(form_id=f.id, question_id=2),
+                        FormsQuestions(form_id=f.id, question_id=5),
+                        FormsQuestions(form_id=f.id, question_id=6),
+                        FormsQuestions(form_id=f.id, question_id=7),
+                        FormsQuestions(form_id=f.id, question_id=8),
+                        FormsQuestions(form_id=f.id, question_id=9),
+                        FormsQuestions(form_id=f.id, question_id=10)])
     db_session.commit()

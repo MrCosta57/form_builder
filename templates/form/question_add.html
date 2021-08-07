@@ -2,39 +2,42 @@
 {% block title %}Forms Answers{% endblock %}
 
 {% block content %}
+    <!--INTERACTIVE FORM EDIT:
+        Possibile Answers-> number and content of possible answers-> Submit
+        Question-> Import -> Choose Tag -> Choose question -> Show previe question -> Submit
+        Question-> Not Import -> Choose Tag -> Eventually create Tag -> Type question -> Text Question -> Eventually number and content of possible answers -> Submit
+
+        ADD:
+        Import -> Choose Tag -> Choose question -> Show previe question -> Submit
+        Not Import -> Choose Tag -> Eventually create Tag -> Type question -> Text Question -> Eventually number and content of possible answers -> Submit
+        -->
     <form name="import_choose" action="#" method="POST" >
         <div class="container">
-            {%if edit%}
-                <span id="mostra domanda corrente"></span>
-                <script>
-                    var id_q={{q.id}};
-                    {% for q in questions %}
-                        if({{q.id}} == id_q){
-                            document.getElementById('mostra domanda corrente').innerHTML = '<p><b>The current question is:</b>' +
-                            '          <br>{{q.text}}</p>\n'+
-                            '            {% if q.single %}\n' +
-                            '                {% for q1 in q.single%}\n'+
-                            '                    <ul>\n' +
-                            '                    {% for a in q1.possible_answers%}\n' +
-                            '                        <li >{{a.content}}</li>\n' +
-                            '                    {% endfor %}\n' +
-                            '                    </ul>\n' +
-                            '                {% endfor %}\n' +
-                            '            {% elif q.multiple_choice %}\n' +
-                            '                {% for q1 in q.multiple_choice%}\n' +
-                            '                    <ul type="square">\n' +
-                            '                    {% for a in q1.possible_answers%}\n' +
-                            '                        <li >{{a.content}}</li>\n' +
-                            '                    {% endfor %}\n' +
-                            '                    </ul>\n' +
-                            '                {% endfor %}\n' +
-                            '            {% endif %}\n' +
-                            '<br>';
-                        }
-                {% endfor %}
-                </script>
 
+            {%if edit%}
+                <p><b>The current question is:</b><br>{{q.text}}</p>
+
+                {% if q.single %}
+                    {% for q1 in q.single%}
+                    <ul>
+                        {% for a in q1.possible_answers%}
+                            <li >{{a.content}}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endfor %}
+
+                {% elif q.multiple_choice %}
+                    {% for q1 in q.multiple_choice%}
+                    <ul type="square">
+                        {% for a in q1.possible_answers%}
+                            <li >{{a.content}}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endfor %}
+                {% endif %}
+                <br>
             {%endif%}
+
             {% if not edit or q.open%}
                 <h3>Would you like to import some existing questions?</h3>
                 <label>
@@ -54,49 +57,40 @@
                     </select>
                 </label>
             {% endif %}
-            <span id="modifica">
 
-            </span>
-            <span id="seleziona tag">
+            <span id="modifica"></span>
 
-            </span>
-            <span id="nuovo tag">
+            <span id="seleziona tag"></span>
 
-            </span>
-            <span id ="seleziona tipo di domanda">
+            <span id="nuovo tag"></span>
 
-            </span>
-            <span id="inserisci domanda">
+            <span id ="seleziona tipo di domanda"></span>
 
-            </span>
-            <span id ="mostra domanda">
+            <span id="inserisci domanda"></span>
 
-            </span>
-            <span id="inserisci possibili risposte">
+            <span id ="mostra domanda"></span>
 
-            </span>
+            <span id="inserisci possibili risposte"></span>
+
             <span id="submit">
 
             </span>
         </div>
     </form>
     	<script type='text/javascript'>
-            var v_choose = null;
+            let v_choose = null;
+
             function check(c) {
-                v_c = c.value;
-                var box = document.getElementById('modifica');
-                var box2 = document.getElementById('nuovo tag');
-                var box3 = document.getElementById('seleziona tipo di domanda');
-                var box4 = document.getElementById('inserisci domanda');
-                var box5 = document.getElementById('mostra domanda');
-                var box6 = document.getElementById('inserisci possibili risposte');
-                var box7 = document.getElementById('submit');
-                box2.innerHTML = '';
-                box3.innerHTML = '';
-                box4.innerHTML = '';
-                box5.innerHTML = '';
-                box6.innerHTML = '';
-                box7.innerHTML = '';
+                const v_c = c.value;
+                const box = document.getElementById('modifica');
+                document.getElementById('seleziona tag').innerHTML = '';
+                document.getElementById('nuovo tag').innerHTML = '';
+                document.getElementById('seleziona tipo di domanda').innerHTML = '';
+                document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('mostra domanda').innerHTML = '';
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML = '';
 
                 if (v_c === "question") {
                     box.innerHTML = '<h3>Would you like to import some existing questions?</h3>\n' +
@@ -109,27 +103,24 @@
                         '                </label>'
                 } else if(v_c === "possible_a") {
                     box.innerHTML = '<h3>How many possible answers do you want to put?</h3>\n' +
-                            '        <input id="n" type="text" class="form-control" id="number_answers" name="number_answers" value="{{number}}" onkeyup="possibili_risposte(this)"><br><br>';
+                            '        <input id="n" type="text" class="form-control" name="number_answers" value="{{number}}" onkeyup="possibili_risposte(this)"><br><br>';
+
+                    /*necessarie per creare di default il tasto submit e le risposte esistenti*/
                     possibili_risposte(document.getElementById('n'))
-                    submit_f()
+                    submit_f(document.getElementById('n'))
                 }
             }
 
             function seleziona_tag(choose) {
                 v_choose = choose.value;
-                var box = document.getElementById('seleziona tag');
-                var box2 = document.getElementById('nuovo tag');
-                var box3 = document.getElementById('seleziona tipo di domanda');
-                var box4 = document.getElementById('inserisci domanda');
-                var box5 = document.getElementById('mostra domanda');
-                var box6 = document.getElementById('inserisci possibili risposte');
-                var box7 = document.getElementById('submit');
-                box2.innerHTML = '';
-                box3.innerHTML = '';
-                box4.innerHTML = '';
-                box5.innerHTML = '';
-                box6.innerHTML = '';
-                box7.innerHTML = '';
+                const box = document.getElementById('seleziona tag');
+                document.getElementById('nuovo tag').innerHTML = '';
+                document.getElementById('seleziona tipo di domanda').innerHTML = '';
+                document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('mostra domanda').innerHTML = '';
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML = '';
 
                 if (v_choose === "si") {
                     box.innerHTML = '<h3>Select the question tag argument</h3>' +
@@ -141,7 +132,7 @@
                         '            </select>';
                 } else if(v_choose === "no") {
                     box.innerHTML = '<h3>Select the question tag argument</h3>' +
-                        '<select name="tag_choose" onChange="nuovo_tag(this); tipo_domanda()">\n' +
+                        '<select name="tag_choose" onChange="nuovo_tag(this); tipo_domanda(this)">\n' +
                         '                <option value="" selected> </option>\n' +
                         '                {% for t in tags %}\n' +
                         '                <option value="{{t.argument}}">{{t.argument}}</option>\n' +
@@ -152,35 +143,32 @@
             }
 
             function nuovo_tag(tag_choose) {
-                var v_tag = tag_choose.value;
-                var box = document.getElementById('nuovo tag');
-                var box2 = document.getElementById('inserisci domanda');
-                var box5 = document.getElementById('mostra domanda');
-                var box3 = document.getElementById('inserisci possibili risposte');
-                var box4 = document.getElementById('submit');
-                box2.innerHTML = '';
-                box3.innerHTML = '';
-                box4.innerHTML = '';
-                box5.innerHTML = '';
+                const v_tag = tag_choose.value;
+                const box = document.getElementById('nuovo tag');
+                document.getElementById('seleziona tipo di domanda').innerHTML = '';
+                document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('mostra domanda').innerHTML = '';
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML = '';
+
                 if (v_tag === "nuovo") {
                     box.innerHTML = '<h3>Insert the new tag argument</h3>' +
-                        '<input type="text" class="form-control" id="tag_aggiunto" name="tag_aggiunto"><br><br>';
+                        '<input type="text" class="form-control" name="tag_aggiunto"><br><br>';
                 } else {
                     box.innerHTML = '';
                 }
             }
 
-            function tipo_domanda() {
-                var box = document.getElementById('seleziona tipo di domanda');
-                var box2 = document.getElementById('inserisci domanda');
-                var box5 = document.getElementById('mostra domanda');
-                var box3 = document.getElementById('inserisci possibili risposte');
-                var box4 = document.getElementById('submit');
-                box2.innerHTML = '';
-                box3.innerHTML = '';
-                box4.innerHTML = '';
-                box5.innerHTML = '';
-                if (v_choose === "no") {
+            function tipo_domanda(val) {
+                const box = document.getElementById('seleziona tipo di domanda');
+                document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('mostra domanda').innerHTML = '';
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML = '';
+
+                if (v_choose === "no" && val.value !== "") {
                     box.innerHTML = '<h3>Select a question type</h3>' +
                         '<label>\n' +
                         '                <select name="tipo_domanda" onChange="inserisci_domanda(this)">\n' +
@@ -195,30 +183,30 @@
                 }
             }
 
-            function inserisci_domanda(tipo) {
-                var box = document.getElementById('inserisci domanda');
-                var box2 = document.getElementById('inserisci possibili risposte');
-                var box3 = document.getElementById('submit');
-                var box4 = document.getElementById('mostra domanda');
-                box2.innerHTML = '';
-                box3.innerHTML = '';
-                box4.innerHTML = '';
-                if (v_choose === "no") {
-                    var tipo = tipo.value;
+            function inserisci_domanda(type) {
+                const box = document.getElementById('inserisci domanda');
+                document.getElementById('mostra domanda').innerHTML = '';
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML='';
+
+                if (v_choose === "no" && type.value !== "") {
+                    let tipo = type.value;
                     if(tipo === 'open')
                         box.innerHTML = '<h3>Insert the question text</h3>' +
-                        '<input type="text" class="form-control" id="text_question" name="text_question" onKeyUp="submit_f()"><br><br>';
+                        '<input type="text" class="form-control" name="text_question" onKeyUp="submit_f(this)"><br><br>';
                     if(tipo === 'single' || tipo === 'multiple_choice'){
                         box.innerHTML = '<h3>Insert the question text</h3>\n' +
-                            '            <input type="text" class="form-control" id="text_question" name="text_question"><br><br>' +
+                            '            <input type="text" class="form-control" name="text_question"><br><br>' +
                             '            <h3>How many possible answers do you want to put?</h3>' +
-                            '            <input type="text" class="form-control" id="number_answers" name="number_answers" onKeyUp="possibili_risposte(this); submit_f()"><br><br>';
+                            '            <input type="text" class="form-control" name="number_answers" onKeyUp="possibili_risposte(this); submit_f(this)"><br><br>';
                     }
-                } else {
-                    var tag = tipo.value;
-                    var str = '<h3>Select the question</h3>' +
-                        '<select name="question_choose" onChange="mostra_domanda(this); submit_f()">\n'+
+                } else if(v_choose === "si" && type.value !== ""){
+                    const tag = type.value;
+                    let str = '<h3>Select the question</h3>' +
+                        '<select name="question_choose" onChange="mostra_domanda(this); submit_f(this)">\n' +
                         '<option value="" selected> </option>\n';
+
                     {% for q in questions %}
                         {% for t in q.tags %}
                             if( '{{t.argument}}' === tag){
@@ -230,13 +218,19 @@
                     {% endfor %}
 
                     str +='</select>';
+
                     box.innerHTML = str;
                 }
 
             }
             function mostra_domanda(id) {
-                var box = document.getElementById('mostra domanda');
-                var id_q = id.value;
+                const id_q = id.value;
+
+                const box = document.getElementById('mostra domanda');
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML=''
+
                 {% for q in questions %}
                     if({{q.id}} == id_q){
                         box.innerHTML = '<p><b>Question Peview:</b><br>{{q.text}}</p>\n'+
@@ -262,49 +256,57 @@
                 {% endfor %}
             }
 
+            let n = 0
             function possibili_risposte(number) {
-                var box = document.getElementById('inserisci possibili risposte');
-                var v_number = number.value;
-                if(v_number===""){
+                const v_number = number.value;
+                const box = document.getElementById('inserisci possibili risposte');
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML=''
+
+                if(isNaN(v_number)===true){
                     box.innerHTML='';
                 }else{
-                    if(isNaN(v_number)===true){
-                        box.innerHTML='';
-                    }else{
-                        var righe = "";
-                        var i=1;
-                        {% if edit %}
-                            {% if q.single %}
-                                {% for q1 in q.single%}
-                                    {% for a in q1.possible_answers%}
-                                        if(i<=v_number) {
-                                            righe = righe + "Risposta n° " + i + " : <input class = 'form-control' type='text' value='{{a.content}}' name='" + i + "'/><br/>";
-                                            i++;
-                                        }
-                                    {% endfor %}
+                    let righe = "";
+                    let i = 1;
+                    {% if edit %}
+                        {% if q.single %}
+                            {% for q1 in q.single%}
+                                {% for a in q1.possible_answers%}
+                                    if(i<=v_number) {
+                                        righe = righe + "Risposta n° " + i + " : <input onchange='submit_f(this)' class = 'form-control' type='text' value='{{a.content}}' id='" + i + "' name='" + i + "'/><br/>";
+                                        i++;
+                                    }
                                 {% endfor %}
-                            {% elif q.multiple_choice %}
-                                {% for q1 in q.multiple_choice%}
-                                    {% for a in q1.possible_answers%}
-                                        if(i<=v_number) {
-                                            righe = righe + "Risposta n° " + i + " : <input class = 'form-control' type='text' value='{{a.content}}' name='" + i + "'/><br/>";
-                                            i++;
-                                        }
-                                    {% endfor %}
+                            {% endfor %}
+                        {% elif q.multiple_choice %}
+                            {% for q1 in q.multiple_choice%}
+                                {% for a in q1.possible_answers%}
+                                    if(i<=v_number) {
+                                        righe = righe + "Risposta n° " + i + " : <input onchange='submit_f(this)' class = 'form-control' type='text' value='{{a.content}}' id='" + i + "' name='" + i + "'/><br/>";
+                                        i++;
+                                    }
                                 {% endfor %}
-                            {% endif %}
+                            {% endfor %}
                         {% endif %}
-                        for(i; i<=v_number; i++){
-                            righe = righe + "Risposta n° "+i+" : <input class = 'form-control' type='text' name='"+i+"'/><br/>";
-                        }
-                        box.innerHTML=righe;
+                    {% endif %}
+
+                    for(i; i<=v_number; i++){
+                        righe = righe + "Risposta n° "+i+" : <input onchange='submit_f(this)' class = 'form-control' type='text' id='" + i + "' name='"+i+"'/><br/>";
                     }
+                    n = v_number
+                    box.innerHTML=righe;
                 }
             }
 
-            function submit_f() {
-                var box = document.getElementById('submit');
-                box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>'
+            function submit_f(val) {
+                const box = document.getElementById('submit');
+                box.innerHTML = '';
+                for(let i=1; i<=n; i++){
+                        if(document.getElementById(i.toString()).value === "")
+                            return;
+                }
+                if (val.value !== "")
+                    box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>'
             }
         </script>
 {% endblock %}

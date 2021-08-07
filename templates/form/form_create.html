@@ -1,54 +1,70 @@
 {% extends "/security/base.html" %}
 {% block title %}Form Create{% endblock %}
+{% block main_title %}Form Creation{% endblock %}
 
 {% block content %}
-
     <div class="container">
         <div class="form-group">
             <div class="input-group">
                 <form method="POST" name="create_form">
                     <div class="form-group">
+                        <!--INTERACTIVE FORM:
+                            Import-> name-> description-> list of templates->Submit
+                            Not Import-> name-> description-> Sumbit
+                            -->
+
                         <h3>Would you like to import a form template?</h3>
-                        <label>
-                            <select name="choose" onChange="import_template(this)">
-                                <option value="" selected> </option>
-                                <option value="si">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </label>
+                        <select name="import" onChange="import_template(this)">
+                            <option value="" selected> </option>
+                            <option value="si">Yes</option>
+                            <option value="no">No</option>
+                        </select>
+
                         <br>
-                        <span id="name">
 
-                        </span>
-                        <span id="choose">
+                        <span id="name"></span>
 
-                        </span>
-                        <span id="mostra form">
+                        <span id="template list"></span>
 
-                        </span>
-                        <span id="submit">
-                        </span>
+                        <span id="mostra form"></span>
+
+                        <span id="submit"></span>
+
                     </div>
 
                 </form>
                 <script type='text/javascript'>
-                    var v_choose = null;
 
-                    function import_template(choose) {
-                        v_choose = choose.value;
-                        var box = document.getElementById('name');
-                        var box2 = document.getElementById('choose');
-                        var box3 = document.getElementById('submit');
-                        var box4 = document.getElementById('mostra form');
+                    let name = false; /*sia name che descprition devono essere inseriti per far apparire submit*/
+                    let desc = false;
+                    let temp = false;
+
+                    function import_template(imp) {
+                        const v_imp = imp.value;
+
+                        const box = document.getElementById('name');
+                        const box2 = document.getElementById('template list');
+                        const box3 = document.getElementById('mostra form');
+                        const box4 = document.getElementById('submit');
+
+                        box.innerHTML = '';
                         box2.innerHTML = '';
                         box3.innerHTML = '';
                         box4.innerHTML = '';
 
-                        if (v_choose === "si") {
+                        name = false;
+                        desc = false;
+                        temp = true;
+
+                        if (v_imp === "si") {
+                            temp = false;
+                            /*Name + Description input text*/
                             box.innerHTML = '<label>Form Name</label><br>\n' +
-                                '            <input type="text" id="name" name="name" class="form-control"><br><br>' +
+                                '            <input type="text" name="name" class="form-control" onkeyup="check_uno(this)"><br><br>' +
                                 '            <label>Descrizione Form</label><br>\n' +
-                                '            <input type="text" id="description" name="description" class="form-control"><br><br>';
+                                '            <input type="text" name="description" class="form-control" onkeyup="check_due(this)"><br><br>';
+
+                            /*Menu with template possible*/
                             box2.innerHTML = '<label>Template Name</label><br>\n'+
                                              '<select name="template" onChange="mostra_form(this); submit_f(this)">\n' +
                                 '                                <option value="" selected> </option>\n' +
@@ -57,17 +73,20 @@
                                 '                                <option value="info">General Info</option>\n' +
                                 '                                <option value="meeting">Meeting</option>\n' +
                                 '                            </select>'
-                        } else if(v_choose === "no") {
+                        } else if(v_imp === "no") {
+                            /*Name + Description input text*/
                             box.innerHTML = '<label>Form Name</label><br>\n' +
-                                '            <input type="text" id="name" name="name" class="form-control" onkeyup="submit_f(this)"><br><br>' +
+                                '            <input type="text" name="name" class="form-control" onkeyup="check_uno(this)"><br><br>' +
                                 '            <label>Form Description</label><br>\n' +
-                                '            <input type="text" id="description" name="description" class="form-control"><br><br>';
+                                '            <input type="text" name="description" class="form-control" onkeyup="check_due(this)"><br><br>';
                         }
                     }
 
                     function mostra_form(v) {
-                        var box = document.getElementById('mostra form');
-                        var value = v.value;
+                        const box = document.getElementById('mostra form');
+                        const value = v.value;
+
+                        /*For every type of the template show a preview: see form_edit for the HTML code to do this*/
                         if(value === "party")
                         {
                             box.innerHTML = '<div class="container">\n' +
@@ -202,15 +221,51 @@
                         }
                     }
 
+                    /*show the submit button if a template is choose and the name and desc is not balnk*/
                     function submit_f(v) {
-                        var box = document.getElementById('submit');
-                        var value = v.value;
-                        if(value !== "")
+                        const box = document.getElementById('submit');
+                        const value = v.value;
+                        if(value !== "" && name && desc) {
+                            temp = true
                             box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
-                        else
+                        }
+                        else {
                             box.innerHTML = '';
+                            temp = false
+                        }
+                    }
+
+                    /*controlla che il nome inserito sia corretto*/
+                    function check_uno(text) {
+                        const box = document.getElementById('submit');
+                        const value = text.value;
+                        if(value === "") {
+                            name = false
+                            box.innerHTML = '';
+                        }
+                        else {
+                            name = true
+                            if(desc && temp)
+                                box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
+                        }
+                    }
+
+                    /*controlla che la descrizione inserita sia corretta*/
+                    function check_due(text) {
+                        const box = document.getElementById('submit');
+                        const value = text.value;
+                        if(value === "") {
+                            desc = false
+                            box.innerHTML = '';
+                        }
+                        else {
+                            desc = true
+                            if(name && temp)
+                                box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
+                        }
                     }
                 </script>
+
                 <br><br><br><br>
             </div>
         </div>

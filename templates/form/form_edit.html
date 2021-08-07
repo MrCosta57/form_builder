@@ -1,7 +1,9 @@
 {% extends "/security/base.html" %}
 {% block title %}Forms{% endblock %}
+{% block main_title %}Edit Form{% endblock %}
 
 {% block content %}
+    <!--Header Page-->
     <div class="container">
         <h1>Welcome {{user.name}}</h1>
         <h4>This is the form: <b>{{form.name}}</b>. </h4>
@@ -13,6 +15,11 @@
     </div>
 
     <div class="container">
+        <!--For all the question in the form:
+                                    -element in ol: name question + EDIT + DELETE
+                                    -if current question is sinlge/multiple:
+                                            -sublist ul in wich each element is a possible answers
+            At the end: ADD QUESTION-->
         <ol>
         {% for q in questions %}
             <li>
@@ -21,10 +28,12 @@
                     <a href="/form/{{form.id}}/{{q.id}}">
                         <button type="button" class="btn btn-green">EDIT QUESTION</button>
                     </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type="hidden" name="question" value="{{q.id}}">
+
+                    <input type="hidden" name="question" value="{{q.id}}"> <!-- Hidden form to send the id question when clicking on DELETE-->
                     <input type="submit" value="DELETE" class="btn btn-danger">
                 </form>
             </li>
+
             {% if q.single %}
                 {% for q1 in q.single%}
                     <ul>
@@ -33,6 +42,7 @@
                     {% endfor %}
                     </ul>
                 {% endfor %}
+
             {% elif q.multiple_choice %}
                 {% for q1 in q.multiple_choice%}
                     <ul type="square">
@@ -42,11 +52,14 @@
                     </ul>
                 {% endfor %}
             {% endif %}
+
             <br>
+
         {% endfor %}
         </ol>
 
         <a href="/form/{{form.id}}/add_question"><button type="button" class="btn btn-primary">ADD QUESTION</button></a>
+
         <br><br><br><br>
     </div>
 {% endblock %}

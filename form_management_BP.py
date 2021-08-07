@@ -45,7 +45,7 @@ def form_create():
     if request.method == "POST":
         req = request.form
 
-        choose = req.get("choose")  # Per controllare se si vuole importare o no template
+        imp = req.get("import")  # Per controllare se si vuole importare o no template
 
         nome = req.get("name")  # nome del form
 
@@ -58,7 +58,7 @@ def form_create():
         descrizione = req.get("description")  # descrizione del form
 
         # caso import template
-        if choose == "si":
+        if imp == "si":
             template = req.get("template")  # scelta del template da parte dell'utente
 
             if template == "party":
@@ -79,17 +79,22 @@ def form_create():
         return redirect(url_for('form_management_BP.form'))
 
     # GET, passati template per anteprima
-    forms_template = db_session.query(Forms).filter( (Forms.id == 1) | (Forms.id == 2) | (Forms.id == 3) | (Forms.id == 4))
+    forms_template = db_session.query(Forms).filter((Forms.id == 1) | (Forms.id == 2) | (Forms.id == 3) |
+                                                    (Forms.id == 4))
     return render_template("form_create.html", user=current_user, forms=forms_template)
 
 
 # Add a question to a specific form
 @form_management_BP.route("/<form_id>/add_question", methods=['GET', 'POST'])
 def form_add_question(form_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+
+    # if a request of adding a question is send
     if request.method == "POST":
         req = request.form
-        message = question_db("add", req, form_id, -1)
+
+        message = question_db("add", req, form_id, -1)  # function that add/edit a question in the db
+
         if message:
             return render_template("error.html", message=message)
         else:
@@ -98,122 +103,176 @@ def form_add_question(form_id):
     # GET, necessario passare tutti i tags e question esistenti per caso di import
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)
-    return render_template("question_add.html", form=form, tags=tags, questions=questions, edit=False)
+    return render_template("question_add.html", form=current_form, tags=tags, questions=questions, edit=False)
 
 
 # Editing a specific form
 @form_management_BP.route("/<form_id>/edit", methods=['GET', 'POST'])
 @auth_required()
 def form_edit(form_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+
+    # This method represents when the user POST a requeste of delete of a specific question
     if request.method == "POST":
         req = request.form
-        id_q = req.get("question")
-        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(FormsQuestions.question_id == id_q).delete()
+
+        id_q = req.get("question")  # Hidden form that grants the id of the question
+
+        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).\
+            filter(FormsQuestions.question_id == id_q).delete()
         db_session.commit()
+
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
-    return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
+
+    return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
 
 
+# Editing a specific form info: name and descprition
 @form_management_BP.route("/<form_id>/editMainInfo", methods=['GET', 'POST'])
 @auth_required()
 def form_edit_main_info(form_id):
-    form_query = db_session.query(Forms).filter(Forms.id == form_id)
+    current_form = db_session.query(Forms).filter(Forms.id == form_id)
+
+    # Request of editing name adn description
     if request.method == 'POST':
         req = request.form
-        form_query.update({"name": req.get("name"), "description": req.get("description")})
+
+        # Controlliamo che l'utente non abbia un form con lo stesso nome
+        exist_form = db_session.query(Forms).filter(Forms.name == req.get("name")).filter(
+            Forms.creator_id == current_user.id).filter(Forms.id != form_id).first()
+        if exist_form:
+            return render_template("error.html", message="Hai già creato un form con questo nome")
+
+        current_form.update({"name": req.get("name"), "description": req.get("description")})
         db_session.commit()
+
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
-    return render_template("form_edit_main_info.html", form=form_query.first())
+    return render_template("form_edit_main_info.html", form=current_form.first())
 
 
+# Route useful for editing a question or the possibile answers of the question
 @form_management_BP.route("/<form_id>/<question_id>", methods=['GET', 'POST'])
 def form_edit_question(form_id, question_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    q = db_session.query(Questions).filter(Questions.id == question_id).first()
+    current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    current_question = db_session.query(Questions).filter(Questions.id == question_id).first()
+
     if request.method == "POST":
         req = request.form
-        c = req.get("change")
+
+        c = req.get("change")  # Check if the user want to change question or possible answers
+
+        # if the user want to change the possible answers
         if c == 'possible_a':
-            if q.multiple_choice:
+            if current_question.multiple_choice:
+                # cancelliamo i vecchi dati
                 db_session.query(PossibleAnswersM).filter(PossibleAnswersM.idPosAnswM == question_id).delete()
                 db_session.commit()
+
+                # Inseriamo i nuovi
                 number = req.get("number_answers")
 
                 for i in range(1, int(number) + 1):
                     cont = req.get(str(i))
                     db_session.add(PossibleAnswersM(idPosAnswM=question_id, content=cont))
-            elif q.single:
+            elif current_question.single:
+                # cancelliamo i vecchi dati
                 db_session.query(PossibleAnswersS).filter(PossibleAnswersS.idPosAnswS == question_id).delete()
                 db_session.commit()
+
+                # Inseriamo i nuovi
                 number = req.get("number_answers")
 
                 for i in range(1, int(number) + 1):
                     cont = req.get(str(i))
                     db_session.add(PossibleAnswersS(idPosAnswS=question_id, content=cont))
+
             db_session.commit()
+
+        # if the user want to change the question we use the function question_db
         else:
+
             message = question_db("edit", req, form_id, question_id)
+
             if message:
                 return render_template("error.html", message=message)
-            else:
-                return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
+
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
+    # We need all the tags and the questions if we want to manage the possibility of import a question
     tags = db_session.query(Tags)
     questions = db_session.query(Questions)
-    q = db_session.query(Questions).filter(Questions.id == question_id).first()
+
+    # We pass the number of possible answers that the current question has
     number = 0
-    if q.single:
+
+    if current_question.single:
         number = db_session.query(PossibleAnswersS).filter(PossibleAnswersS.idPosAnswS == question_id).count()
-    elif q.multiple_choice:
+    elif current_question.multiple_choice:
         number = db_session.query(PossibleAnswersM).filter(PossibleAnswersM.idPosAnswM == question_id).count()
-    return render_template("question_add.html", form=form, tags=tags, questions=questions, q=q, edit=True, number=number)
+
+    return render_template("question_add.html", form=current_form, tags=tags, questions=questions, q=current_question,
+                           edit=True, number=number)
 
 
 # Compiling a specific form
 @form_management_BP.route("/<form_id>/viewform", methods=['GET', 'POST'])
 @auth_required()
 def form_view(form_id):
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+
+    # If a user answers the form we save the POST info
     if request.method == "POST":
         req = request.form
+
         # check if the user already answered the form
         exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
             Answers.user_id == current_user.id).first()
         if exist_answers:
             return render_template("error.html", message="Hai già compilato questo form")
-        for q in form.questions:
+
+        # Get for every answered question
+        for q in current_form.questions:
             if not q.multiple_choice:
                 text = [req.get(str(q.id))]
             else:
-                text = req.getlist(str(q.id))
-            db_session.add(Answers(form_id=form_id, question_id=q.id, user_id=current_user.id))
+                text = req.getlist(str(q.id))  # if is a multiple choice question we get multiple answers
+
+            # We add the object: answers
+            ans = Answers(form_id=form_id, question_id=q.id, user_id=current_user.id)
+
+            db_session.add(ans)
             db_session.commit()
-            ans_id = db_session.query(Answers.id).filter(Answers.form_id == form_id).filter(
-                Answers.question_id == q.id).filter(Answers.user_id == current_user.id).first()
-            if text:
-                for t in text:
-                    db_session.add(SeqAnswers(id=ans_id[0], content=t))
-            else:
-                db_session.add(SeqAnswers(id=ans_id[0], content=''))
+
+            # we add all the answers (if the users leave a blank multiple choice/single answer we don't memorize
+            # anything)
+            for t in text:
+                if t:
+                    db_session.add(SeqAnswers(id=ans.id, content=t))
+                elif ans.question.open:
+                    db_session.add(SeqAnswers(id=ans.id, content='blank'))
+
             db_session.commit()
+
         return redirect(url_for('home'))
 
-    if current_user.id != form.creator_id:
-        return render_template("form.html", user=current_user, questions=form.questions, form=form)
+    # The creator of a form can only edit the form
+    if current_user.id != current_form.creator_id:
+        return render_template("form.html", user=current_user, questions=current_form.questions, form=current_form)
     else:
-        return render_template("form_edit.html", user=current_user, questions=form.questions, form=form)
+        return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
 
 
 # Visualize the answers of a specific form
 @form_management_BP.route("/<form_id>/answers")
 @auth_required()
 def form_answers(form_id):
+    # List of all the answers of this form
     answers = db_session.query(Answers).filter(Answers.form_id == form_id)
     total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
         Answers.user_id).count()
-    form = db_session.query(Forms).filter(Forms.id == form_id).first()
-    return render_template("form_answers.html", user=current_user, answers=answers, form=form,
+
+    current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+
+    return render_template("form_answers.html", user=current_user, answers=answers, form=current_form,
                            total_answers=total_answers)
