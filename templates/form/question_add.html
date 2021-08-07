@@ -80,6 +80,7 @@
     	<script type='text/javascript'>
             let v_choose = null;
 
+            /*vuoi importare domande?, oppure numero possibili risposte*/
             function check(c) {
                 const v_c = c.value;
                 const box = document.getElementById('modifica');
@@ -111,6 +112,7 @@
                 }
             }
 
+            /*menu a tendina con tutti i possibili tag*/
             function seleziona_tag(choose) {
                 v_choose = choose.value;
                 const box = document.getElementById('seleziona tag');
@@ -142,6 +144,7 @@
                 }
             }
 
+            /*se non import input text per nuovo tag*/
             function nuovo_tag(tag_choose) {
                 const v_tag = tag_choose.value;
                 const box = document.getElementById('nuovo tag');
@@ -160,6 +163,7 @@
                 }
             }
 
+            /*se non timport menu a tendina per il tipo della domanda*/
             function tipo_domanda(val) {
                 const box = document.getElementById('seleziona tipo di domanda');
                 document.getElementById('inserisci domanda').innerHTML = '';
@@ -183,6 +187,8 @@
                 }
             }
 
+            /*menu a tendina per selezionare domanda nel caso di import
+            * Testo della domanda + eventuale numero possibili risposte se non import*/
             function inserisci_domanda(type) {
                 const box = document.getElementById('inserisci domanda');
                 document.getElementById('mostra domanda').innerHTML = '';
@@ -223,6 +229,7 @@
                 }
 
             }
+            /*Mostra la domanda nel caso di import*/
             function mostra_domanda(id) {
                 const id_q = id.value;
 
@@ -301,9 +308,24 @@
             function submit_f(val) {
                 const box = document.getElementById('submit');
                 box.innerHTML = '';
+
+                /*Function that returns duplicates of an array*/
+                let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
+
+                /*array that contains possible answers*/
+                let vett = new Array(n)
                 for(let i=1; i<=n; i++){
-                        if(document.getElementById(i.toString()).value === "")
-                            return;
+                    /*if we find a possibile answers blank*/
+                    if(document.getElementById(i.toString()).value === "")
+                        return;
+
+                    vett[i]=document.getElementById(i.toString()).value;
+                }
+
+                /*if we find a duplicate of a possible answers*/
+                if(findDuplicates(vett).length !== 0){
+                    box.innerHTML = '<h3>SONO PRESENTI DEI DUPLICATI NELLE RISPOSTE</h3>'
+                    return;
                 }
                 if (val.value !== "")
                     box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>'
