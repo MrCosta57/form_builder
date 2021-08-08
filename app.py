@@ -133,6 +133,10 @@ def user_profile():
         # TODO: L'ADMIN NON PUO' CANCELLARE IL PROFILE
         id_user = current_user.id
         logout_user()
+        form_list = db_session.query(Forms).filter(Forms.creator_id == id_user)
+        for f in form_list:
+            delete_form(f.id)
+
         db_session.query(Users).filter(Users.id == id_user).delete()
         db_session.commit()
         return redirect(url_for("home"))

@@ -1,3 +1,4 @@
+import csv
 from datetime import date
 from flask import render_template, request, redirect, url_for, Blueprint, Response
 from flask_security import current_user, auth_required
@@ -19,19 +20,7 @@ def form():
         req = request.form
         f_id = req.get("form")
 
-        # elimino link tra domande e form
-        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == f_id).delete()
-        db_session.commit()
-
-        # elimino tutte le risposte del form
-        answers = db_session.query(Answers).filter(Answers.form_id == f_id)
-        for a in answers:
-            db_session.query(SeqAnswers).filter(SeqAnswers.id == a.id).delete()
-        answers.delete()
-
-        # infine elimino il form
-        db_session.query(Forms).filter(Forms.id == f_id).delete()
-        db_session.commit()
+        delete_form(f_id)
         return redirect(url_for('form_management_BP.form'))
 
     # GET sull'endpoint
@@ -267,12 +256,27 @@ def form_view(form_id):
 @form_management_BP.route("/<form_id>/answers")
 @auth_required()
 def form_answers(form_id):
-    # List of all the answers of this form
+    # List of all the answers of this for
     answers = db_session.query(Answers).filter(Answers.form_id == form_id)
     total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
         Answers.user_id).count()
 
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+
+    f = open('templates/form/answers.csv', 'w')
+
+    # create the csv writer
+    writer = csv.writer(f)
+
+    answers_all = db_session.query(Users.username, Questions.text, SeqAnswers.content).filter(
+        Answers.form_id == form_id).filter(
+        Answers.id == SeqAnswers.id).filter(Users.id == Answers.user_id).filter(Questions.id == Answers.question_id)
+
+    for a in answers_all:
+        writer.writerow(a)
+
+    # close the file
+    f.close()
 
     return render_template("form_answers.html", user=current_user, answers=answers, form=current_form,
                            total_answers=total_answers)

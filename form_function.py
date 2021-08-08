@@ -245,6 +245,22 @@ def question_db(type, req, form_id, question_id):
         db_session.commit()
 
 
+def delete_form(f_id):
+    # elimino link tra domande e form
+    db_session.query(FormsQuestions).filter(FormsQuestions.form_id == f_id).delete()
+    db_session.commit()
+
+    # elimino tutte le risposte del form
+    answers = db_session.query(Answers).filter(Answers.form_id == f_id)
+    for a in answers:
+        db_session.query(SeqAnswers).filter(SeqAnswers.id == a.id).delete()
+    answers.delete()
+
+    # infine elimino il form
+    db_session.query(Forms).filter(Forms.id == f_id).delete()
+    db_session.commit()
+
+
 # TEMPLATE FUNCTION
 def template_party(id_user, name, description):
     f = Forms(name=name, dataCreation=date.today(),
