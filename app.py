@@ -80,6 +80,7 @@ babel.translation_directories = 'translations'
 @app.before_first_request
 def init():
     if not user_datastore.find_user(email="admin@db.com"):
+        create_roles()
         create_admin_user()
         populate_tags()
         init_base_question()
@@ -89,11 +90,19 @@ def init():
         template_contacts(1, "Form Informativo", "Informazioni personali")
 
 
+def create_roles():
+    user_datastore.create_role(name="Admin", description="App administrator")
+    user_datastore.create_role(name="Standard User", description="Standard app user")
+
+
 def create_admin_user():
     user_datastore.create_user(email="admin@db.com", password=hash_password("password"),
                                username="admin", name="Admin", surname="Admin", date=date.today(),
                                confirmed_at=datetime.now())
     db_session.commit()
+    admin = db_session.query(Users).filter(Users.id == 1).first()
+    role = db_session.query(Roles).filter(Roles.id == 1).first()
+    user_datastore.add_role_to_user(admin, role)
 
 
 # HomePage

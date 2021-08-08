@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 # DB CONNECTION SETTINGS
 user = "postgres"
-psw = "andremuna00"
+psw = "root"
 ipAddr = "localhost"
 port = "5432"
 dbName = "form"

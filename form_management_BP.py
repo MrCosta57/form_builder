@@ -1,5 +1,5 @@
 from datetime import date
-from flask import render_template, request, redirect, url_for, Blueprint
+from flask import render_template, request, redirect, url_for, Blueprint, Response
 from flask_security import current_user, auth_required
 from database import db_session
 from models import *
@@ -118,7 +118,7 @@ def form_edit(form_id):
 
         id_q = req.get("question")  # Hidden form that grants the id of the question
 
-        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).\
+        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
             filter(FormsQuestions.question_id == id_q).delete()
         db_session.commit()
 
@@ -276,3 +276,19 @@ def form_answers(form_id):
 
     return render_template("form_answers.html", user=current_user, answers=answers, form=current_form,
                            total_answers=total_answers)
+
+
+@form_management_BP.route("/<form_id>/download_csv")
+@auth_required()
+def download_csv_answers(form_id):
+    answers_all = db_session.query(Users.username, Questions.text, SeqAnswers.content).filter(
+        Answers.form_id == form_id).filter(
+        Answers.id == SeqAnswers.id).filter(Users.id == Answers.user_id).filter(Questions.id == Answers.question_id)
+    csv = ''
+    for a in answers_all:
+        csv = csv + a + '\n'
+
+    return Response(
+        csv,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=answers.csv"})
