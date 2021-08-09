@@ -3,7 +3,7 @@ import secrets
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request
 from flask_mail import Mail
 from flask_security import Security, current_user, auth_required, logout_user, \
-    SQLAlchemySessionUserDatastore
+    SQLAlchemySessionUserDatastore, user_registered
 from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
 from wtforms import TextField, DateField
@@ -32,7 +32,9 @@ app.config['MAIL_USERNAME'] = 'Info.progbd.dblegends@gmail.com'
 app.config['MAIL_PASSWORD'] = 'db_legends00'
 app.config['MAIL_DEFAULT_SENDER'] = app.config['MAIL_USERNAME']
 app.config['SECURITY_REGISTERABLE'] = True
+app.config['SECURITY_EMAIL_SUBJECT_REGISTER'] = 'Welcome to DB_Legends\'s app'
 app.config['SECURITY_CONFIRMABLE'] = True
+app.config['SECURITY_POST_CONFIRM_VIEW'] = '/add_role_post'
 app.config['SECURITY_CONFIRM_EMAIL_WITHIN'] = '1 days'
 app.config['SECURITY_POST_LOGIN_VIEW'] = '/'
 app.config['SECURITY_RECOVERABLE'] = True
@@ -101,7 +103,7 @@ def create_admin_user():
                                confirmed_at=datetime.now())
     db_session.commit()
     admin = db_session.query(Users).filter(Users.id == 1).first()
-    role = db_session.query(Roles).filter(Roles.id == 1).first()
+    role = user_datastore.find_role("Admin")
     user_datastore.add_role_to_user(admin, role)
 
 
@@ -158,6 +160,19 @@ def edit_profile():
         return redirect(url_for('user_profile'))
 
     return render_template("edit_profile.html", user=current_user)
+
+
+@app.route("/add_role_post")
+@auth_required()
+def add_role():
+    assigned = db_session.query(RolesUsers.user_id).join(Roles).filter(RolesUsers.user_id == current_user.id).\
+        filter(Roles.name == "Standard User").all()
+    if current_user.id not in assigned:
+        role = user_datastore.find_role("Standard User")
+        user = db_session.query(Users).filter(Users.id == current_user.id).first()
+        user_datastore.add_role_to_user(user, role)
+        db_session.commit()
+    return redirect(url_for("home"))
 
 
 # Run the app
