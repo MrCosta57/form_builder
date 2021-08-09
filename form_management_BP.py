@@ -5,6 +5,7 @@ from flask_security import current_user, auth_required
 from database import db_session
 from models import *
 from form_function import *
+import csv
 
 form_management_BP = Blueprint('form_management_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
@@ -263,21 +264,6 @@ def form_answers(form_id):
 
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
 
-    f = open('templates/form/answers.csv', 'w')
-
-    # create the csv writer
-    writer = csv.writer(f)
-
-    answers_all = db_session.query(Users.username, Questions.text, SeqAnswers.content).filter(
-        Answers.form_id == form_id).filter(
-        Answers.id == SeqAnswers.id).filter(Users.id == Answers.user_id).filter(Questions.id == Answers.question_id)
-
-    for a in answers_all:
-        writer.writerow(a)
-
-    # close the file
-    f.close()
-
     return render_template("form_answers.html", user=current_user, answers=answers, form=current_form,
                            total_answers=total_answers)
 
@@ -290,7 +276,7 @@ def download_csv_answers(form_id):
         Answers.id == SeqAnswers.id).filter(Users.id == Answers.user_id).filter(Questions.id == Answers.question_id)
     csv = ''
     for a in answers_all:
-        csv = csv + a + '\n'
+        csv = csv + a.username + ',' + a.text + ',' + a.content + '\n'
 
     return Response(
         csv,

@@ -304,7 +304,7 @@
                     box.innerHTML=righe;
                 }
             }
-
+            let vett = new Array(n);
             function submit_f(val) {
                 const box = document.getElementById('submit');
                 box.innerHTML = '';
@@ -312,21 +312,42 @@
                 /*Function that returns duplicates of an array*/
                 let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
 
-                /*array that contains possible answers*/
-                let vett = new Array(n)
-                for(let i=1; i<=n; i++){
-                    /*if we find a possibile answers blank*/
-                    if(document.getElementById(i.toString()).value === "")
-                        return;
+                /*array that contains possible answers without spaces and symbols*/
 
-                    vett[i]=document.getElementById(i.toString()).value;
+
+                for(let i=1; i<=n; i++){
+                    let campo = document.getElementById(i.toString()).value
+                    vett[i]='';
+
+                    /*if we find a possibile answers blank*/
+                    if(campo === "" ) {
+                        box.innerHTML = '<h5>You cannot put blank anwers</h5>'
+                        return;
+                    }
+
+                    /*if we find an answers with no number and no letter*/
+                    let find = false;
+                    let k = campo.length;
+                    while ((k--)) {
+                      if(( campo.charAt(k) >= 'A' && campo.charAt(k) <= 'z') ||( campo.charAt(k) >= '0' && campo.charAt(k) <= '9')) {
+                          find = true;
+                          vett[i] += campo.charAt(k);
+                      }
+                    }
+
+                    if(!find){
+                        box.innerHTML = '<h5>Each possible answers must have at least one letter or number</h5>'
+                        return;
+                    }
+
                 }
 
                 /*if we find a duplicate of a possible answers*/
                 if(findDuplicates(vett).length !== 0){
-                    box.innerHTML = '<h3>SONO PRESENTI DEI DUPLICATI NELLE RISPOSTE</h3>'
+                    box.innerHTML = '<h5>Cannot exists two answers with the same letters and numbers excluding spaces and symbols</h5>'
                     return;
                 }
+
                 if (val.value !== "")
                     box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>'
             }
