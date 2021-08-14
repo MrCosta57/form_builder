@@ -40,7 +40,7 @@ app.config['SECURITY_POST_LOGIN_VIEW'] = '/'
 app.config['SECURITY_RECOVERABLE'] = True
 app.config['SECURITY_CHANGEABLE'] = True
 app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
-
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1000 * 1000
 
 # Generate a nice key using secrets.token_urlsafe()
 if not os.path.isfile('.env'):

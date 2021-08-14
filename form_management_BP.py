@@ -1,13 +1,16 @@
 import csv
 from datetime import date
-from flask import render_template, request, redirect, url_for, Blueprint, Response
+from flask import render_template, request, redirect, url_for, Blueprint, Response, flash
 from flask_security import current_user, auth_required
+from werkzeug.utils import secure_filename
+
 from database import db_session
 from models import *
 from form_function import *
 import csv
 
 form_management_BP = Blueprint('form_management_BP', __name__, template_folder='templates/form', url_prefix='/form')
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 
 # Endpoint for the list of forms of the current user.
@@ -181,7 +184,6 @@ def form_edit_question(form_id, question_id):
 
         # if the user want to change the question we use the function question_db
         else:
-
             message = question_db("edit", req, form_id, question_id)
 
             if message:
@@ -211,15 +213,16 @@ def form_edit_question(form_id, question_id):
 def form_view(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
 
+    # check if the user already answered the form
+    exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
+        Answers.user_id == current_user.id).first()
+    if exist_answers:
+        return render_template("error.html", message="Hai già compilato questo form")
+
+
     # If a user answers the form we save the POST info
     if request.method == "POST":
         req = request.form
-
-        # check if the user already answered the form
-        exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
-            Answers.user_id == current_user.id).first()
-        if exist_answers:
-            return render_template("error.html", message="Hai già compilato questo form")
 
         # Get for every answered question
         for q in current_form.questions:
@@ -230,9 +233,27 @@ def form_view(form_id):
 
             # We add the object: answers
             ans = Answers(form_id=form_id, question_id=q.id, user_id=current_user.id)
-
             db_session.add(ans)
             db_session.commit()
+
+            # Check if there is a file to memorize it
+
+            file = request.files['file']
+            if file:
+                filename = secure_filename(file.filename)
+                if file.filename == '':
+                    flash('No selected file')
+                    return redirect(request.url)
+                mimetype = file.mimetype
+                if not filename or not mimetype:
+                    return 'Bad upload!', 400
+                if not allowed_file(file.filename):
+                    flash('File not allowed')
+                    return redirect(request.url)
+                else:
+                    virtual_file = Files(data=file.read(), name=filename, mimetype=mimetype, answer_id=ans.id)
+                    db_session.add(virtual_file)
+                    db_session.commit()
 
             # we add all the answers (if the users leave a blank multiple choice/single answer we don't memorize
             # anything)
@@ -248,9 +269,14 @@ def form_view(form_id):
 
     # The creator of a form can only edit the form
     if current_user.id != current_form.creator_id:
-        return render_template("form.html", user=current_user, questions=current_form.questions, form=current_form)
+        return render_template("form_view.html", user=current_user, questions=current_form.questions, form=current_form)
     else:
         return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 # Visualize the answers of a specific form
@@ -282,3 +308,4 @@ def download_csv_answers(form_id):
         csv,
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=answers.csv"})
+

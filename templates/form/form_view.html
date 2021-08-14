@@ -15,7 +15,7 @@
     <div class="container">
         <div class="form-group">
             <div class="input-group">
-                <form action="" method="POST" name="form">
+                <form action="" method="POST" name="form" enctype=multipart/form-data>
                     <!--For all the question in the form create:
                                     -open: input text name=q.id
                                     -single: set of input radio name=q.id
@@ -23,9 +23,15 @@
                     {% for q in questions %}
                         <div class="form-group">
                             <label>{{q.text}}</label><br>
-
                             {% if q.open %}
-                                <input type="text" class="form-control" name="{{q.id}}"><br><br>
+                                <input type="text" class="form-control" name="{{q.id}}">
+                                {%for tmp in q.open%}
+                                    {%if tmp.has_file%}
+                                        <label>Select File:</label>
+                                        <input type="file" name="file" id="file">
+                                        <button type="reset" id="cancel">Cancel</button><br><br>
+                                    {%endif%}
+                                {%endfor%}
 
                             {% elif q.single %}
                                 {% for q1 in q.single%} <!-- we need to loop in q.single because is a set of 1 element -->
@@ -60,4 +66,60 @@
             </div>
         </div>
     </div>
+
+
+    <script>
+        //Script for cancel files upload
+        var inputElement = document.getElementById("file");
+        var cancelButton = document.getElementById("cancel");
+        var numFiles = 0;
+
+        inputElement.onclick = function(event) {
+          var target = event.target || event.srcElement;
+          console.log(target, "clicked.");
+          console.log(event);
+          if (target.value.length == 0) {
+            console.log("Suspect Cancel was hit, no files selected.");
+            cancelButton.onclick();
+          } else {
+            console.log("File selected: ", target.value);
+            numFiles = target.files.length;
+          }
+        }
+
+        inputElement.onchange = function(event) {
+          var target = event.target || event.srcElement;
+          console.log(target, "changed.");
+          console.log(event);
+          if (target.value.length == 0) {
+            console.log("Suspect Cancel was hit, no files selected.");
+            if (numFiles == target.files.length) {
+              cancelButton.onclick();
+            }
+          } else {
+            console.log("File selected: ", target.value);
+            numFiles = target.files.length;
+          }
+        }
+
+        inputElement.onblur = function(event) {
+          var target = event.target || event.srcElement;
+          console.log(target, "changed.");
+          console.log(event);
+          if (target.value.length == 0) {
+            console.log("Suspect Cancel was hit, no files selected.");
+            if (numFiles == target.files.length) {
+              cancelButton.onclick();
+            }
+          } else {
+            console.log("File selected: ", target.value);
+            numFiles = target.files.length;
+          }
+        }
+
+        cancelButton.onclick = function(event) {
+          console.log("Pseudo Cancel button clicked.");
+        }
+    </script>
+
 {% endblock %}

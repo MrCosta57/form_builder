@@ -2,7 +2,7 @@ from database import Base
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, Column, Integer, \
-    String, ForeignKey, Date, DateTime
+    String, ForeignKey, Date, DateTime, Text, LargeBinary
 
 
 class Roles(Base, RoleMixin):
@@ -81,7 +81,6 @@ class Tags(Base):
 class Questions(Base):
     __tablename__ = 'questions'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    file = Column(String(255))
     text = Column(String(255))
 
     tags = relationship('Tags', secondary='tags_questions', back_populates='questions')
@@ -107,6 +106,7 @@ class PossibleAnswersS(Base):
 class OpenQuestions(Base):
     __tablename__ = 'open_questions'
     id = Column(Integer,  ForeignKey(Questions.id), primary_key=True)
+    has_file = Column(Boolean, default=False, nullable=False)
 
 
 class MultipleChoiceQuestions(Base):
@@ -133,6 +133,16 @@ class Answers(Base):
     text = relationship('SeqAnswers', back_populates='info')
     form = relationship('Forms', back_populates='answers')
     user = relationship('Users')
+    files = relationship('Files')
+
+
+class Files(Base):
+    __tablename__ = 'files'
+    id = Column(Integer, primary_key=True)
+    data = Column(LargeBinary, unique=True, nullable=False)
+    name = Column(Text, nullable=False)
+    mimetype = Column(Text, nullable=False)
+    answer_id = Column(Integer, ForeignKey(Answers.id), nullable=False)
 
 
 class SeqAnswers(Base):

@@ -31,9 +31,11 @@
 
                     <input type="hidden" name="question" value="{{q.id}}"> <!-- Hidden form to send the id question when clicking on DELETE-->
                     <input type="submit" value="DELETE" class="btn btn-danger">
+                    {% if q.open %}
+                        <p>Allows file: {%for tmp in q.open%}{{tmp.has_file}}{%endfor%}</p>
+                    {%endif%}
                 </form>
             </li>
-
             {% if q.single %}
                 {% for q1 in q.single%}
                     <ul>

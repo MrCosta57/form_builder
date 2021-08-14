@@ -175,7 +175,11 @@ def question_db(type, req, form_id, question_id):
             q = Questions(text=text_question)
             db_session.add(q)
             db_session.commit()
-            db_session.add(OpenQuestions(id=q.id))
+
+            has_file = False
+            if req.get('file_choose') == 'si':
+                has_file = True
+            db_session.add(OpenQuestions(id=q.id, has_file=has_file))
             db_session.commit()
 
             # link the question with tag

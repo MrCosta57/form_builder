@@ -68,6 +68,8 @@
 
             <span id="inserisci domanda"></span>
 
+            <span id="inserisci file"></span>
+
             <span id ="mostra domanda"></span>
 
             <span id="inserisci possibili risposte"></span>
@@ -77,6 +79,8 @@
             </span>
         </div>
     </form>
+
+
     	<script type='text/javascript'>
             let v_choose = null;
 
@@ -88,6 +92,7 @@
                 document.getElementById('nuovo tag').innerHTML = '';
                 document.getElementById('seleziona tipo di domanda').innerHTML = '';
                 document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('inserisci file').innerHTML = '';
                 document.getElementById('mostra domanda').innerHTML = '';
                 document.getElementById('inserisci possibili risposte').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
@@ -119,6 +124,7 @@
                 document.getElementById('nuovo tag').innerHTML = '';
                 document.getElementById('seleziona tipo di domanda').innerHTML = '';
                 document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('inserisci file').innerHTML = '';
                 document.getElementById('mostra domanda').innerHTML = '';
                 document.getElementById('inserisci possibili risposte').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
@@ -150,6 +156,7 @@
                 const box = document.getElementById('nuovo tag');
                 document.getElementById('seleziona tipo di domanda').innerHTML = '';
                 document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('inserisci file').innerHTML = '';
                 document.getElementById('mostra domanda').innerHTML = '';
                 document.getElementById('inserisci possibili risposte').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
@@ -167,6 +174,7 @@
             function tipo_domanda(val) {
                 const box = document.getElementById('seleziona tipo di domanda');
                 document.getElementById('inserisci domanda').innerHTML = '';
+                document.getElementById('inserisci file').innerHTML = '';
                 document.getElementById('mostra domanda').innerHTML = '';
                 document.getElementById('inserisci possibili risposte').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
@@ -191,6 +199,7 @@
             * Testo della domanda + eventuale numero possibili risposte se non import*/
             function inserisci_domanda(type) {
                 const box = document.getElementById('inserisci domanda');
+                document.getElementById('inserisci file').innerHTML = '';
                 document.getElementById('mostra domanda').innerHTML = '';
                 document.getElementById('inserisci possibili risposte').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
@@ -200,7 +209,7 @@
                     let tipo = type.value;
                     if(tipo === 'open')
                         box.innerHTML = '<h3>Insert the question text</h3>' +
-                        '<input type="text" class="form-control" name="text_question" onKeyUp="submit_f(this)"><br><br>';
+                        '<input type="text" class="form-control" name="text_question" onKeyUp="inserisci_file(); submit_f(this)"><br><br>';
                     if(tipo === 'single' || tipo === 'multiple_choice'){
                         box.innerHTML = '<h3>Insert the question text</h3>\n' +
                             '            <input type="text" class="form-control" name="text_question"><br><br>' +
@@ -229,6 +238,23 @@
                 }
 
             }
+            /*Selezione se aggiungere o no un file*/
+            function inserisci_file(){
+                const box = document.getElementById('inserisci file');
+                document.getElementById('mostra domanda').innerHTML = '';
+                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                document.getElementById('submit').innerHTML = '';
+                box.innerHTML='';
+
+                let str = '<h3>Would you like to allow the possibility to add files for this question?</h3>' +
+                        '<select name="file_choose">\n' +
+                        '<option value="no" selected>No</option>\n'+
+                        '<option value="si">Yes</option></select>\n';
+
+                box.innerHTML = str;
+            }
+
+
             /*Mostra la domanda nel caso di import*/
             function mostra_domanda(id) {
                 const id_q = id.value;
@@ -304,6 +330,8 @@
                     box.innerHTML=righe;
                 }
             }
+
+
             let vett = new Array(n);
             function submit_f(val) {
                 const box = document.getElementById('submit');
@@ -351,5 +379,8 @@
                 if (val.value !== "")
                     box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>'
             }
+
+
         </script>
+
 {% endblock %}
