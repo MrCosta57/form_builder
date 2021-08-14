@@ -131,17 +131,24 @@ def init_base_question():
 
 # function that add or edit a question in the db (with tags and possible answers)
 def question_db(type, req, form_id, question_id):
+    # mandatory
+    mand = req.get("mandatory")
+    if mand == "on":
+        mand = True
+    else:
+        mand = False
+
     # Question already exists
     if req.get("choose") == "si":
         id_q = req.get("question_choose")  # Menu a tendina con lista domande
 
         # add or edit
         if type == 'add':
-            db_session.add(FormsQuestions(form_id=form_id, question_id=id_q))
+            db_session.add(FormsQuestions(form_id=form_id, question_id=id_q, mandatory=mand))
         elif type == 'edit':
             db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                 FormsQuestions.question_id == question_id) \
-                .update({FormsQuestions.question_id: id_q}, synchronize_session=False)
+                .update({FormsQuestions.question_id: id_q, FormsQuestions.mandatory: mand}, synchronize_session=False)
         db_session.commit()
 
     # new Question
@@ -183,11 +190,11 @@ def question_db(type, req, form_id, question_id):
 
             # link the question with the form
             if type == 'add':
-                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id))
+                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand))
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id}, synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand}, synchronize_session=False)
 
         elif tipo_domanda == "single":
 
@@ -210,11 +217,11 @@ def question_db(type, req, form_id, question_id):
 
             # link the question with form
             if type == 'add':
-                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id))
+                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand))
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id}, synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand}, synchronize_session=False)
 
         elif tipo_domanda == "multiple_choice":
             # add the new question
@@ -236,11 +243,11 @@ def question_db(type, req, form_id, question_id):
 
             # link the question with form
             if type == 'add':
-                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id))
+                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand))
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id}, synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand}, synchronize_session=False)
 
         db_session.commit()
 

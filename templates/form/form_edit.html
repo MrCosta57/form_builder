@@ -24,7 +24,7 @@
         {% for q in questions %}
             <li>
                 <form method="POST">
-                    {{q.text}}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {{q.text}}{%for m in mand %}{%if m.question_id == q.id and m.mandatory %}*{% endif %}{% endfor %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="/form/{{form.id}}/{{q.id}}">
                         <button type="button" class="btn btn-green">EDIT QUESTION</button>
                     </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

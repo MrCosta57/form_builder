@@ -114,7 +114,8 @@ def form_edit(form_id):
 
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
-    return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
+    mand = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id)
+    return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
 
 
 # Editing a specific form info: name and descprition
@@ -247,10 +248,11 @@ def form_view(form_id):
         return redirect(url_for('home'))
 
     # The creator of a form can only edit the form
+    mand = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id)
     if current_user.id != current_form.creator_id:
-        return render_template("form.html", user=current_user, questions=current_form.questions, form=current_form)
+        return render_template("form.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
     else:
-        return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
+        return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
 
 
 # Visualize the answers of a specific form

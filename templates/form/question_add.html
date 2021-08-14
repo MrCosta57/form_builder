@@ -57,6 +57,10 @@
                     </select>
                 </label>
             {% endif %}
+            <span id="obbligo">
+                <h3>Mandatory?</h3>
+                <input type="checkbox" name="mandatory"><br><br>';
+            </span>
 
             <span id="modifica"></span>
 
@@ -213,11 +217,11 @@
                         '<select name="question_choose" onChange="mostra_domanda(this); submit_f(this)">\n' +
                         '<option value="" selected> </option>\n';
 
-                    {% for q in questions %}
-                        {% for t in q.tags %}
+                    {% for q1 in questions %}
+                        {% for t in q1.tags %}
                             if( '{{t.argument}}' === tag){
-                                {% if q not in form.questions%}
-                                    str +='<option value="{{q.id}}">{{q.text}}</option>\n';
+                                {%if (q1.id == q.id) or (q1 not in form.questions)%}
+                                    str +='<option value="{{q1.id}}">{{q1.text}}</option>\n';
                                 {% endif %}
                             }
                         {% endfor %}
