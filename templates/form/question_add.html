@@ -229,7 +229,7 @@
                     {% for q1 in questions %}
                         {% for t in q1.tags %}
                             if( '{{t.argument}}' === tag){
-                                {%if (q1.id == q.id) or (q1 not in form.questions)%}
+                                {%if (edit and q1.id == q.id) or (q1 not in form.questions)%}
                                     str +='<option value="{{q1.id}}">{{q1.text}}</option>\n';
                                 {% endif %}
                             }
