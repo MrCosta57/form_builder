@@ -117,7 +117,8 @@ def form_edit(form_id):
 
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
-    return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
+    mand = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id)
+    return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
 
 
 # Editing a specific form info: name and descprition
@@ -184,6 +185,7 @@ def form_edit_question(form_id, question_id):
 
         # if the user want to change the question we use the function question_db
         else:
+
             message = question_db("edit", req, form_id, question_id)
 
             if message:
@@ -268,10 +270,11 @@ def form_view(form_id):
         return redirect(url_for('home'))
 
     # The creator of a form can only edit the form
+    mand = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id)
     if current_user.id != current_form.creator_id:
-        return render_template("form_view.html", user=current_user, questions=current_form.questions, form=current_form)
+        return render_template("form_view.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
     else:
-        return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form)
+        return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
 
 
 def allowed_file(filename):
@@ -308,4 +311,3 @@ def download_csv_answers(form_id):
         csv,
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=answers.csv"})
-

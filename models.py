@@ -68,6 +68,7 @@ class FormsQuestions(Base):
     __tablename__ = 'forms_questions'
     form_id = Column('form_id', Integer(), ForeignKey('forms.id'), primary_key=True)
     question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
+    mandatory = Column('mandatory', Boolean(), default=False)
 
 
 class Tags(Base):

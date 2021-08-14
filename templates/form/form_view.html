@@ -15,16 +15,17 @@
     <div class="container">
         <div class="form-group">
             <div class="input-group">
-                <form action="" method="POST" name="form" enctype=multipart/form-data>
+                <form action="" onsubmit="return mySubmit()" method="POST" name="form">
                     <!--For all the question in the form create:
                                     -open: input text name=q.id
                                     -single: set of input radio name=q.id
                                     -multiple_choice: set of input checkbox name=q.id-->
                     {% for q in questions %}
                         <div class="form-group">
-                            <label>{{q.text}}</label><br>
+                            <label>{{q.text}}{%for m in mand %}{%if m.question_id == q.id and m.mandatory %}*{% endif %}{% endfor %}</label><br>
+
                             {% if q.open %}
-                                <input type="text" class="form-control" name="{{q.id}}">
+                                <input type="text" id="{{q.id}}" class="form-control" name="{{q.id}}">
                                 {%for tmp in q.open%}
                                     {%if tmp.has_file%}
                                         <label>Select File:</label>
@@ -38,7 +39,7 @@
                                     <br>
                                     {% for a in q1.possible_answers%}
                                         <label>{{a.content}}</label>
-                                        <input type="radio" name="{{q.id}}" value="{{a.content}}"><br><br>
+                                        <input id="{{q.id}}" type="radio" name="{{q.id}}" value="{{a.content}}"><br><br>
                                     {% endfor %}
                                     <br>
                                 {% endfor %}
@@ -49,7 +50,7 @@
                                     {% for a in q1.possible_answers%}
                                         <div class="form-check-group">
                                             <label>{{a.content}}</label>
-                                            <input type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
+                                            <input id="{{q.id}}" type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
                                         </div>
                                     {% endfor %}
                                     <br>
@@ -120,6 +121,23 @@
         cancelButton.onclick = function(event) {
           console.log("Pseudo Cancel button clicked.");
         }
-    </script>
 
+
+
+        /* Controlla domande obbligatorie */
+        function mySubmit() {
+            {%for q in questions%}
+                {% for m in mand%}
+                    {%if m.question_id == q.id and m.mandatory %}
+                        if(document.getElementById({{q.id}}).value == '')
+                        {
+                            alert("COMPILA LE DOMANDE OBBLIGATORIE");
+                            return false;
+                        }
+                    {% endif %}
+                {% endfor %}
+             {% endfor %}
+            return true;
+        }
+    </script>
 {% endblock %}
