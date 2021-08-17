@@ -24,14 +24,18 @@
         {% for q in form.questions %}
 
             <h5>{{q.text}}</h5>
-
-            {% for a in answers%}
+            {% for a, f in answers%}
                 {% if a.question_id == q.id%}
                     <li>
                         <b>Username: {{a.user.username}}</b>&nbsp;&nbsp;&nbsp;&nbsp;
                         {% for t in a.text %}
                             {{t.content}}; &nbsp;&nbsp;&nbsp;&nbsp;
                         {% endfor %}
+                        {%if f.id is defined%}
+                            <a href="/form/{{form.id}}/answers/{{a.id}}/{{a.user_id}}" target="_blank">
+                                <button type="button" class="btn btn-green">View File</button>
+                            </a>
+                        {%endif%}
                     </li>
 
                 {% endif %}

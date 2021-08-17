@@ -8,14 +8,26 @@
         <h1>Welcome {{user.name}}</h1>
         <h4>This is the form: <b>{{form.name}}</b>. </h4>
         <h6>{{form.description}}</h6>
-        <h4>Here the questions:</h4><br>
+        <h4>Here the questions:</h4>
     </div>
 
     <!--Form-->
     <div class="container">
+        <!--Print if there are some flask error messages-->
+        {% with file_error = get_flashed_messages(category_filter=["file_error"]) %}
+          {% if file_error %}
+            <ul>
+            {% for message in file_error %}
+              <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        {% endwith %}
+        <br>
         <div class="form-group">
             <div class="input-group">
-                <form action="" onsubmit="return mySubmit()" method="POST" name="form">
+
+                <form action="" onsubmit="return mySubmit()" method="POST" name="form" enctype="multipart/form-data">
                     <!--For all the question in the form create:
                                     -open: input text name=q.id
                                     -single: set of input radio name=q.id
@@ -29,8 +41,9 @@
                                 {%for tmp in q.open%}
                                     {%if tmp.has_file%}
                                         <label>Select File:</label>
-                                        <input type="file" name="file" id="file">
-                                        <button type="reset" id="cancel">Cancel</button><br><br>
+                                        <input type="file" name="file_{{q.id}}" id="file_{{q.id}}">
+                                        <button type="reset" id="cancel">Cancel</button>
+                                        <br><br>
                                     {%endif%}
                                 {%endfor%}
 
@@ -129,9 +142,12 @@
             {%for q in questions%}
                 {% for m in mand%}
                     {%if m.question_id == q.id and m.mandatory %}
-                        if(document.getElementById({{q.id}}).value == '')
-                        {
-                            alert("COMPILA LE DOMANDE OBBLIGATORIE");
+                        if(document.getElementById('{{q.id}}').value === ''){
+                            alert("You must fill the mandatory questions first!");
+                            return false;
+                        }
+                        if (document.getElementById('file_{{q.id}}').value === ''){
+                            alert("You must upload all your files first!");
                             return false;
                         }
                     {% endif %}

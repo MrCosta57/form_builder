@@ -1,13 +1,7 @@
-import csv
-from datetime import date
-from flask import render_template, request, redirect, url_for, Blueprint, Response, flash
+from flask import render_template, request, redirect, url_for, Blueprint, Response, flash, make_response
 from flask_security import current_user, auth_required
 from werkzeug.utils import secure_filename
-
-from database import db_session
-from models import *
 from form_function import *
-import csv
 
 form_management_BP = Blueprint('form_management_BP', __name__, template_folder='templates/form', url_prefix='/form')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -46,7 +40,7 @@ def form_create():
         exist_form = db_session.query(Forms).filter(Forms.name == nome).filter(
             Forms.creator_id == current_user.id).first()
         if exist_form:
-            return render_template("error.html", message="Hai già creato un form con questo nome")
+            return render_template("error.html", message="You have already created a form with this name")
 
         descrizione = req.get("description")  # descrizione del form
 
@@ -135,7 +129,7 @@ def form_edit_main_info(form_id):
         exist_form = db_session.query(Forms).filter(Forms.name == req.get("name")).filter(
             Forms.creator_id == current_user.id).filter(Forms.id != form_id).first()
         if exist_form:
-            return render_template("error.html", message="Hai già creato un form con questo nome")
+            return render_template("error.html", message="You have already created a form with this name")
 
         current_form.update({"name": req.get("name"), "description": req.get("description")})
         db_session.commit()
@@ -219,13 +213,29 @@ def form_view(form_id):
     exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
         Answers.user_id == current_user.id).first()
     if exist_answers:
-        return render_template("error.html", message="Hai già compilato questo form")
+        return render_template("error.html", message="You have already filled out this form")
 
-
-    # If a user answers the form we save the POST info
     if request.method == "POST":
-        req = request.form
+        # Check if the uploaded files have the requirements before store them and store questions
+        open_question_file_check = db_session.query(OpenQuestions.id).join(FormsQuestions, OpenQuestions.id == FormsQuestions.question_id)\
+            .filter(FormsQuestions.form_id == form_id).filter(OpenQuestions.has_file).all()
+        for tmp_id in open_question_file_check:
+            file = request.files['file_'+str(tmp_id[0])]
+            if file:
+                filename = secure_filename(file.filename)
+                if file.filename == '':
+                    flash('No selected file in some questions', 'file_error')
+                    return redirect(request.url)
+                mimetype = file.mimetype
+                if not filename or not mimetype:
+                    flash('Bad uploads!', 'file_error')
+                    return redirect(request.url)
+                if not allowed_file(file.filename):
+                    flash('Some file are not allowed', 'file_error')
+                    return redirect(request.url)
 
+        # If a user answers the form we save the POST info
+        req = request.form
         # Get for every answered question
         for q in current_form.questions:
             if not q.multiple_choice:
@@ -238,24 +248,17 @@ def form_view(form_id):
             db_session.add(ans)
             db_session.commit()
 
-            # Check if there is a file to memorize it
-
-            file = request.files['file']
-            if file:
-                filename = secure_filename(file.filename)
-                if file.filename == '':
-                    flash('No selected file')
-                    return redirect(request.url)
-                mimetype = file.mimetype
-                if not filename or not mimetype:
-                    return 'Bad upload!', 400
-                if not allowed_file(file.filename):
-                    flash('File not allowed')
-                    return redirect(request.url)
-                else:
-                    virtual_file = Files(data=file.read(), name=filename, mimetype=mimetype, answer_id=ans.id)
-                    db_session.add(virtual_file)
-                    db_session.commit()
+            # Check if the question is open question and if it allows file adding
+            for tmp in q.open:
+                if tmp.has_file:
+                    # File memorization (the name and the extension was checked before)
+                    file = request.files['file_'+str(tmp.id)]
+                    if file:
+                        filename = secure_filename(file.filename)
+                        mimetype = file.mimetype
+                        virtual_file = Files(data=file.read(), name=filename, mimetype=mimetype, answer_id=ans.id)
+                        db_session.add(virtual_file)
+                        db_session.commit()
 
             # we add all the answers (if the users leave a blank multiple choice/single answer we don't memorize
             # anything)
@@ -287,7 +290,7 @@ def allowed_file(filename):
 @auth_required()
 def form_answers(form_id):
     # List of all the answers of this for
-    answers = db_session.query(Answers).filter(Answers.form_id == form_id)
+    answers = db_session.query(Answers, Files).join(Files, Answers.id == Files.answer_id, isouter=True).filter(Answers.form_id == form_id)
     total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
         Answers.user_id).count()
 
@@ -295,6 +298,22 @@ def form_answers(form_id):
 
     return render_template("form_answers.html", user=current_user, answers=answers, form=current_form,
                            total_answers=total_answers)
+
+
+@form_management_BP.route("/<form_id>/answers/<answer_id>/<user_id>")
+@auth_required()
+def view_files(form_id, answer_id, user_id):
+
+    is_creator = db_session.query(Forms).filter(Forms.creator_id == current_user.id).filter(form_id == Forms.id).first()
+    if is_creator:
+        file = db_session.query(Files).filter(Answers.user_id == user_id).filter(Files.answer_id == answer_id).first()
+        response = make_response(file.data)
+        response.headers['Content-Type'] = file.mimetype
+        response.headers['Content-Disposition'] = 'inline; filename=%s.pdf' % file.name
+        return response
+        # return Response(file.data, mimetype=file.mimetype)
+    else:
+        return render_template('error.html', message="You do not have permission to view this content")
 
 
 @form_management_BP.route("/<form_id>/download_csv")

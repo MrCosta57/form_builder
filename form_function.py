@@ -43,7 +43,8 @@ def init_base_question():
                         Questions(text="Fai la raccolta differenziata?"),
                         Questions(text="Quali stati hai visitato?"),
                         Questions(text="Possiedi animali?"),
-                        Questions(text="Animale preferito")])
+                        Questions(text="Animale preferito"),
+                        Questions(text="Carica il tuo CV")])
     db_session.commit()
 
     db_session.add_all([OpenQuestions(id=1),
@@ -72,6 +73,7 @@ def init_base_question():
                         OpenQuestions(id=24),
                         OpenQuestions(id=25),
                         OpenQuestions(id=26),
+                        OpenQuestions(id=27, has_file=True),
 
                         TagsQuestions(tag_id=1, question_id=1),
                         TagsQuestions(tag_id=1, question_id=2),
@@ -100,7 +102,8 @@ def init_base_question():
                         TagsQuestions(tag_id=8, question_id=24),
                         TagsQuestions(tag_id=6, question_id=25),
                         TagsQuestions(tag_id=1, question_id=25),
-                        TagsQuestions(tag_id=6, question_id=26)])
+                        TagsQuestions(tag_id=6, question_id=26),
+                        TagsQuestions(tag_id=5, question_id=27)])
     db_session.commit()
 
     db_session.add_all([PossibleAnswersS(idPosAnswS=5, content="0-17"),
@@ -160,7 +163,7 @@ def question_db(type, req, form_id, question_id):
             new_tag = req.get("tag_aggiunto")  # form input text tag
             # add the tag to the database
             if db_session.query(Tags).filter(Tags.argument == new_tag).first():
-                return "ESISTE GIA QUESTO TAG"
+                return "THIS TAG ALREADY EXISTS"
             db_session.add(Tags(argument=new_tag))
             db_session.commit()
             tag = new_tag
@@ -176,7 +179,7 @@ def question_db(type, req, form_id, question_id):
             # Check if the question already exists
             exists = db_session.query(Questions).filter(Questions.text == text_question).first()
             if exists and exists.open:
-                return "ESISTE GIA QUESTA DOMANDA"
+                return "THIS QUESTION ALREADY EXISTS"
 
             # Add the question
             q = Questions(text=text_question)
@@ -302,7 +305,8 @@ def template_meets(id_user, name, description):
                         FormsQuestions(form_id=f.id, question_id=7),
                         FormsQuestions(form_id=f.id, question_id=8),
                         FormsQuestions(form_id=f.id, question_id=13),
-                        FormsQuestions(form_id=f.id, question_id=20)])
+                        FormsQuestions(form_id=f.id, question_id=20),
+                        FormsQuestions(form_id=f.id, question_id=27)])
     db_session.commit()
 
 

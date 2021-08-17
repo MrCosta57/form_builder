@@ -140,7 +140,7 @@ class Answers(Base):
 class Files(Base):
     __tablename__ = 'files'
     id = Column(Integer, primary_key=True)
-    data = Column(LargeBinary, unique=True, nullable=False)
+    data = Column(LargeBinary, nullable=False)
     name = Column(Text, nullable=False)
     mimetype = Column(Text, nullable=False)
     answer_id = Column(Integer, ForeignKey(Answers.id), nullable=False)
