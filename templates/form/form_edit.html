@@ -21,10 +21,10 @@
                                             -sublist ul in wich each element is a possible answers
             At the end: ADD QUESTION-->
         <ol>
-        {% for q in questions %}
+        {% for q, m in questions %}
             <li>
                 <form method="POST">
-                    {{q.text}}{%for m in mand %}{%if m.question_id == q.id and m.mandatory %}*{% endif %}{% endfor %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {{q.text}}{%if m.mandatory %}*{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="/form/{{form.id}}/{{q.id}}">
                         <button type="button" class="btn btn-green">EDIT QUESTION</button>
                     </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

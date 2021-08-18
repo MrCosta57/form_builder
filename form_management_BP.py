@@ -111,8 +111,8 @@ def form_edit(form_id):
 
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
-    mand = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id)
-    return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
+    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(Questions.id == FormsQuestions.question_id)
+    return render_template("form_edit.html", user=current_user, questions=questions, form=current_form,)
 
 
 # Editing a specific form info: name and descprition
@@ -217,10 +217,11 @@ def form_view(form_id):
 
     if request.method == "POST":
         # Check if the uploaded files have the requirements before store them and store questions
-        open_question_file_check = db_session.query(OpenQuestions.id).join(FormsQuestions, OpenQuestions.id == FormsQuestions.question_id)\
+        open_question_file_check = db_session.query(OpenQuestions.id).join(FormsQuestions,
+                                                                           OpenQuestions.id == FormsQuestions.question_id) \
             .filter(FormsQuestions.form_id == form_id).filter(OpenQuestions.has_file).all()
         for tmp_id in open_question_file_check:
-            file = request.files['file_'+str(tmp_id[0])]
+            file = request.files['file_' + str(tmp_id[0])]
             if file:
                 filename = secure_filename(file.filename)
                 if file.filename == '':
@@ -252,7 +253,7 @@ def form_view(form_id):
             for tmp in q.open:
                 if tmp.has_file:
                     # File memorization (the name and the extension was checked before)
-                    file = request.files['file_'+str(tmp.id)]
+                    file = request.files['file_' + str(tmp.id)]
                     if file:
                         filename = secure_filename(file.filename)
                         mimetype = file.mimetype
@@ -273,11 +274,11 @@ def form_view(form_id):
         return redirect(url_for('home'))
 
     # The creator of a form can only edit the form
-    mand = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id)
+    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(Questions.id == FormsQuestions.question_id)
     if current_user.id != current_form.creator_id:
-        return render_template("form_view.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
+        return render_template("form_view.html", user=current_user, questions=questions, form=current_form)
     else:
-        return render_template("form_edit.html", user=current_user, questions=current_form.questions, form=current_form, mand=mand)
+        return render_template("form_edit.html", user=current_user, questions=questions, form=current_form)
 
 
 def allowed_file(filename):
@@ -290,7 +291,8 @@ def allowed_file(filename):
 @auth_required()
 def form_answers(form_id):
     # List of all the answers of this for
-    answers = db_session.query(Answers, Files).join(Files, Answers.id == Files.answer_id, isouter=True).filter(Answers.form_id == form_id)
+    answers = db_session.query(Answers, Files).join(Files, Answers.id == Files.answer_id, isouter=True).filter(
+        Answers.form_id == form_id)
     total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
         Answers.user_id).count()
 
@@ -303,7 +305,6 @@ def form_answers(form_id):
 @form_management_BP.route("/<form_id>/answers/<answer_id>/<user_id>")
 @auth_required()
 def view_files(form_id, answer_id, user_id):
-
     is_creator = db_session.query(Forms).filter(Forms.creator_id == current_user.id).filter(form_id == Forms.id).first()
     if is_creator:
         file = db_session.query(Files).filter(Answers.user_id == user_id).filter(Files.answer_id == answer_id).first()

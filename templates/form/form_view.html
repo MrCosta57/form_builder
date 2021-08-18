@@ -32,16 +32,16 @@
                                     -open: input text name=q.id
                                     -single: set of input radio name=q.id
                                     -multiple_choice: set of input checkbox name=q.id-->
-                    {% for q in questions %}
+                    {% for q, m in questions %}
                         <div class="form-group">
-                            <label>{{q.text}}{%for m in mand %}{%if m.question_id == q.id and m.mandatory %}*{% endif %}{% endfor %}</label><br>
+                            <label>{{q.text}}{%if m.mandatory %}*{% endif %}</label><br>
 
                             {% if q.open %}
-                                <input type="text" id="{{q.id}}" class="form-control" name="{{q.id}}">
+                                <input type="text" class="form-control" name="{{q.id}}" {%if m.mandatory %}required{% endif%}>
                                 {%for tmp in q.open%}
                                     {%if tmp.has_file%}
                                         <label>Select File:</label>
-                                        <input type="file" name="file_{{q.id}}" id="file_{{q.id}}">
+                                        <input type="file" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
                                         <button type="reset" id="cancel">Cancel</button>
                                         <br><br>
                                     {%endif%}
@@ -52,7 +52,7 @@
                                     <br>
                                     {% for a in q1.possible_answers%}
                                         <label>{{a.content}}</label>
-                                        <input id="{{q.id}}" type="radio" name="{{q.id}}" value="{{a.content}}"><br><br>
+                                        <input type="radio" name="{{q.id}}" value="{{a.content}}" {%if m.mandatory %}required{% endif%}><br><br>
                                     {% endfor %}
                                     <br>
                                 {% endfor %}
@@ -63,7 +63,7 @@
                                     {% for a in q1.possible_answers%}
                                         <div class="form-check-group">
                                             <label>{{a.content}}</label>
-                                            <input id="{{q.id}}" type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
+                                            <input  type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
                                         </div>
                                     {% endfor %}
                                     <br>
@@ -137,22 +137,24 @@
 
 
 
-        /* Controlla domande obbligatorie */
+        /* Controlla domande a risposta multipla obbligatorie */
         function mySubmit() {
-            {%for q in questions%}
-                {% for m in mand%}
-                    {%if m.question_id == q.id and m.mandatory %}
-                        if(document.getElementById('{{q.id}}').value === ''){
-                            alert("You must fill the mandatory questions first!");
-                            return false;
+            {% for q, m in questions%}
+                {%if m.mandatory and q.multiple_choice%}
+                    const radios = document.getElementsByName('{{q.id}}');
+                    let value = '';
+                    for (let i = 0; i < radios.length; i++) {
+                        if (radios[i].type === 'checkbox' && radios[i].checked) {
+                            // get value, set checked flag or do whatever you need to
+                            value = radios[i].value;
                         }
-                        if (document.getElementById('file_{{q.id}}').value === ''){
-                            alert("You must upload all your files first!");
-                            return false;
-                        }
-                    {% endif %}
-                {% endfor %}
-             {% endfor %}
+                    }
+                    if(value == ''){
+                        alert("You must fill the mandatory questions first!");
+                        return false;
+                    }
+                {%endif%}
+            {% endfor %}
             return true;
         }
     </script>

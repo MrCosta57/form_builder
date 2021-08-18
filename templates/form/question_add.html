@@ -87,9 +87,10 @@
 
     	<script type='text/javascript'>
             let v_choose = null;
-
+            let n = 0;
             /*vuoi importare domande?, oppure numero possibili risposte*/
             function check(c) {
+                n = 0;
                 const v_c = c.value;
                 const box = document.getElementById('modifica');
                 document.getElementById('seleziona tag').innerHTML = '';
@@ -293,7 +294,6 @@
                 {% endfor %}
             }
 
-            let n = 0
             function possibili_risposte(number) {
                 const v_number = number.value;
                 const box = document.getElementById('inserisci possibili risposte');

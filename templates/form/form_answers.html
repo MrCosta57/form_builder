@@ -56,7 +56,7 @@
                     {% endfor %}
 
                     /*aumenta i contatori in base al numero di risposte date*/
-                    {% for a in answers%}
+                    {% for a, f in answers%}
                         {% if a.question_id == q.id%}
                             {% for t in a.text %}
                                 _{% for c in t.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}++;
@@ -108,7 +108,7 @@
                     {% endfor %}
 
                     /*aumenta i contatori in base al numero di risposte date*/
-                    {% for a in answers%}
+                    {% for a,f in answers%}
                         {% if a.question_id == q.id%}
                             {% for t in a.text %}
                                 _{% for c in t.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}++;

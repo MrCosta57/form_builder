@@ -6,6 +6,7 @@ from flask_security import Security, current_user, auth_required, logout_user, \
     SQLAlchemySessionUserDatastore, user_registered
 from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
+from flask_user.signals import user_registered
 from wtforms import TextField, DateField
 
 from form_function import *
@@ -104,6 +105,13 @@ def create_admin_user():
     admin = db_session.query(Users).filter(Users.id == 1).first()
     role = user_datastore.find_role("Admin")
     user_datastore.add_role_to_user(admin, role)
+
+
+@user_registered.connect_via(app)
+def user_registered_sighandler(app, user, confirm_token):
+    default_role = user_datastore.find_role("Standard User")
+    user_datastore.add_role_to_user(user, default_role)
+    db.session.commit()
 
 
 # HomePage
