@@ -23,16 +23,25 @@
         <ol>
         {% for q, m in questions %}
             <li>
-                <form method="POST">
+                <form name="form_edit" method="POST">
                     {{q.text}}{%if m.mandatory %}*{% endif %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <a href="/form/{{form.id}}/{{q.id}}">
                         <button type="button" class="btn btn-green">EDIT QUESTION</button>
-                    </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
-                    <input type="hidden" name="question" value="{{q.id}}"> <!-- Hidden form to send the id question when clicking on DELETE-->
-                    <input type="submit" value="DELETE" class="btn btn-danger">
+                    <!-- Hidden form to send the id question when clicking on DELETE-->
+                    <input type="hidden" name="question" value="{{q.id}}">
+                    <input type="submit" value="DELETE" name="delete_button" class="btn btn-danger">
                     {% if q.open %}
-                        <p>Allows file: {%for tmp in q.open%}{{tmp.has_file}}{%endfor%}</p>
+                        {%for tmp in q.open%}
+                            <br>
+                            <!-- TODO MODIFICARE --><form id="allows_file_form" style="padding: 2rem" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
+                                <label class="form-check-label">Allows file </label>
+                                <input class="form-check-inline" type="checkbox" name="checkBox_file"
+                                       onclick="document.getElementById('allows_file_form').submit()"
+                                       {%if tmp.has_file%} checked {%endif%}/>
+                            </form>
+                        {%endfor%}
                     {%endif%}
                 </form>
             </li>
@@ -64,4 +73,17 @@
 
         <br><br><br><br>
     </div>
+
+    <!-- TODO Togliere
+    <script>
+        function set_allows_file_js(elem, q_id){
+            if (elem.checked) {
+                console.log(q_id + " " + elem.checked)
+                //location.reload()
+            } else {
+                console.log(q_id + " " + elem.checked)
+                //location.reload()
+            }
+        }
+    </script>-->
 {% endblock %}

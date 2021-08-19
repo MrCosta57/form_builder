@@ -1,12 +1,12 @@
 import os
 import secrets
+
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request
 from flask_mail import Mail
 from flask_security import Security, current_user, auth_required, logout_user, \
-    SQLAlchemySessionUserDatastore, user_registered
+    SQLAlchemySessionUserDatastore, roles_required
 from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
-from flask_user.signals import user_registered
 from wtforms import TextField, DateField
 
 from form_function import *
@@ -107,13 +107,6 @@ def create_admin_user():
     user_datastore.add_role_to_user(admin, role)
 
 
-@user_registered.connect_via(app)
-def user_registered_sighandler(app, user, confirm_token):
-    default_role = user_datastore.find_role("Standard User")
-    user_datastore.add_role_to_user(user, default_role)
-    db.session.commit()
-
-
 # HomePage
 @app.route("/")
 def home():
@@ -138,19 +131,23 @@ def logout():
 @app.route("/profile", methods=['GET', 'POST'])
 @auth_required()
 def user_profile():
+    admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+    is_admin = False
+    if admin_role in current_user.roles:
+        is_admin = True
     if request.method == 'POST':
-        # TODO: L'ADMIN NON PUO' CANCELLARE IL PROFILE
-        id_user = current_user.id
-        logout_user()
-        form_list = db_session.query(Forms).filter(Forms.creator_id == id_user)
-        for f in form_list:
-            delete_form(f.id)
+        if not is_admin:
+            id_user = current_user.id
+            logout_user()
+            form_list = db_session.query(Forms).filter(Forms.creator_id == id_user)
+            for f in form_list:
+                delete_form(f.id)
 
-        db_session.query(Users).filter(Users.id == id_user).delete()
-        db_session.commit()
-        return redirect(url_for("home"))
+            db_session.query(Users).filter(Users.id == id_user).delete()
+            db_session.commit()
+            return redirect(url_for("home"))
 
-    return render_template("profile.html", user=current_user)
+    return render_template("profile.html", user=current_user, is_admin=is_admin)
 
 
 @app.route("/profile/edit", methods=['GET', 'POST'])
@@ -180,6 +177,17 @@ def add_role():
         user_datastore.add_role_to_user(user, role)
         db_session.commit()
     return redirect(url_for("home"))
+
+
+
+# TODO togliere qui
+# @app.template_global()
+# def set_allows_file(is_allowed, open_q_id):
+#    current_question = db_session.query(OpenQuestions).filter(OpenQuestions.id == open_q_id)
+#    current_option = db_session.query(OpenQuestions.has_file).filter(OpenQuestions.id == open_q_id).first()
+#    if current_option != is_allowed:
+#        current_question.update({"has_file": is_allowed})
+#    db_session.commit()
 
 
 # Run the app

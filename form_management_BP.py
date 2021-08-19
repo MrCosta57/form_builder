@@ -1,10 +1,28 @@
+from functools import wraps
+
 from flask import render_template, request, redirect, url_for, Blueprint, Response, flash, make_response
 from flask_security import current_user, auth_required
+from sqlalchemy import and_
 from werkzeug.utils import secure_filename
+
 from form_function import *
 
 form_management_BP = Blueprint('form_management_BP', __name__, template_folder='templates/form', url_prefix='/form')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+
+def creator_and_admin_role_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        form_id = kwargs.get('form_id')
+        admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+        creator = db_session.query(Forms).filter(and_(Forms.creator_id == current_user.id, Forms.id == form_id)).first()
+        if not creator or admin_role not in current_user.roles:
+            return render_template("error.html", message="You do not have permission to view that page")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 # Endpoint for the list of forms of the current user.
@@ -28,6 +46,7 @@ def form():
 
 # Permette di creare o importare un form specificando nome e descrizione
 @form_management_BP.route("/form_create", methods=['GET', 'POST'])
+@auth_required()
 def form_create():
     if request.method == "POST":
         req = request.form
@@ -73,6 +92,8 @@ def form_create():
 
 # Add a question to a specific form
 @form_management_BP.route("/<form_id>/add_question", methods=['GET', 'POST'])
+@auth_required()
+@creator_and_admin_role_required
 def form_add_question(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
 
@@ -85,6 +106,7 @@ def form_add_question(form_id):
         if message:
             return render_template("error.html", message=message)
         else:
+            # goes to /<form_id>/edit
             return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     # GET, necessario passare tutti i tags e question esistenti per caso di import
@@ -96,6 +118,7 @@ def form_add_question(form_id):
 # Editing a specific form
 @form_management_BP.route("/<form_id>/edit", methods=['GET', 'POST'])
 @auth_required()
+@creator_and_admin_role_required
 def form_edit(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
 
@@ -109,19 +132,31 @@ def form_edit(form_id):
             filter(FormsQuestions.question_id == id_q).delete()
         db_session.commit()
 
+        # reload the page
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(Questions.id == FormsQuestions.question_id)
-    return render_template("form_edit.html", user=current_user, questions=questions, form=current_form,)
+    return render_template("form_edit.html", user=current_user, questions=questions, form=current_form)
 
+
+# @form_management_BP.route("/<form_id>/<question_id>/flag", methods=['POST'])
+# @auth_required()
+# def edit_mand_or_files:
+#    if 'checkBox_file' in request.form:
+#        if request.form.get('checkBox_file'):
+#        # TODO deve comportarsi come una add question in teoria
+#    else if 'checkBox_mand' in request.form:
+#
+#    return redirect(url_for("form_management_BP.form_edit"))
 
 # Editing a specific form info: name and descprition
 @form_management_BP.route("/<form_id>/editMainInfo", methods=['GET', 'POST'])
 @auth_required()
+@creator_and_admin_role_required
 def form_edit_main_info(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id)
 
-    # Request of editing name adn description
+    # Request of editing name and description
     if request.method == 'POST':
         req = request.form
 
@@ -134,6 +169,7 @@ def form_edit_main_info(form_id):
         current_form.update({"name": req.get("name"), "description": req.get("description")})
         db_session.commit()
 
+        # goes to /<form_id>/edit
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     return render_template("form_edit_main_info.html", form=current_form.first())
@@ -141,6 +177,8 @@ def form_edit_main_info(form_id):
 
 # Route useful for editing a question or the possibile answers of the question
 @form_management_BP.route("/<form_id>/<question_id>", methods=['GET', 'POST'])
+@auth_required()
+@creator_and_admin_role_required
 def form_edit_question(form_id, question_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
     current_question = db_session.query(Questions).filter(Questions.id == question_id).first()
@@ -185,6 +223,7 @@ def form_edit_question(form_id, question_id):
             if message:
                 return render_template("error.html", message=message)
 
+        # goes to /<form_id>/edit
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     # We need all the tags and the questions if we want to manage the possibility of import a question
@@ -289,6 +328,7 @@ def allowed_file(filename):
 # Visualize the answers of a specific form
 @form_management_BP.route("/<form_id>/answers")
 @auth_required()
+@creator_and_admin_role_required
 def form_answers(form_id):
     # List of all the answers of this for
     answers = db_session.query(Answers, Files).join(Files, Answers.id == Files.answer_id, isouter=True).filter(
@@ -304,21 +344,18 @@ def form_answers(form_id):
 
 @form_management_BP.route("/<form_id>/answers/<answer_id>/<user_id>")
 @auth_required()
+@creator_and_admin_role_required
 def view_files(form_id, answer_id, user_id):
-    is_creator = db_session.query(Forms).filter(Forms.creator_id == current_user.id).filter(form_id == Forms.id).first()
-    if is_creator:
-        file = db_session.query(Files).filter(Answers.user_id == user_id).filter(Files.answer_id == answer_id).first()
-        response = make_response(file.data)
-        response.headers['Content-Type'] = file.mimetype
-        response.headers['Content-Disposition'] = 'inline; filename=%s.pdf' % file.name
-        return response
-        # return Response(file.data, mimetype=file.mimetype)
-    else:
-        return render_template('error.html', message="You do not have permission to view this content")
+    file = db_session.query(Files).filter(Answers.user_id == user_id).filter(Files.answer_id == answer_id).first()
+    response = make_response(file.data)
+    response.headers['Content-Type'] = file.mimetype
+    response.headers['Content-Disposition'] = 'inline; filename=%s.pdf' % file.name
+    return response
 
 
 @form_management_BP.route("/<form_id>/download_csv")
 @auth_required()
+@creator_and_admin_role_required
 def download_csv_answers(form_id):
     answers_all = db_session.query(Users.username, Questions.text, SeqAnswers.content).filter(
         Answers.form_id == form_id).filter(

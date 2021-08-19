@@ -1,3 +1,5 @@
+from jinja2 import Template
+
 from database import db_session
 from models import *
 from datetime import date
