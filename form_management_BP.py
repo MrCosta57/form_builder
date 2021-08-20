@@ -11,13 +11,13 @@ form_management_BP = Blueprint('form_management_BP', __name__, template_folder='
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 
-def creator_and_admin_role_required(f):
+def creator_or_admin_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         form_id = kwargs.get('form_id')
         admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
         creator = db_session.query(Forms).filter(and_(Forms.creator_id == current_user.id, Forms.id == form_id)).first()
-        if not creator or admin_role not in current_user.roles:
+        if not creator and admin_role not in current_user.roles:
             return render_template("error.html", message="You do not have permission to view that page")
 
         return f(*args, **kwargs)
@@ -93,7 +93,7 @@ def form_create():
 # Add a question to a specific form
 @form_management_BP.route("/<form_id>/add_question", methods=['GET', 'POST'])
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def form_add_question(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
 
@@ -109,16 +109,30 @@ def form_add_question(form_id):
             # goes to /<form_id>/edit
             return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
-    # GET, necessario passare tutti i tags e question esistenti per caso di import
+    # GET, necessario passare tutti i tags esistenti per caso di import
     tags = db_session.query(Tags)
-    questions = db_session.query(Questions)
+
+    # Questions created by the users
+    q = db_session.query(Questions).filter(Questions.id == FormsQuestions.question_id). \
+        filter(Forms.creator_id == current_user.id).filter(FormsQuestions.form_id == Forms.id)
+
+    # Questions created by admins
+    q2 = db_session.query(Questions).filter(Questions.id == FormsQuestions.question_id). \
+        filter(Forms.creator_id == Users.id).filter(FormsQuestions.form_id == Forms.id).filter(Roles.name == "Admin"). \
+        filter(Roles.id == RolesUsers.role_id).filter(Users.id == RolesUsers.user_id)
+
+    # Base Questions
+    q3 = db_session.query(Questions).filter(Questions.id > 0).filter(Questions.id < 28)
+
+    questions = (q.union(q2)).union(q3)
+
     return render_template("question_add.html", form=current_form, tags=tags, questions=questions, edit=False)
 
 
 # Editing a specific form
 @form_management_BP.route("/<form_id>/edit", methods=['GET', 'POST'])
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def form_edit(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
 
@@ -135,7 +149,10 @@ def form_edit(form_id):
         # reload the page
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
-    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(Questions.id == FormsQuestions.question_id)
+    # questions + mandatory
+    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).\
+        filter(Questions.id == FormsQuestions.question_id)
+
     return render_template("form_edit.html", user=current_user, questions=questions, form=current_form)
 
 
@@ -152,7 +169,7 @@ def form_edit(form_id):
 # Editing a specific form info: name and descprition
 @form_management_BP.route("/<form_id>/editMainInfo", methods=['GET', 'POST'])
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def form_edit_main_info(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id)
 
@@ -178,8 +195,9 @@ def form_edit_main_info(form_id):
 # Route useful for editing a question or the possibile answers of the question
 @form_management_BP.route("/<form_id>/<question_id>", methods=['GET', 'POST'])
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def form_edit_question(form_id, question_id):
+
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
     current_question = db_session.query(Questions).filter(Questions.id == question_id).first()
 
@@ -191,28 +209,63 @@ def form_edit_question(form_id, question_id):
         # if the user want to change the possible answers
         if c == 'possible_a':
             if current_question.multiple_choice:
-                # cancelliamo i vecchi dati
-                db_session.query(PossibleAnswersM).filter(PossibleAnswersM.idPosAnswM == question_id).delete()
+                # add the new question
+                q = Questions(text=current_question.text)
+                db_session.add(q)
                 db_session.commit()
 
-                # Inseriamo i nuovi
-                number = req.get("number_answers")
+                db_session.add(MultipleChoiceQuestions(idS=q.id))
+                db_session.commit()
+
+                t = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).first()
+                # link the quuestion with the tag
+                db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
+
+                # add the possibile answers
+                number = req.get("number_answers")  # form input text: how many possible answers?
 
                 for i in range(1, int(number) + 1):
-                    cont = req.get(str(i))
-                    db_session.add(PossibleAnswersM(idPosAnswM=question_id, content=cont))
+                    cont = req.get(str(i))  # form input text: content of possible answers
+                    db_session.add(PossibleAnswersM(idPosAnswM=q.id, content=cont))
+
+                # link the question with form
+                db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
+                    filter(FormsQuestions.question_id == question_id).update({"question_id": q.id})
+
             elif current_question.single:
-                # cancelliamo i vecchi dati
-                db_session.query(PossibleAnswersS).filter(PossibleAnswersS.idPosAnswS == question_id).delete()
+
+                # add the new question
+                q = Questions(text=current_question.text)
+                db_session.add(q)
                 db_session.commit()
 
-                # Inseriamo i nuovi
-                number = req.get("number_answers")
+                db_session.add(SingleQuestions(idS=q.id))
+                db_session.commit()
+
+                t = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).first()
+                # link the quuestion with the tag
+                db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
+
+                # add the possibile answers
+                number = req.get("number_answers")  # form input text: how many possible answers?
 
                 for i in range(1, int(number) + 1):
-                    cont = req.get(str(i))
-                    db_session.add(PossibleAnswersS(idPosAnswS=question_id, content=cont))
+                    cont = req.get(str(i))  # form input text: content of possible answers
+                    db_session.add(PossibleAnswersS(idPosAnswS=q.id, content=cont))
 
+                # link the question with form
+                db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
+                    filter(FormsQuestions.question_id == question_id).update({"question_id": q.id})
+
+            db_session.commit()
+
+        # if the user want to change if the question is mandatory
+        elif c == 'mandatory':
+            # if ternario in phyton
+            mand = True if (req.get("mandatory") == 'on') else False
+
+            db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
+                filter(FormsQuestions.question_id == question_id).update({"mandatory": mand})
             db_session.commit()
 
         # if the user want to change the question we use the function question_db
@@ -228,7 +281,20 @@ def form_edit_question(form_id, question_id):
 
     # We need all the tags and the questions if we want to manage the possibility of import a question
     tags = db_session.query(Tags)
-    questions = db_session.query(Questions)
+
+    # Questions created by the users
+    q = db_session.query(Questions).filter(Questions.id == FormsQuestions.question_id). \
+        filter(Forms.creator_id == current_user.id).filter(FormsQuestions.form_id == Forms.id)
+
+    # Questions created by admins
+    q2 = db_session.query(Questions).filter(Questions.id == FormsQuestions.question_id). \
+        filter(Forms.creator_id == Users.id).filter(FormsQuestions.form_id == Forms.id).filter(Roles.name == "Admin"). \
+        filter(Roles.id == RolesUsers.role_id).filter(Users.id == RolesUsers.user_id)
+
+    # Base Questions
+    q3 = db_session.query(Questions).filter(Questions.id > 0).filter(Questions.id < 28)
+
+    questions = (q.union(q2)).union(q3)
 
     # We pass the number of possible answers that the current question has
     number = 0
@@ -328,7 +394,7 @@ def allowed_file(filename):
 # Visualize the answers of a specific form
 @form_management_BP.route("/<form_id>/answers")
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def form_answers(form_id):
     # List of all the answers of this for
     answers = db_session.query(Answers, Files).join(Files, Answers.id == Files.answer_id, isouter=True).filter(
@@ -344,7 +410,7 @@ def form_answers(form_id):
 
 @form_management_BP.route("/<form_id>/answers/<answer_id>/<user_id>")
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def view_files(form_id, answer_id, user_id):
     file = db_session.query(Files).filter(Answers.user_id == user_id).filter(Files.answer_id == answer_id).first()
     response = make_response(file.data)
@@ -355,7 +421,7 @@ def view_files(form_id, answer_id, user_id):
 
 @form_management_BP.route("/<form_id>/download_csv")
 @auth_required()
-@creator_and_admin_role_required
+@creator_or_admin_role_required
 def download_csv_answers(form_id):
     answers_all = db_session.query(Users.username, Questions.text, SeqAnswers.content).filter(
         Answers.form_id == form_id).filter(

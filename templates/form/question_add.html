@@ -47,20 +47,23 @@
                         <option value="no">No</option>
                     </select>
                 </label>
+
+                <span id="obbligo">
+                    <h3>This question would be mandatory?</h3>
+                    <input type="checkbox" name="mandatory"><br><br>
+                </span>
             {% elif q.multiple_choice or q.single %}
                 <h3>What would you like to change?</h3>
                 <label>
                     <select name="change" onChange="check(this)">
                         <option value="" selected> </option>
                         <option value="question">Question</option>
+                        <option value="mandatory">Mandatory</option>
                         <option value="possible_a">Possible Answers</option>
                     </select>
                 </label>
             {% endif %}
-            <span id="obbligo">
-                <h3>This question would be mandatory?</h3>
-                <input type="checkbox" name="mandatory"><br><br>
-            </span>
+
 
             <span id="modifica"></span>
 
@@ -119,6 +122,11 @@
                     /*necessarie per creare di default il tasto submit e le risposte esistenti*/
                     possibili_risposte(document.getElementById('n'))
                     submit_f(document.getElementById('n'))
+                } else if(v_c === "mandatory") {
+                    box.innerHTML = '<h3>This question would be mandatory?</h3>\n' +
+                        '            <input type="checkbox" name="mandatory"><br><br>';
+
+                    document.getElementById('submit').innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
                 }
             }
 

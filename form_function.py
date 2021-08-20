@@ -178,11 +178,6 @@ def question_db(type, req, form_id, question_id):
         # Type of the question
         if tipo_domanda == "open":
 
-            # Check if the question already exists
-            exists = db_session.query(Questions).filter(Questions.text == text_question).first()
-            if exists and exists.open:
-                return "THIS QUESTION ALREADY EXISTS"
-
             # Add the question
             q = Questions(text=text_question)
             db_session.add(q)
