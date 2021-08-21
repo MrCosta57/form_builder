@@ -161,16 +161,20 @@ def form_edit(form_id):
 @creator_or_admin_role_required
 def edit_mand_or_files(form_id, question_id):
     req = request.form
-    if 'checkBox_file' in req:
-        print('ciao')
+    if 'allows_file_hidden' in req:
+        file = False
+        if 'checkBox_file' in req:
+            file = True
 
-        # TODO deve comportarsi come una add question in teoria
-    if 'checkBox_mandatory' in req:
+        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
+            filter(FormsQuestions.question_id == question_id).update({"has_file": file})
+        db_session.commit()
+
+    if 'mand_hidden' in req:
         mand = False
-
-        # 'no' because is sended 'no' when change choise to 'yes'
-        if req.get('checkBox_mandatory') == 'no':
+        if 'checkBox_mandatory' in req:
             mand = True
+
         db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
             filter(FormsQuestions.question_id == question_id).update({"mandatory": mand})
         db_session.commit()
@@ -324,7 +328,8 @@ def form_edit_question(form_id, question_id):
 @auth_required()
 def form_view(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
-
+    if not current_form:
+        return render_template("error.html", message="This form does not exists")
     # check if the user already answered the form
     exist_answers = db_session.query(Answers).filter(Answers.form_id == form_id).filter(
         Answers.user_id == current_user.id).first()
@@ -337,7 +342,7 @@ def form_view(form_id):
                                                                            OpenQuestions.id == FormsQuestions.question_id) \
             .filter(FormsQuestions.form_id == form_id).filter(OpenQuestions.has_file).all()
         for tmp_id in open_question_file_check:
-            file = request.files['file_' + str(tmp_id[0])]
+            file = request.files['file_' + str(tmp_id.question_id)]
             if file:
                 filename = secure_filename(file.filename)
                 if file.filename == '':

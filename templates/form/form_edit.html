@@ -22,29 +22,32 @@
             At the end: ADD QUESTION-->
         <ol>
         {% for q, m in questions %}
-            <li>
-                <form action="" name="delete_form">
-                    <label>{{q.text}}</label>&nbsp;&nbsp;&nbsp;
-                    <a href="/form/{{form.id}}/{{q.id}}">
-                        <button type="button" class="btn btn-green">EDIT QUESTION</button>
-                    </a>&nbsp;&nbsp;
-                    <!-- Hidden form to send the id question when clicking on DELETE-->
-                    <input type="hidden" name="question" value="{{q.id}}">
-                    <input type="submit" value="DELETE" name="delete_button" class="btn btn-danger">
-                </form>
-                {% if q.open %}
-                    {%for tmp in q.open%}
+                    <li>
+                        <form action="" name="delete_question">
+                            <label>{{q.text}}</label>&nbsp;&nbsp;&nbsp;
+                {% if form.id > 4 %}
+                                <a href="/form/{{form.id}}/{{q.id}}">
+                                    <button type="button" class="btn btn-green">EDIT QUESTION</button>
+                                </a>&nbsp;&nbsp;
+                                <!-- Hidden form to send the id question when clicking on DELETE-->
+                                <input type="hidden" name="question" value="{{q.id}}">
+                                <input type="submit" value="DELETE" name="delete_button" class="btn btn-danger">
+                            </form>
+                    </li>
+
+                    {% if q.open %}
                         <br><br>
-                        <form id="allows_file_form" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
-                            <label>Allows file </label>
-                            <select class="form-select" name="checkBox_file" onchange="document.getElementById('allows_file_form').submit()">
-                                <option {%if tmp.has_file%} selected {%endif%} value="yes">Yes</option>
-                                <option {%if not tmp.has_file%} selected {%endif%} value="no">No</option>
-                            </select>
+                        <form id="allows_file_form_{{q.id}}" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
+                            <div class="form-check form-switch">
+                                <input type="hidden" name="allows_file_hidden" value="1">
+                                <input class="form-check-input" type="checkbox" name="checkBox_file" id="c_file_id_{{q.id}}"
+                                       onchange="document.getElementById('allows_file_form_{{q.id}}').submit()"
+                                       {%if m.has_file%} checked {%endif%}/>
+                                <label class="form-check-label" style="margin-top: 0.3rem;" for="c_file_id_{{q.id}}">Allows file </label>
+                            </div>
                         </form>
-                    {%endfor%}
-                {%endif%}
-            </li>
+                    {% endif %}
+                {% endif %}
             {% if q.single %}
                 <br>
                 {% for q1 in q.single%}

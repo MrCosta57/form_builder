@@ -34,18 +34,18 @@
                                     -multiple_choice: set of input checkbox name=q.id-->
                     {% for q, m in questions %}
                         <div class="form-group">
+                            {% if q.open and m.has_file%}<br><br>{%endif%}
                             <label class="form-label">{{q.text}}{%if m.mandatory %}*{% endif %}</label><br>
 
                             {% if q.open %}
                                 <input type="text" class="form-control" name="{{q.id}}" {%if m.mandatory %}required{% endif%}>
-                                {%for tmp in q.open%}
-                                    {%if tmp.has_file%}
-                                        <label class="form-label">Select File:</label>
-                                        <input type="file" class="form-control" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
-                                        <button type="reset" class="form-control" id="cancel">Cancel File</button>
-                                        <br><br>
-                                    {%endif%}
-                                {%endfor%}
+
+                                {%if m.has_file%}
+                                    <label class="form-label">Select File:</label>
+                                    <input type="file" class="form-control" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
+                                    <button type="reset" class="form-control" id="cancel">Cancel File</button>
+                                    <br><br><br><br>
+                                {%endif%}
 
                             {% elif q.single %}
                                 {% for q1 in q.single%} <!-- we need to loop in q.single because is a set of 1 element -->
@@ -69,7 +69,6 @@
                                     <br>
                                 {% endfor %}
                             {% endif %}
-
                         </div>
                     {% endfor %}
                     <br><br>
@@ -153,6 +152,10 @@
                     if(value == ''){
                         alert("You must fill the mandatory questions first!");
                         return false;
+                    }
+                    if (document.getElementById('file_{{q.id}}').value === ''){
+                            alert("You must upload all your files first!");
+                            return false;
                     }
                 {%endif%}
             {% endfor %}

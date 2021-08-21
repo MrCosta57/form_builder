@@ -2,7 +2,7 @@ from jinja2 import Template
 
 from database import db_session
 from models import *
-from datetime import date
+from datetime import date, datetime
 
 
 def populate_tags():
@@ -75,7 +75,7 @@ def init_base_question():
                         OpenQuestions(id=24),
                         OpenQuestions(id=25),
                         OpenQuestions(id=26),
-                        OpenQuestions(id=27, has_file=True),
+                        OpenQuestions(id=27),
 
                         TagsQuestions(tag_id=1, question_id=1),
                         TagsQuestions(tag_id=1, question_id=2),
@@ -274,7 +274,7 @@ def delete_form(f_id):
 
 # TEMPLATE FUNCTION
 def template_party(id_user, name, description):
-    f = Forms(name=name, dataCreation=date.today(),
+    f = Forms(name=name, dataCreation=datetime.now(),
               description=description,
               creator_id=id_user)
     db_session.add(f)
@@ -290,7 +290,7 @@ def template_party(id_user, name, description):
 
 
 def template_meets(id_user, name, description):
-    f = Forms(name=name, dataCreation=date.today(),
+    f = Forms(name=name, dataCreation=datetime.now(),
               description=description,
               creator_id=id_user)
     db_session.add(f)
@@ -308,7 +308,7 @@ def template_meets(id_user, name, description):
 
 
 def template_events(id_user, name, description):
-    f = Forms(name=name, dataCreation=date.today(),
+    f = Forms(name=name, dataCreation=datetime.now(),
               description=description,
               creator_id=id_user)
     db_session.add(f)
@@ -324,7 +324,7 @@ def template_events(id_user, name, description):
 
 
 def template_contacts(id_user, name, description):
-    f = Forms(name=name, dataCreation=date.today(),
+    f = Forms(name=name, dataCreation=datetime.now(),
               description=description,
               creator_id=id_user)
     db_session.add(f)

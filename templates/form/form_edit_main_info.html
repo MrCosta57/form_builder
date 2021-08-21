@@ -6,9 +6,9 @@
     <div class="container">
         <form method="post" name="edit_form_main_info" class="form-group">
           <label>Name: </label>
-          <input type="text" name="name" class="form-control" value="{{form.name}}" onchange="check_uno(this)">
+          <input type="text" name="name" class="form-control" value="{{form.name}}" required>
           <label>Description: </label>
-          <input type="text" name="description" class="form-control" value="{{form.description}}" onchange="check_due(this)">
+          <input type="text" name="description" class="form-control" value="{{form.description}}" required>
           <span id = "submit"><input type="submit" value="Modify" class="btn btn-primary"><br><br></span>
         </form>
     </div>
