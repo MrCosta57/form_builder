@@ -274,15 +274,6 @@ def form_edit_question(form_id, question_id):
 
             db_session.commit()
 
-        # if the user want to change if the question is mandatory
-        elif c == 'mandatory':
-            # if ternario in phyton
-            mand = True if (req.get("mandatory") == 'on') else False
-
-            db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
-                filter(FormsQuestions.question_id == question_id).update({"mandatory": mand})
-            db_session.commit()
-
         # if the user want to change the question we use the function question_db
         else:
 
@@ -338,9 +329,9 @@ def form_view(form_id):
 
     if request.method == "POST":
         # Check if the uploaded files have the requirements before store them and store questions
-        open_question_file_check = db_session.query(OpenQuestions.id).join(FormsQuestions,
-                                                                           OpenQuestions.id == FormsQuestions.question_id) \
-            .filter(FormsQuestions.form_id == form_id).filter(OpenQuestions.has_file).all()
+        open_question_file_check = db_session.query(FormsQuestions)\
+            .filter(FormsQuestions.form_id == form_id).filter(FormsQuestions.has_file).all()
+
         for tmp_id in open_question_file_check:
             file = request.files['file_' + str(tmp_id.question_id)]
             if file:
@@ -372,7 +363,8 @@ def form_view(form_id):
 
             # Check if the question is open question and if it allows file adding
             for tmp in q.open:
-                if tmp.has_file:
+                query_has_file = db_session.query(FormsQuestions).filter(FormsQuestions.question_id == tmp.id).filter(FormsQuestions.has_file).first()
+                if query_has_file:
                     # File memorization (the name and the extension was checked before)
                     file = request.files['file_' + str(tmp.id)]
                     if file:

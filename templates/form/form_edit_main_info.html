@@ -13,41 +13,4 @@
         </form>
     </div>
 
-    <script>
-        let name = true
-        let desc = true
-        /*controlla che il nome inserito sia corretto*/
-        function check_uno(text) {
-            const box = document.getElementById('submit');
-            const value = text.value;
-
-            if(value === "") {
-                name = false
-                box.innerHTML = '';
-            }
-            else {
-                name = true
-                if(desc)
-                    box.innerHTML = '<input type="submit" value="Modify" class="btn btn-primary"><br><br>';
-            }
-        }
-
-        /*controlla che la descrizione inserita sia corretta*/
-        function check_due(text) {
-            const box = document.getElementById('submit');
-            const value = text.value;
-
-            if(value === "") {
-                desc = false
-                box.innerHTML = '';
-            }
-            else {
-                desc = true
-                if(name)
-                    box.innerHTML = '<input type="submit" value="Modify" class="btn btn-primary"><br><br>';
-            }
-        }
-    </script>
-
-
 {% endblock %}

@@ -60,9 +60,9 @@
                             temp = false;
                             /*Name + Description input text*/
                             box.innerHTML = '<label>Form Name</label><br>\n' +
-                                '            <input type="text" name="name" class="form-control" onkeyup="check_uno(this)"><br><br>' +
+                                '            <input type="text" name="name" class="form-control" required><br><br>' +
                                 '            <label>Descrizione Form</label><br>\n' +
-                                '            <input type="text" name="description" class="form-control" onkeyup="check_due(this)"><br><br>';
+                                '            <input type="text" name="description" class="form-control" required><br><br>';
 
                             /*Menu with template possible*/
                             box2.innerHTML = '<label>Template Name</label><br>\n'+
@@ -76,9 +76,10 @@
                         } else if(v_imp === "no") {
                             /*Name + Description input text*/
                             box.innerHTML = '<label>Form Name</label><br>\n' +
-                                '            <input type="text" name="name" class="form-control" onkeyup="check_uno(this)"><br><br>' +
+                                '            <input type="text" name="name" class="form-control" required><br><br>' +
                                 '            <label>Form Description</label><br>\n' +
-                                '            <input type="text" name="description" class="form-control" onkeyup="check_due(this)"><br><br>';
+                                '            <input type="text" name="description" class="form-control" required><br><br>\n' +
+                                '            <input type="submit" value="Submit" class="btn btn-primary"><br><br>';
                         }
                     }
 
@@ -221,47 +222,14 @@
                         }
                     }
 
-                    /*show the submit button if a template is choose and the name and desc is not balnk*/
+                    /*show the submit button if a template is choose and the name and desc is not blank*/
                     function submit_f(v) {
                         const box = document.getElementById('submit');
+                        box.innerHTML='';
+
                         const value = v.value;
-                        if(value !== "" && name && desc) {
-                            temp = true
+                        if(value !== "") {
                             box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
-                        }
-                        else {
-                            box.innerHTML = '';
-                            temp = false
-                        }
-                    }
-
-                    /*controlla che il nome inserito sia corretto*/
-                    function check_uno(text) {
-                        const box = document.getElementById('submit');
-                        const value = text.value;
-                        if(value === "") {
-                            name = false
-                            box.innerHTML = '';
-                        }
-                        else {
-                            name = true
-                            if(desc && temp)
-                                box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
-                        }
-                    }
-
-                    /*controlla che la descrizione inserita sia corretta*/
-                    function check_due(text) {
-                        const box = document.getElementById('submit');
-                        const value = text.value;
-                        if(value === "") {
-                            desc = false
-                            box.innerHTML = '';
-                        }
-                        else {
-                            desc = true
-                            if(name && temp)
-                                box.innerHTML = '<input type="submit" value="Submit" class="btn btn-primary"><br><br>';
                         }
                     }
                 </script>

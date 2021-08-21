@@ -69,6 +69,7 @@ class FormsQuestions(Base):
     form_id = Column('form_id', Integer(), ForeignKey('forms.id'), primary_key=True)
     question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
     mandatory = Column('mandatory', Boolean(), default=False)
+    has_file = Column(Boolean, default=False, nullable=False)
 
 
 class Tags(Base):
@@ -107,7 +108,6 @@ class PossibleAnswersS(Base):
 class OpenQuestions(Base):
     __tablename__ = 'open_questions'
     id = Column(Integer,  ForeignKey(Questions.id), primary_key=True)
-    has_file = Column(Boolean, default=False, nullable=False)
 
 
 class MultipleChoiceQuestions(Base):

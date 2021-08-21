@@ -68,19 +68,23 @@
                     </ul><br>
                 {% endfor %}
             {% endif %}
-            <form id="mandatory_form" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
-                    <label>Mandatory </label>
-                    <select name="checkBox_mandatory" onchange="document.getElementById('mandatory_form').submit()">
-                        <option {%if m.mandatory%} selected {%endif%} value="yes">Yes</option>
-                        <option {%if not m.mandatory%} selected {%endif%} value="no">No</option>
-                    </select>
+            {% if form.id > 4 %}
+            <form id="mandatory_form_{{q.id}}" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
+                <div class="form-check form-switch">
+                    <input type="hidden" name="mand_hidden" value="1">
+                    <input class="form-check-input" type="checkbox" name="checkBox_mandatory" id="c_mand_id_{{q.id}}"
+                           onchange="document.getElementById('mandatory_form_{{q.id}}').submit()"
+                           {%if m.mandatory%} checked {%endif%}/>
+                    <label class="form-check-label" style="margin-top: 0.3rem;" for="c_mand_id_{{q.id}}">Mandatory </label>
+                </div>
             </form>
+            {% endif %}
 
             <br><br>
         {% endfor %}
         </ol>
 
-        <a href="/form/{{form.id}}/add_question"><button type="button" class="btn btn-primary">ADD QUESTION</button></a>
+        {% if form.id > 4 %}<a href="/form/{{form.id}}/add_question"><button type="button" class="btn btn-primary">ADD QUESTION</button></a>{% endif %}
 
         <br><br><br><br>
     </div>

@@ -186,7 +186,7 @@ def question_db(type, req, form_id, question_id):
             has_file = False
             if req.get('file_choose') == 'si':
                 has_file = True
-            db_session.add(OpenQuestions(id=q.id, has_file=has_file))
+            db_session.add(OpenQuestions(id=q.id))
             db_session.commit()
 
             # link the question with tag
@@ -194,7 +194,7 @@ def question_db(type, req, form_id, question_id):
 
             # link the question with the form
             if type == 'add':
-                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand))
+                db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand, has_file=has_file))
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
@@ -303,7 +303,7 @@ def template_meets(id_user, name, description):
                         FormsQuestions(form_id=f.id, question_id=8),
                         FormsQuestions(form_id=f.id, question_id=13),
                         FormsQuestions(form_id=f.id, question_id=20, mandatory=True),
-                        FormsQuestions(form_id=f.id, question_id=27)])
+                        FormsQuestions(form_id=f.id, question_id=27, has_file=True)])
     db_session.commit()
 
 
