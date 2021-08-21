@@ -1,5 +1,5 @@
+from datetime import datetime
 from functools import wraps
-
 from flask import render_template, request, redirect, url_for, Blueprint, Response, flash, make_response
 from flask_security import current_user, auth_required
 from sqlalchemy import and_
@@ -78,7 +78,7 @@ def form_create():
 
         # Creazione di un nuovo form
         else:
-            db_session.add(Forms(name=nome, dataCreation=date.today(),
+            db_session.add(Forms(name=nome, dataCreation=datetime.now(),
                                  description=descrizione,
                                  creator_id=current_user.id))
         db_session.commit()
@@ -150,21 +150,33 @@ def form_edit(form_id):
         return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
 
     # questions + mandatory
-    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).\
+    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id). \
         filter(Questions.id == FormsQuestions.question_id)
 
     return render_template("form_edit.html", user=current_user, questions=questions, form=current_form)
 
 
-# @form_management_BP.route("/<form_id>/<question_id>/flag", methods=['POST'])
-# @auth_required()
-# def edit_mand_or_files:
-#    if 'checkBox_file' in request.form:
-#        if request.form.get('checkBox_file'):
-#        # TODO deve comportarsi come una add question in teoria
-#    else if 'checkBox_mand' in request.form:
-#
-#    return redirect(url_for("form_management_BP.form_edit"))
+@form_management_BP.route("/<form_id>/<question_id>/flag", methods=['POST'])
+@auth_required()
+@creator_or_admin_role_required
+def edit_mand_or_files(form_id, question_id):
+    req = request.form
+    if 'checkBox_file' in req:
+        print('ciao')
+
+        # TODO deve comportarsi come una add question in teoria
+    if 'checkBox_mandatory' in req:
+        mand = False
+
+        # 'no' because is sended 'no' when change choise to 'yes'
+        if req.get('checkBox_mandatory') == 'no':
+            mand = True
+        db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
+            filter(FormsQuestions.question_id == question_id).update({"mandatory": mand})
+        db_session.commit()
+
+    return redirect(url_for("form_management_BP.form_edit", form_id=form_id))
+
 
 # Editing a specific form info: name and descprition
 @form_management_BP.route("/<form_id>/editMainInfo", methods=['GET', 'POST'])
@@ -197,7 +209,6 @@ def form_edit_main_info(form_id):
 @auth_required()
 @creator_or_admin_role_required
 def form_edit_question(form_id, question_id):
-
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
     current_question = db_session.query(Questions).filter(Questions.id == question_id).first()
 
@@ -379,7 +390,8 @@ def form_view(form_id):
         return redirect(url_for('home'))
 
     # The creator of a form can only edit the form
-    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(Questions.id == FormsQuestions.question_id)
+    questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
+        Questions.id == FormsQuestions.question_id)
     if current_user.id != current_form.creator_id:
         return render_template("form_view.html", user=current_user, questions=questions, form=current_form)
     else:
@@ -434,3 +446,4 @@ def download_csv_answers(form_id):
         csv,
         mimetype="text/csv",
         headers={"Content-disposition": "attachment; filename=answers.csv"})
+

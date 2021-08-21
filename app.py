@@ -1,5 +1,6 @@
 import os
 import secrets
+from functools import wraps
 
 from flask import Flask, render_template, redirect, url_for, send_from_directory, request
 from flask_mail import Mail
@@ -178,6 +179,67 @@ def add_role():
         db_session.commit()
     return redirect(url_for("home"))
 
+
+def admin_role_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+        if admin_role not in current_user.roles:
+            return render_template("error.html", message="You do not have permission to view that page")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+@app.route("/users_info")
+@auth_required()
+@admin_role_required
+def sudo_view_users_info():
+    admins = db_session.query(Users.id).join(RolesUsers, Users.id == RolesUsers.user_id).\
+        join(Roles, Roles.id == RolesUsers.role_id).filter(Roles.name == "Admin")
+    users = db_session.query(Users).filter(Users.id.not_in(admins)).all()
+    return render_template("users_info.html", users=users)
+
+
+@app.route("/users_info/<user_id>/enable")
+@auth_required()
+@admin_role_required
+def sudo_enable_enable(user_id):
+    user = db_session.query(Users).filter(Users.id == user_id).first()
+    user_datastore.activate_user(user)
+    db_session.commit()
+    return redirect(url_for("sudo_view_users_info"))
+
+
+@app.route("/users_info/<user_id>/disable")
+@auth_required()
+@admin_role_required
+def sudo_enable_disable(user_id):
+    user = db_session.query(Users).filter(Users.id == user_id).first()
+    user_datastore.deactivate_user(user)
+    db_session.commit()
+    return redirect(url_for("sudo_view_users_info"))
+
+
+@app.route("/users_info/<user_id>/delete")
+@auth_required()
+@admin_role_required
+def sudo_delete_user(user_id):
+    form_list = db_session.query(Forms).filter(Forms.creator_id == user_id).all()
+    for f in form_list:
+        delete_form(f.id)
+    db_session.query(Users).filter(Users.id == user_id).delete()
+    db_session.commit()
+    return redirect(url_for("sudo_view_users_info"))
+
+
+@app.route("/users_info/form/<form_id>/delete")
+@auth_required()
+@admin_role_required
+def sudo_delete_form(form_id):
+    delete_form(form_id)
+    return redirect(url_for("sudo_view_users_info"))
 
 
 # TODO togliere qui

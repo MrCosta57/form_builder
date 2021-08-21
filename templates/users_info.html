@@ -1,0 +1,44 @@
+{% extends "/security/base.html" %}
+{% block title %}Users Info{% endblock %}
+{% block main_title %}Admin Control Panel{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h4 style="color: red; margin-bottom: 3rem">Warning! Changes to users and forms can be dangerous, please pay attention!</h4>
+
+        <h5>Users:</h5>
+        <ul>
+        {% for u in users %}
+            <li>
+                <b>Username:</b> {{u.username}}&nbsp;&nbsp;&nbsp;<b>Email:</b> {{u.email}}&nbsp;&nbsp;&nbsp;<b>ID:</b> {{u.id}}&nbsp;&nbsp;&nbsp;&nbsp;
+                {%if u.active%}
+                <a href="/users_info/{{u.id}}/disable"><button type="button" class="btn btn-primary">DISABLE</button></a>&nbsp;&nbsp;
+                {%else%}
+                <a href="/users_info/{{u.id}}/enable"><button type="button" class="btn btn-secondary">ENABLE</button></a>&nbsp;&nbsp;
+                {%endif%}
+                <a href="/users_info/{{u.id}}/delete"><button type="button" class="btn btn-danger">DELETE</button></a>
+                <br><br>
+                <h6>User forms:</h6>
+                <ul>
+                    {%for f in u.forms_created%}
+                        <li>
+                            <b>Form Name:</b> {{f.name}}&nbsp;&nbsp;&nbsp;<b>Creation Data:</b> {{f.dataCreation}}<br>
+                            <b>Description:</b> {{f.description}}<br><br>
+                            <a href="/form/{{f.id}}/edit"><button type="button" class="btn btn-green">EDIT</button></a>&nbsp;&nbsp;
+                            <a href="/users_info/form/{{f.id}}/delete"><button type="button" class="btn btn-danger">DELETE</button></a>
+                        </li><br><br>
+                    {%endfor%}
+                    {%if not u.froms_created%}
+                        <p>There are no forms present</p>
+                    {%endif%}
+                </ul>
+            </li>
+            <br><br>
+        {%endfor%}
+            {%if not users%}
+                <p>There are no users present</p>
+            {%endif%}
+        </ul>
+    </div>
+
+{% endblock %}

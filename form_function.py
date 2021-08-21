@@ -35,7 +35,7 @@ def init_base_question():
                         Questions(text="In quanti parteciperete?"),
                         Questions(text="Inserisci il giorno che preferisci"),
                         Questions(text="Scegli i giorni della settimana che preferisci"),
-                        Questions(text="parteciperai all'evento?"),
+                        Questions(text="Parteciperai all'evento?"),
                         Questions(text="Inserisci un breve commento"),
                         Questions(text="Valuta questo sondaggio"),
                         Questions(text="Come hai conosciuto questo evento?"),
@@ -302,7 +302,7 @@ def template_meets(id_user, name, description):
                         FormsQuestions(form_id=f.id, question_id=7),
                         FormsQuestions(form_id=f.id, question_id=8),
                         FormsQuestions(form_id=f.id, question_id=13),
-                        FormsQuestions(form_id=f.id, question_id=20),
+                        FormsQuestions(form_id=f.id, question_id=20, mandatory=True),
                         FormsQuestions(form_id=f.id, question_id=27)])
     db_session.commit()
 

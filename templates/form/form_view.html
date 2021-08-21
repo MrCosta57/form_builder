@@ -34,15 +34,15 @@
                                     -multiple_choice: set of input checkbox name=q.id-->
                     {% for q, m in questions %}
                         <div class="form-group">
-                            <label>{{q.text}}{%if m.mandatory %}*{% endif %}</label><br>
+                            <label class="form-label">{{q.text}}{%if m.mandatory %}*{% endif %}</label><br>
 
                             {% if q.open %}
                                 <input type="text" class="form-control" name="{{q.id}}" {%if m.mandatory %}required{% endif%}>
                                 {%for tmp in q.open%}
                                     {%if tmp.has_file%}
-                                        <label>Select File:</label>
-                                        <input type="file" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
-                                        <button type="reset" id="cancel">Cancel</button>
+                                        <label class="form-label">Select File:</label>
+                                        <input type="file" class="form-control" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
+                                        <button type="reset" class="form-control" id="cancel">Cancel File</button>
                                         <br><br>
                                     {%endif%}
                                 {%endfor%}
@@ -51,7 +51,7 @@
                                 {% for q1 in q.single%} <!-- we need to loop in q.single because is a set of 1 element -->
                                     <br>
                                     {% for a in q1.possible_answers%}
-                                        <label>{{a.content}}</label>
+                                        <label class="form-label">{{a.content}}</label>
                                         <input type="radio" name="{{q.id}}" value="{{a.content}}" {%if m.mandatory %}required{% endif%}><br><br>
                                     {% endfor %}
                                     <br>
@@ -62,7 +62,7 @@
                                     <br>
                                     {% for a in q1.possible_answers%}
                                         <div class="form-check-group">
-                                            <label>{{a.content}}</label>
+                                            <label class="form-label">{{a.content}}</label>
                                             <input  type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
                                         </div>
                                     {% endfor %}
@@ -72,8 +72,9 @@
 
                         </div>
                     {% endfor %}
-
-                    <input type="submit" value="Submit" class="btn btn-primary"><br><br>
+                    <br><br>
+                    <input type="submit" value="Submit" class="btn btn-primary">&nbsp;&nbsp;
+                    <input type="reset" value="Reset" class="btn btn-secondary"><br><br>
                 </form>
 
                 <br><br><br><br>

@@ -48,7 +48,7 @@ class Forms(Base):
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
     id = Column(Integer(), primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey('users.id'))
+    user_id = Column('user_id', Integer(), ForeignKey('users.id', ondelete='CASCADE'))
     role_id = Column('role_id', Integer(), ForeignKey('roles.id'))
 
 
