@@ -43,7 +43,7 @@
                                 <input class="form-check-input" type="checkbox" name="checkBox_file" id="c_file_id_{{q.id}}"
                                        onchange="document.getElementById('allows_file_form_{{q.id}}').submit()"
                                        {%if m.has_file%} checked {%endif%}/>
-                                <label class="form-check-label" style="margin-top: 0.3rem;" for="c_file_id_{{q.id}}">Allows file </label>
+                                <label class="form-check-label" style="margin-top: 0.28rem;" for="c_file_id_{{q.id}}">Allows file </label>
                             </div>
                         </form>
                     {% endif %}
@@ -75,7 +75,7 @@
                     <input class="form-check-input" type="checkbox" name="checkBox_mandatory" id="c_mand_id_{{q.id}}"
                            onchange="document.getElementById('mandatory_form_{{q.id}}').submit()"
                            {%if m.mandatory%} checked {%endif%}/>
-                    <label class="form-check-label" style="margin-top: 0.3rem;" for="c_mand_id_{{q.id}}">Mandatory </label>
+                    <label class="form-check-label" style="margin-top: 0.28rem;" for="c_mand_id_{{q.id}}">Mandatory </label>
                 </div>
             </form>
             {% endif %}
