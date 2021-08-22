@@ -24,61 +24,58 @@
           {% endif %}
         {% endwith %}
         <br>
-        <div class="form-group">
-            <div class="input-group">
 
-                <form action="" onsubmit="return mySubmit()" method="POST" name="form" enctype="multipart/form-data">
-                    <!--For all the question in the form create:
-                                    -open: input text name=q.id
-                                    -single: set of input radio name=q.id
-                                    -multiple_choice: set of input checkbox name=q.id-->
-                    {% for q, m in questions %}
-                        <div class="form-group">
-                            {% if q.open and m.has_file%}<br><br>{%endif%}
-                            <label class="form-label">{{q.text}}{%if m.mandatory %}*{% endif %}</label><br>
+        <form action="" onsubmit="return mySubmit()" method="POST" name="form" enctype="multipart/form-data">
+            <!--For all the question in the form create:
+                            -open: input text name=q.id
+                            -single: set of input radio name=q.id
+                            -multiple_choice: set of input checkbox name=q.id-->
+            {% for q, m in questions %}
+                    {% if q.open and m.has_file%}<br><br>{%endif%}
+                    <label class="form-label">{{q.text}}{%if m.mandatory %} *{% endif %}</label><br>
 
-                            {% if q.open %}
-                                <input type="text" class="form-control" name="{{q.id}}" {%if m.mandatory %}required{% endif%}>
+                    {% if q.open %}
+                        <input type="text" class="form-control" name="{{q.id}}" {%if m.mandatory %}required{% endif%}>
 
-                                {%if m.has_file%}
-                                    <label class="form-label">Select File:</label>
-                                    <input type="file" class="form-control" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
-                                    <button type="reset" class="form-control" id="cancel">Cancel File</button>
-                                    <br><br><br><br>
-                                {%endif%}
+                        {%if m.has_file%}
+                            <label class="form-label">Select File:</label>
+                            <input type="file" class="form-control" name="file_{{q.id}}" id="file_{{q.id}}" {%if m.mandatory %}required{% endif%}>
+                            <button type="reset" class="form-control" id="cancel">Cancel File</button>
+                            <br><br><br><br>
+                        {%endif%}
 
-                            {% elif q.single %}
-                                {% for q1 in q.single%} <!-- we need to loop in q.single because is a set of 1 element -->
-                                    <br>
-                                    {% for a in q1.possible_answers%}
-                                        <label class="form-label">{{a.content}}</label>
-                                        <input type="radio" name="{{q.id}}" value="{{a.content}}" {%if m.mandatory %}required{% endif%}><br><br>
-                                    {% endfor %}
-                                    <br>
-                                {% endfor %}
+                    {% elif q.single %}
+                        {% for q1 in q.single%} <!-- we need to loop in q.single because is a set of 1 element -->
+                            <br>
+                            {% for a in q1.possible_answers%}
+                                <div class="form-check">
+                                    <label class="form-check-label">{{a.content}}</label>
+                                    <input class="form-check-input" type="radio" name="{{q.id}}" value="{{a.content}}" {%if m.mandatory %}required{% endif%}><br><br>
+                                </div>
+                            {% endfor %}
+                            <br>
+                        {% endfor %}
 
-                            {% elif q.multiple_choice %}
-                                {% for q1 in q.multiple_choice%} <!-- we need to loop in q.multiple_choice because is a set of 1 element -->
-                                    <br>
-                                    {% for a in q1.possible_answers%}
-                                        <div class="form-check-group">
-                                            <label class="form-label">{{a.content}}</label>
-                                            <input  type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
-                                        </div>
-                                    {% endfor %}
-                                    <br>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-                    {% endfor %}
-                    <br><br>
-                    <input type="submit" value="Submit" class="btn btn-primary">&nbsp;&nbsp;
-                    <input type="reset" value="Reset" class="btn btn-secondary"><br><br>
-                </form>
+                    {% elif q.multiple_choice %}
+                        {% for q1 in q.multiple_choice%} <!-- we need to loop in q.multiple_choice because is a set of 1 element -->
+                            <br>
+                            {% for a in q1.possible_answers%}
+                                <div class="form-check">
+                                    <label class="form-check-label">{{a.content}}</label>
+                                    <input class="form-check-input" type="checkbox" name="{{q.id}}" value="{{a.content}}"><br><br>
+                                </div>
+                            {% endfor %}
+                            <br>
+                        {% endfor %}
+                    {% endif %}
 
-                <br><br><br><br>
-            </div>
-        </div>
+                <br><br>
+            {% endfor %}
+            <br><br>
+            <input type="submit" value="Submit" class="btn btn-primary">&nbsp;&nbsp;
+            <input type="reset" value="Reset" class="btn btn-secondary"><br><br>
+        </form>
+        <br><br><br>
     </div>
 
 

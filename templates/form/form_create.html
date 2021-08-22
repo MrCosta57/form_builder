@@ -14,7 +14,7 @@
                             -->
 
                         <h3>Would you like to import a form template?</h3>
-                        <select name="import" onChange="import_template(this)">
+                        <select name="import" class="form-select" onChange="import_template(this)">
                             <option value="" selected> </option>
                             <option value="si">Yes</option>
                             <option value="no">No</option>
@@ -28,7 +28,7 @@
 
                         <span id="mostra form"></span>
 
-                        <span id="submit"></span>
+                        <br><br><span id="submit"></span>
 
                     </div>
 
@@ -66,7 +66,7 @@
 
                             /*Menu with template possible*/
                             box2.innerHTML = '<label>Template Name</label><br>\n'+
-                                             '<select name="template" onChange="mostra_form(this); submit_f(this)">\n' +
+                                             '<select name="template" class="form-select" onChange="mostra_form(this); submit_f(this)">\n' +
                                 '                                <option value="" selected> </option>\n' +
                                 '                                <option value="party">Party</option>\n' +
                                 '                                <option value="events">Event</option>\n' +

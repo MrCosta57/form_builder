@@ -85,17 +85,20 @@ def init():
     if not user_datastore.find_user(email="admin@db.com"):
         create_roles()
         create_admin_user()
+        create_standard_users()
         populate_tags()
         init_base_question()
         template_party(1, "Party Form", "Invito per una festa")
         template_meets(1, "Meets Form", "Meeting")
         template_events(1, "Events Form", "Evento")
         template_contacts(1, "Form Informativo", "Informazioni personali")
+        init_base_answers()
 
 
 def create_roles():
     user_datastore.create_role(name="Admin", description="App administrator")
     user_datastore.create_role(name="Standard User", description="Standard app user")
+    db_session.commit()
 
 
 def create_admin_user():
@@ -106,6 +109,27 @@ def create_admin_user():
     admin = db_session.query(Users).filter(Users.id == 1).first()
     role = user_datastore.find_role("Admin")
     user_datastore.add_role_to_user(admin, role)
+    db_session.commit()
+
+
+def create_standard_users():
+    user_datastore.create_user(email="andrea_marin@db.com", password=hash_password("password"),
+                               username="andreamarin35", name="Andrea", surname="Marin", date=date.today(),
+                               confirmed_at=datetime.now())
+
+    user_datastore.create_user(email="topolino@db.com", password=hash_password("password"),
+                               username="topolino123", name="Pippo", surname="Franchetti", date=date.today(),
+                               confirmed_at=datetime.now())
+
+    db_session.commit()
+    sd_user = db_session.query(Users).filter(Users.id == 2).first()
+    role = user_datastore.find_role("Standard User")
+    user_datastore.add_role_to_user(sd_user, role)
+
+    sd_user = db_session.query(Users).filter(Users.id == 3).first()
+    role = user_datastore.find_role("Standard User")
+    user_datastore.add_role_to_user(sd_user, role)
+    db_session.commit()
 
 
 # HomePage

@@ -20,31 +20,31 @@ def populate_tags():
 
 
 def init_base_question():
-    db_session.add_all([Questions(text="Nome"),
+    db_session.add_all([Questions(text="Nome"),  # 1
                         Questions(text="Cognome"),
                         Questions(text="Data Nascita"),
                         Questions(text="Età"),
-                        Questions(text="Fascia d'età"),
+                        Questions(text="Fascia d'età"),  # 5
                         Questions(text="Lavoro"),
                         Questions(text="Sesso"),
                         Questions(text="Mail"),
                         Questions(text="Paese di residenza"),
-                        Questions(text="Via residenza"),
+                        Questions(text="Via residenza"),  # 10
                         Questions(text="Inserisci l'orario che preferisci"),
                         Questions(text="Inserisci una data che preferisci"),
                         Questions(text="In quanti parteciperete?"),
                         Questions(text="Inserisci il giorno che preferisci"),
-                        Questions(text="Scegli i giorni della settimana che preferisci"),
+                        Questions(text="Scegli i giorni della settimana che preferisci"),  # 15
                         Questions(text="Parteciperai all'evento?"),
                         Questions(text="Inserisci un breve commento"),
                         Questions(text="Valuta questo sondaggio"),
                         Questions(text="Come hai conosciuto questo evento?"),
-                        Questions(text="Hai intolleranze alimentari, se si quali?"),
+                        Questions(text="Hai intolleranze alimentari, se si quali?"),  # 20
                         Questions(text="Che corsi hai seguito? "),
                         Questions(text="che materie studi?"),
                         Questions(text="Fai la raccolta differenziata?"),
                         Questions(text="Quali stati hai visitato?"),
-                        Questions(text="Possiedi animali?"),
+                        Questions(text="Possiedi animali?"),  # 25
                         Questions(text="Animale preferito"),
                         Questions(text="Carica il tuo CV")])
     db_session.commit()
@@ -170,7 +170,7 @@ def question_db(type, req, form_id, question_id):
             db_session.commit()
             tag = new_tag
 
-        tipo_domanda = req.get("tipo_domanda")   # Menu tendina: open, single, multiple_choice
+        tipo_domanda = req.get("tipo_domanda")  # Menu tendina: open, single, multiple_choice
         text_question = req.get("text_question")  # form input text, domanda
 
         id_t = (db_session.query(Tags.id).filter(Tags.argument == tag).first())[0]  # Trova id del tag selezionato
@@ -198,7 +198,8 @@ def question_db(type, req, form_id, question_id):
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand}, synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand},
+                            synchronize_session=False)
 
         elif tipo_domanda == "single":
 
@@ -225,7 +226,8 @@ def question_db(type, req, form_id, question_id):
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand}, synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand},
+                            synchronize_session=False)
 
         elif tipo_domanda == "multiple_choice":
             # add the new question
@@ -251,7 +253,8 @@ def question_db(type, req, form_id, question_id):
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand}, synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand},
+                            synchronize_session=False)
 
         db_session.commit()
 
@@ -338,4 +341,119 @@ def template_contacts(id_user, name, description):
                         FormsQuestions(form_id=f.id, question_id=8),
                         FormsQuestions(form_id=f.id, question_id=9),
                         FormsQuestions(form_id=f.id, question_id=10)])
+    db_session.commit()
+
+
+def init_base_answers():
+    # Andrea Marin: standard user
+    user_id = 2
+
+    # Template Party user: Andrea
+    form_id = 1
+    db_session.add_all([Answers(id=1, form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(id=2, form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(id=3, form_id=form_id, question_id=11, user_id=user_id),
+                        Answers(id=4, form_id=form_id, question_id=13, user_id=user_id),
+                        Answers(id=5, form_id=form_id, question_id=15, user_id=user_id),
+                        Answers(id=6, form_id=form_id, question_id=16, user_id=user_id)])
+    db_session.commit()
+
+    db_session.add_all([SeqAnswers(id=1, content='Andrea'),
+                        SeqAnswers(id=2, content='Marin'),
+                        SeqAnswers(id=3, content='22:30'),
+                        SeqAnswers(id=4, content='4'),
+                        SeqAnswers(id=5, content='sabato'),
+                        SeqAnswers(id=5, content='domenica'),
+                        SeqAnswers(id=6, content='Si')
+                        ])
+    db_session.commit()
+
+    # Template Meets
+    form_id = 2
+    db_session.add_all([Answers(id=7, form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(id=8, form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(id=9, form_id=form_id, question_id=4, user_id=user_id),
+                        Answers(id=10, form_id=form_id, question_id=7, user_id=user_id),
+                        Answers(id=11, form_id=form_id, question_id=8, user_id=user_id),
+                        Answers(id=12, form_id=form_id, question_id=13, user_id=user_id),
+                        Answers(id=13, form_id=form_id, question_id=20, user_id=user_id),
+                        Answers(id=14, form_id=form_id, question_id=27, user_id=user_id)
+                        ])
+    db_session.commit()
+
+    db_session.add_all([SeqAnswers(id=7, content='Andrea'),
+                        SeqAnswers(id=8, content='Marin'),
+                        SeqAnswers(id=9, content='23'),
+                        SeqAnswers(id=10, content='M'),
+                        SeqAnswers(id=11, content='andrea_marin@db.com'),
+                        SeqAnswers(id=12, content='12'),
+                        SeqAnswers(id=13, content='No'),
+                        SeqAnswers(id=14, content='Nessun file')
+                        ])
+    db_session.commit()
+
+    # Template Events
+    form_id = 3
+    db_session.add_all([Answers(id=15, form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(id=16, form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(id=17, form_id=form_id, question_id=3, user_id=user_id),
+                        Answers(id=18, form_id=form_id, question_id=5, user_id=user_id),
+                        Answers(id=19, form_id=form_id, question_id=16, user_id=user_id),
+                        Answers(id=20, form_id=form_id, question_id=20, user_id=user_id)
+                        ])
+    db_session.commit()
+
+    db_session.add_all([SeqAnswers(id=15, content='Andrea'),
+                        SeqAnswers(id=16, content='Marin'),
+                        SeqAnswers(id=17, content='29/02/1992'),
+                        SeqAnswers(id=18, content='22-39'),
+                        SeqAnswers(id=19, content='Si'),
+                        SeqAnswers(id=20, content='Nessuna')
+                        ])
+    db_session.commit()
+
+    # Template Contacts
+    form_id = 4
+    db_session.add_all([Answers(id=21, form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(id=22, form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(id=23, form_id=form_id, question_id=5, user_id=user_id),
+                        Answers(id=24, form_id=form_id, question_id=6, user_id=user_id),
+                        Answers(id=25, form_id=form_id, question_id=7, user_id=user_id),
+                        Answers(id=26, form_id=form_id, question_id=8, user_id=user_id),
+                        Answers(id=27, form_id=form_id, question_id=9, user_id=user_id),
+                        Answers(id=28, form_id=form_id, question_id=19, user_id=user_id)
+                        ])
+    db_session.commit()
+
+    db_session.add_all([SeqAnswers(id=21, content='Andrea'),
+                        SeqAnswers(id=22, content='Marin'),
+                        SeqAnswers(id=23, content='70+'),
+                        SeqAnswers(id=24, content='Professore e ricercatore'),
+                        SeqAnswers(id=25, content='M'),
+                        SeqAnswers(id=26, content='andrea_marin@db.com'),
+                        SeqAnswers(id=27, content='Venezia Mestre'),
+                        SeqAnswers(id=28, content='Via Roma, 143')
+                        ])
+    db_session.commit()
+
+    # Template Party user: Pippo
+    user_id = 3
+    form_id = 1
+    db_session.add_all([Answers(id=29, form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(id=30, form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(id=31, form_id=form_id, question_id=11, user_id=user_id),
+                        Answers(id=32, form_id=form_id, question_id=13, user_id=user_id),
+                        Answers(id=33, form_id=form_id, question_id=15, user_id=user_id),
+                        Answers(id=34, form_id=form_id, question_id=16, user_id=user_id)])
+    db_session.commit()
+
+    db_session.add_all([SeqAnswers(id=29, content='Pippo'),
+                        SeqAnswers(id=30, content='Franchetti'),
+                        SeqAnswers(id=31, content='00:30'),
+                        SeqAnswers(id=32, content='43'),
+                        SeqAnswers(id=33, content='venerdì'),
+                        SeqAnswers(id=33, content='sabato'),
+                        SeqAnswers(id=33, content='lunedì'),
+                        SeqAnswers(id=34, content='Si')
+                        ])
     db_session.commit()
