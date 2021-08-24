@@ -2,7 +2,33 @@ from jinja2 import Template
 
 from database import db_session
 from models import *
-from datetime import date, datetime
+from datetime import datetime
+
+
+def creator_or_admin_role_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        form_id = kwargs.get('form_id')
+        admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+        creator = db_session.query(Forms).filter(and_(Forms.creator_id == current_user.id, Forms.id == form_id)).first()
+        if not creator and admin_role not in current_user.roles:
+            return render_template("error.html", message="You do not have permission to view that page")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def admin_role_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+        if admin_role not in current_user.roles:
+            return render_template("error.html", message="You do not have permission to view that page")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
 
 
 def populate_tags():
@@ -41,7 +67,7 @@ def init_base_question():
                         Questions(text="Come hai conosciuto questo evento?"),
                         Questions(text="Hai intolleranze alimentari, se si quali?"),  # 20
                         Questions(text="Che corsi hai seguito? "),
-                        Questions(text="che materie studi?"),
+                        Questions(text="Che materie studi?"),
                         Questions(text="Fai la raccolta differenziata?"),
                         Questions(text="Quali stati hai visitato?"),
                         Questions(text="Possiedi animali?"),  # 25

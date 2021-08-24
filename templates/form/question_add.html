@@ -142,8 +142,8 @@
                         '                {% endfor %}\n' +
                         '            </select>';
                 } else if(v_choose === "no") {
-                    box.innerHTML = '<h3>Select the question tag argument</h3>' +
-                        '<select name="tag_choose" class="form-select" onChange="nuovo_tag(this); tipo_domanda(this)">\n' +
+                    box.innerHTML = '<h3>Select the question tag argument (or select multiple with ctrl/cmd)</h3>' +
+                        '<select name="tag_choose" class="form-select" onChange="nuovo_tag(this); tipo_domanda(this)" multiple style="height: 8rem;">\n' +
                         '                <option value="" selected> </option>\n' +
                         '                {% for t in tags %}\n' +
                         '                <option value="{{t.argument}}">{{t.argument}}</option>\n' +
@@ -155,7 +155,7 @@
 
             /*se non import input text per nuovo tag*/
             function nuovo_tag(tag_choose) {
-                const v_tag = tag_choose.value;
+
                 const box = document.getElementById('nuovo tag');
                 document.getElementById('seleziona tipo di domanda').innerHTML = '';
                 document.getElementById('inserisci domanda').innerHTML = '';

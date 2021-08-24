@@ -32,7 +32,7 @@
                             {{t.content}}; &nbsp;&nbsp;&nbsp;&nbsp;
                         {% endfor %}
                         {%if f.id is defined%}
-                            <a href="/form/{{form.id}}/answers/{{a.id}}/{{a.user_id}}" target="_blank">
+                            <a href="/form/answers/{{a.id}}/{{a.user_id}}" target="_blank">
                                 <button type="button" class="btn btn-green">View File</button>
                             </a>
                         {%endif%}

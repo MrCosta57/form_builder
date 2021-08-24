@@ -1,17 +1,19 @@
 import os
 import secrets
-from functools import wraps
 
-from flask import Flask, render_template, redirect, url_for, send_from_directory, request
+from flask import Flask, redirect, url_for, send_from_directory, request
 from flask_mail import Mail
-from flask_security import Security, current_user, auth_required, logout_user, \
-    SQLAlchemySessionUserDatastore, roles_required
+from flask_security import Security, auth_required, logout_user, \
+    SQLAlchemySessionUserDatastore
 from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
 from wtforms import TextField, DateField
 
+from users_info_BP import users_info_BP
 from form_function import *
-from form_management_BP import form_management_BP
+from form_edit_BP import form_edit_BP
+from form_add_BP import form_add_BP
+from form_view_BP import form_view_BP
 from database import init_db, db_session
 from models import *
 from flask_babelex import Babel
@@ -21,7 +23,10 @@ from datetime import date, datetime
 # SETUP FLASK
 # Create app, setup Babel communication and Mail configuration, BluePrint Registration
 app = Flask(__name__)
-app.register_blueprint(form_management_BP)
+app.register_blueprint(form_edit_BP)
+app.register_blueprint(form_add_BP)
+app.register_blueprint(form_view_BP)
+app.register_blueprint(users_info_BP)
 init_db()
 
 # LIST OF CONFIGS
@@ -202,78 +207,6 @@ def add_role():
         user_datastore.add_role_to_user(user, role)
         db_session.commit()
     return redirect(url_for("home"))
-
-
-def admin_role_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
-        if admin_role not in current_user.roles:
-            return render_template("error.html", message="You do not have permission to view that page")
-
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
-@app.route("/users_info")
-@auth_required()
-@admin_role_required
-def sudo_view_users_info():
-    admins = db_session.query(Users.id).join(RolesUsers, Users.id == RolesUsers.user_id).\
-        join(Roles, Roles.id == RolesUsers.role_id).filter(Roles.name == "Admin")
-    users = db_session.query(Users).filter(Users.id.not_in(admins)).all()
-    return render_template("users_info.html", users=users)
-
-
-@app.route("/users_info/<user_id>/enable")
-@auth_required()
-@admin_role_required
-def sudo_enable_enable(user_id):
-    user = db_session.query(Users).filter(Users.id == user_id).first()
-    user_datastore.activate_user(user)
-    db_session.commit()
-    return redirect(url_for("sudo_view_users_info"))
-
-
-@app.route("/users_info/<user_id>/disable")
-@auth_required()
-@admin_role_required
-def sudo_enable_disable(user_id):
-    user = db_session.query(Users).filter(Users.id == user_id).first()
-    user_datastore.deactivate_user(user)
-    db_session.commit()
-    return redirect(url_for("sudo_view_users_info"))
-
-
-@app.route("/users_info/<user_id>/delete")
-@auth_required()
-@admin_role_required
-def sudo_delete_user(user_id):
-    form_list = db_session.query(Forms).filter(Forms.creator_id == user_id).all()
-    for f in form_list:
-        delete_form(f.id)
-    db_session.query(Users).filter(Users.id == user_id).delete()
-    db_session.commit()
-    return redirect(url_for("sudo_view_users_info"))
-
-
-@app.route("/users_info/form/<form_id>/delete")
-@auth_required()
-@admin_role_required
-def sudo_delete_form(form_id):
-    delete_form(form_id)
-    return redirect(url_for("sudo_view_users_info"))
-
-
-# TODO togliere qui
-# @app.template_global()
-# def set_allows_file(is_allowed, open_q_id):
-#    current_question = db_session.query(OpenQuestions).filter(OpenQuestions.id == open_q_id)
-#    current_option = db_session.query(OpenQuestions.has_file).filter(OpenQuestions.id == open_q_id).first()
-#    if current_option != is_allowed:
-#        current_question.update({"has_file": is_allowed})
-#    db_session.commit()
 
 
 # Run the app
