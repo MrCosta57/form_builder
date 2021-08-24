@@ -146,9 +146,9 @@
                         '<select name="tag_choose" class="form-select" onChange="nuovo_tag(this); tipo_domanda(this)" multiple style="height: 8rem;">\n' +
                         '                <option value="" selected> </option>\n' +
                         '                {% for t in tags %}\n' +
-                        '                <option value="{{t.argument}}">{{t.argument}}</option>\n' +
+                        '                <option value="{{t.id}}">{{t.argument}}</option>\n' +
                         '                {% endfor %}\n' +
-                        '                <option value="nuovo">New Argument</option>\n' +
+                        '                <option id="new" value="nuovo">New Argument</option>\n' +
                         '            </select>';
                 }
             }
@@ -165,12 +165,18 @@
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML = '';
 
-                if (v_tag === "nuovo") {
-                    box.innerHTML = '<h3>Insert the new tag argument</h3>' +
-                        '<input type="text" class="form-control" name="tag_aggiunto"><br><br>';
-                } else {
-                    box.innerHTML = '';
+                if(document.getElementById('new').selected){
+                        box.innerHTML = '<h3>Insert the new tag argument</h3>' +
+                                '<input type="text" class="form-control" name="tag_aggiunto"><br><br>';
                 }
+                /*for (var i=0, iLen=options.length; i<iLen; i++) {
+                    opt = options[i];
+
+                    if (opt.selected && opt === 'nuovo') {
+                        box.innerHTML = '<h3>Insert the new tag argument</h3>' +
+                            '<input type="text" class="form-control" name="tag_aggiunto"><br><br>';
+                    }
+                }*/
             }
 
             /*se non timport menu a tendina per il tipo della domanda*/
@@ -225,14 +231,15 @@
                         '<select name="question_choose" class="form-select" onChange="mostra_domanda(this); submit_f(this)">\n' +
                         '<option value="" selected> </option>\n';
 
-                    {% for q1 in questions %}
-                        {% for t in q1.tags %}
-                            if( '{{t.argument}}' === tag){
-                                {%if (edit and q1.id == q.id) or (q1 not in form.questions)%}
-                                    str +='<option value="{{q1.id}}">{{q1.text}}</option>\n';
-                                {% endif %}
-                            }
-                        {% endfor %}
+                    {% for t in tags %}
+                        if( '{{t.argument}}' === tag){
+                            {% for q1 in t.questions %}
+                                    {%if (edit and q1.id == q.id) or (q1 not in form.questions)%}
+                                        str +='<option value="{{q1.id}}">{{q1.text}}</option>\n';
+                                    {% endif %}
+
+                            {% endfor %}
+                        }
                     {% endfor %}
 
                     str +='</select>';

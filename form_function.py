@@ -1,4 +1,8 @@
-from jinja2 import Template
+from functools import wraps
+
+from flask import render_template
+from flask_login import current_user
+from sqlalchemy import false, and_
 
 from database import db_session
 from models import *
@@ -79,9 +83,9 @@ def init_base_question():
                         OpenQuestions(id=2),
                         OpenQuestions(id=3),
                         OpenQuestions(id=4),
-                        SingleQuestions(idS=5),
+                        SingleQuestions(id=5),
                         OpenQuestions(id=6),
-                        SingleQuestions(idS=7),
+                        SingleQuestions(id=7),
                         OpenQuestions(id=8),
                         OpenQuestions(id=9),
                         OpenQuestions(id=10),
@@ -90,14 +94,14 @@ def init_base_question():
                         OpenQuestions(id=13),
                         OpenQuestions(id=14),
                         MultipleChoiceQuestions(id=15),
-                        SingleQuestions(idS=16),
+                        SingleQuestions(id=16),
                         OpenQuestions(id=17),
-                        SingleQuestions(idS=18),
+                        SingleQuestions(id=18),
                         OpenQuestions(id=19),
                         OpenQuestions(id=20),
                         OpenQuestions(id=21),
                         OpenQuestions(id=22),
-                        SingleQuestions(idS=23),
+                        SingleQuestions(id=23),
                         OpenQuestions(id=24),
                         OpenQuestions(id=25),
                         OpenQuestions(id=26),
@@ -184,22 +188,23 @@ def question_db(type, req, form_id, question_id):
 
     # new Question
     else:
-        tag = req.get("tag_choose")  # Menu tendina: scelta tag
+        tag_list = req.getlist("tag_choose")  # Menu tendina: scelta tag
 
         # create new Tag
-        if tag == "nuovo":
-            new_tag = req.get("tag_aggiunto")  # form input text tag
-            # add the tag to the database
-            if db_session.query(Tags).filter(Tags.argument == new_tag).first():
-                return "THIS TAG ALREADY EXISTS"
-            db_session.add(Tags(argument=new_tag))
-            db_session.commit()
-            tag = new_tag
+        for tag in tag_list:
+            if tag == "nuovo":
+                new_tag = req.get("tag_aggiunto")  # form input text tag
+                # add the tag to the database
+                if db_session.query(Tags).filter(Tags.argument == new_tag).first():
+                    return "THIS TAG ALREADY EXISTS"
+                aux = Tags(argument=new_tag)
+                db_session.add(aux)
+                db_session.commit()
+                tag_list.remove("nuovo")
+                tag_list = tag_list + [str(aux.id)]
 
         tipo_domanda = req.get("tipo_domanda")  # Menu tendina: open, single, multiple_choice
         text_question = req.get("text_question")  # form input text, domanda
-
-        id_t = (db_session.query(Tags.id).filter(Tags.argument == tag).first())[0]  # Trova id del tag selezionato
 
         # Type of the question
         if tipo_domanda == "open":
@@ -216,7 +221,8 @@ def question_db(type, req, form_id, question_id):
             db_session.commit()
 
             # link the question with tag
-            db_session.add(TagsQuestions(tag_id=id_t, question_id=q.id))
+            for t in tag_list:
+                db_session.add(TagsQuestions(tag_id=int(t), question_id=q.id))
 
             # link the question with the form
             if type == 'add':
@@ -233,11 +239,12 @@ def question_db(type, req, form_id, question_id):
             q = Questions(text=text_question)
             db_session.add(q)
             db_session.commit()
-            db_session.add(SingleQuestions(idS=q.id))
+            db_session.add(SingleQuestions(id=q.id))
             db_session.commit()
 
             # link the quuestion with the tag
-            db_session.add(TagsQuestions(tag_id=id_t, question_id=q.id))
+            for t in tag_list:
+                db_session.add(TagsQuestions(tag_id=int(t), question_id=q.id))
 
             # add the possibile answers
             number = req.get("number_answers")  # form input text: how many possible answers?
@@ -264,7 +271,8 @@ def question_db(type, req, form_id, question_id):
             db_session.commit()
 
             # link the quuestion with the tag
-            db_session.add(TagsQuestions(tag_id=id_t, question_id=q.id))
+            for t in tag_list:
+                db_session.add(TagsQuestions(tag_id=int(t), question_id=q.id))
 
             # add the possibile answers
             number = req.get("number_answers")  # form input text: how many possible answers?
@@ -288,13 +296,10 @@ def question_db(type, req, form_id, question_id):
 def delete_form(f_id):
     # elimino link tra domande e form
     db_session.query(FormsQuestions).filter(FormsQuestions.form_id == f_id).delete()
-    db_session.commit()
 
-    # elimino tutte le risposte del form
-    answers = db_session.query(Answers).filter(Answers.form_id == f_id)
-    for a in answers:
-        db_session.query(SeqAnswers).filter(SeqAnswers.id == a.id).delete()
-    answers.delete()
+    # elimino tutte le risposte del form (cascade su SeqAnswers e File)
+    db_session.query(Answers).filter(Answers.form_id == f_id).delete()
+
 
     # infine elimino il form
     db_session.query(Forms).filter(Forms.id == f_id).delete()
@@ -447,7 +452,7 @@ def init_base_answers():
                         Answers(id=25, form_id=form_id, question_id=7, user_id=user_id),
                         Answers(id=26, form_id=form_id, question_id=8, user_id=user_id),
                         Answers(id=27, form_id=form_id, question_id=9, user_id=user_id),
-                        Answers(id=28, form_id=form_id, question_id=19, user_id=user_id)
+                        Answers(id=28, form_id=form_id, question_id=10, user_id=user_id)
                         ])
     db_session.commit()
 

@@ -12,6 +12,8 @@ form_edit_BP = Blueprint('form_edit_BP', __name__, template_folder='templates/fo
 @creator_or_admin_role_required
 def form_edit(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
+    if not current_form:
+        return render_template("error.html", message="This form does not exist")
 
     # This method represents when the user POST a requeste of delete of a specific question
     if request.method == "POST":
@@ -70,6 +72,8 @@ def edit_mand_or_files(form_id, question_id):
 @creator_or_admin_role_required
 def form_edit_main_info(form_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id)
+    if not current_form:
+        return render_template("error.html", message="This form does not exist")
 
     # Request of editing name and description
     if request.method == 'POST':
@@ -98,6 +102,14 @@ def form_edit_question(form_id, question_id):
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
     current_question = db_session.query(Questions).filter(Questions.id == question_id).first()
 
+    if (not current_form) or (not current_question):
+        return render_template("error.html", message="This form or this question does not exist")
+
+    check_parameters = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
+        filter(FormsQuestions.question_id == question_id).first()
+    if not check_parameters:
+        return render_template("error.html", message="This question is not present in the current form")
+
     if request.method == "POST":
         req = request.form
 
@@ -114,9 +126,10 @@ def form_edit_question(form_id, question_id):
                 db_session.add(MultipleChoiceQuestions(idS=q.id))
                 db_session.commit()
 
-                t = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).first()
+                tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all
                 # link the quuestion with the tag
-                db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
+                for t in tags:
+                    db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
 
                 # add the possibile answers
                 number = req.get("number_answers")  # form input text: how many possible answers?
@@ -139,9 +152,10 @@ def form_edit_question(form_id, question_id):
                 db_session.add(SingleQuestions(id=q.id))
                 db_session.commit()
 
-                t = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).first()
+                tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all()
                 # link the quuestion with the tag
-                db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
+                for t in tags:
+                    db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
 
                 # add the possibile answers
                 number = req.get("number_answers")  # form input text: how many possible answers?

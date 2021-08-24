@@ -40,7 +40,6 @@ class Forms(Base):
     description = Column(String(255))
     creator_id = Column(Integer, ForeignKey(Users.id), nullable=False)
 
-    creator = relationship('Users', back_populates="forms_created")
     questions = relationship('Questions', secondary='forms_questions')
     answers = relationship('Answers', back_populates='form')
 
@@ -132,10 +131,9 @@ class Answers(Base):
     user_id = Column(Integer, ForeignKey(Users.id), nullable=False)
 
     question = relationship('Questions', back_populates='answers')
-    text = relationship('SeqAnswers', back_populates='info')
+    text = relationship('SeqAnswers')
     form = relationship('Forms', back_populates='answers')
     user = relationship('Users')
-    files = relationship('Files')
 
 
 class Files(Base):

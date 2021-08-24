@@ -23,13 +23,14 @@
         <ol>
         {% for q, m in questions %}
                     <li>
-                        <form action="" name="delete_question">
+                            <form name="delete_question" method="POST">
                             <label>{{q.text}}</label>&nbsp;&nbsp;&nbsp;
                 {% if form.id > 4 %}
                                 <a href="/form/{{form.id}}/{{q.id}}">
                                     <button type="button" class="btn btn-green">EDIT QUESTION</button>
                                 </a>&nbsp;&nbsp;
                                 <!-- Hidden form to send the id question when clicking on DELETE-->
+
                                 <input type="hidden" name="question" value="{{q.id}}">
                                 <input type="submit" value="DELETE" name="delete_button" class="btn btn-danger">
                             </form>
