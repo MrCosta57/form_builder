@@ -381,12 +381,12 @@ def init_base_answers():
 
     # Template Party user: Andrea
     form_id = 1
-    db_session.add_all([Answers(id=1, form_id=form_id, question_id=1, user_id=user_id),
-                        Answers(id=2, form_id=form_id, question_id=2, user_id=user_id),
-                        Answers(id=3, form_id=form_id, question_id=11, user_id=user_id),
-                        Answers(id=4, form_id=form_id, question_id=13, user_id=user_id),
-                        Answers(id=5, form_id=form_id, question_id=15, user_id=user_id),
-                        Answers(id=6, form_id=form_id, question_id=16, user_id=user_id)])
+    db_session.add_all([Answers(form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(form_id=form_id, question_id=11, user_id=user_id),
+                        Answers(form_id=form_id, question_id=13, user_id=user_id),
+                        Answers(form_id=form_id, question_id=15, user_id=user_id),
+                        Answers(form_id=form_id, question_id=16, user_id=user_id)])
     db_session.commit()
 
     db_session.add_all([SeqAnswers(id=1, content='Andrea'),
@@ -401,14 +401,14 @@ def init_base_answers():
 
     # Template Meets
     form_id = 2
-    db_session.add_all([Answers(id=7, form_id=form_id, question_id=1, user_id=user_id),
-                        Answers(id=8, form_id=form_id, question_id=2, user_id=user_id),
-                        Answers(id=9, form_id=form_id, question_id=4, user_id=user_id),
-                        Answers(id=10, form_id=form_id, question_id=7, user_id=user_id),
-                        Answers(id=11, form_id=form_id, question_id=8, user_id=user_id),
-                        Answers(id=12, form_id=form_id, question_id=13, user_id=user_id),
-                        Answers(id=13, form_id=form_id, question_id=20, user_id=user_id),
-                        Answers(id=14, form_id=form_id, question_id=27, user_id=user_id)
+    db_session.add_all([Answers(form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(form_id=form_id, question_id=4, user_id=user_id),
+                        Answers(form_id=form_id, question_id=7, user_id=user_id),
+                        Answers(form_id=form_id, question_id=8, user_id=user_id),
+                        Answers(form_id=form_id, question_id=13, user_id=user_id),
+                        Answers(form_id=form_id, question_id=20, user_id=user_id),
+                        Answers(form_id=form_id, question_id=27, user_id=user_id)
                         ])
     db_session.commit()
 
@@ -425,12 +425,12 @@ def init_base_answers():
 
     # Template Events
     form_id = 3
-    db_session.add_all([Answers(id=15, form_id=form_id, question_id=1, user_id=user_id),
-                        Answers(id=16, form_id=form_id, question_id=2, user_id=user_id),
-                        Answers(id=17, form_id=form_id, question_id=3, user_id=user_id),
-                        Answers(id=18, form_id=form_id, question_id=5, user_id=user_id),
-                        Answers(id=19, form_id=form_id, question_id=16, user_id=user_id),
-                        Answers(id=20, form_id=form_id, question_id=20, user_id=user_id)
+    db_session.add_all([Answers(form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(form_id=form_id, question_id=3, user_id=user_id),
+                        Answers(form_id=form_id, question_id=5, user_id=user_id),
+                        Answers(form_id=form_id, question_id=16, user_id=user_id),
+                        Answers(form_id=form_id, question_id=20, user_id=user_id)
                         ])
     db_session.commit()
 
@@ -445,14 +445,14 @@ def init_base_answers():
 
     # Template Contacts
     form_id = 4
-    db_session.add_all([Answers(id=21, form_id=form_id, question_id=1, user_id=user_id),
-                        Answers(id=22, form_id=form_id, question_id=2, user_id=user_id),
-                        Answers(id=23, form_id=form_id, question_id=5, user_id=user_id),
-                        Answers(id=24, form_id=form_id, question_id=6, user_id=user_id),
-                        Answers(id=25, form_id=form_id, question_id=7, user_id=user_id),
-                        Answers(id=26, form_id=form_id, question_id=8, user_id=user_id),
-                        Answers(id=27, form_id=form_id, question_id=9, user_id=user_id),
-                        Answers(id=28, form_id=form_id, question_id=10, user_id=user_id)
+    db_session.add_all([Answers(form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(form_id=form_id, question_id=5, user_id=user_id),
+                        Answers(form_id=form_id, question_id=6, user_id=user_id),
+                        Answers(form_id=form_id, question_id=7, user_id=user_id),
+                        Answers(form_id=form_id, question_id=8, user_id=user_id),
+                        Answers(form_id=form_id, question_id=9, user_id=user_id),
+                        Answers(form_id=form_id, question_id=10, user_id=user_id)
                         ])
     db_session.commit()
 
@@ -470,12 +470,12 @@ def init_base_answers():
     # Template Party user: Pippo
     user_id = 3
     form_id = 1
-    db_session.add_all([Answers(id=29, form_id=form_id, question_id=1, user_id=user_id),
-                        Answers(id=30, form_id=form_id, question_id=2, user_id=user_id),
-                        Answers(id=31, form_id=form_id, question_id=11, user_id=user_id),
-                        Answers(id=32, form_id=form_id, question_id=13, user_id=user_id),
-                        Answers(id=33, form_id=form_id, question_id=15, user_id=user_id),
-                        Answers(id=34, form_id=form_id, question_id=16, user_id=user_id)])
+    db_session.add_all([Answers(form_id=form_id, question_id=1, user_id=user_id),
+                        Answers(form_id=form_id, question_id=2, user_id=user_id),
+                        Answers(form_id=form_id, question_id=11, user_id=user_id),
+                        Answers(form_id=form_id, question_id=13, user_id=user_id),
+                        Answers(form_id=form_id, question_id=15, user_id=user_id),
+                        Answers(form_id=form_id, question_id=16, user_id=user_id)])
     db_session.commit()
 
     db_session.add_all([SeqAnswers(id=29, content='Pippo'),

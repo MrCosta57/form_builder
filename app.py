@@ -199,9 +199,9 @@ def edit_profile():
 @app.route("/add_role_post")
 @auth_required()
 def add_role():
-    assigned = db_session.query(RolesUsers.user_id).join(Roles).filter(RolesUsers.user_id == current_user.id).\
-        filter(Roles.name == "Standard User").all()
-    if current_user.id not in assigned:
+    assigned = db_session.query(RolesUsers).join(Roles, RolesUsers.role_id == Roles.id).\
+        filter(and_(RolesUsers.user_id == current_user.id, Roles.name == "Standard User")).all()
+    if not assigned:
         role = user_datastore.find_role("Standard User")
         user = db_session.query(Users).filter(Users.id == current_user.id).first()
         user_datastore.add_role_to_user(user, role)

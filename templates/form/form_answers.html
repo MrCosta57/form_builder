@@ -9,8 +9,8 @@
     <!--Header Page-->
     <div class="container">
         <h1>Welcome {{user.name}}</h1>
-        <h4>This is the list of Answer of the form: {{form.name}}</h4><br>
-        <h6>Number of people compiling the form: {{total_answers}}</h6>
+        <h4>This is the answer list of the form: {{form.name}}</h4><br>
+        <h6>Number of people who have filled out the form: {{total_answers}}</h6>
     </div>
 
 
@@ -32,7 +32,7 @@
                             {{t.content}}; &nbsp;&nbsp;&nbsp;&nbsp;
                         {% endfor %}
                         {%if f.id is defined%}
-                            <a href="/form/answers/{{a.id}}/{{a.user_id}}" target="_blank">
+                            <a href="/form/answers/{{a.id}}" target="_blank">
                                 <button type="button" class="btn btn-green">View File</button>
                             </a>
                         {%endif%}

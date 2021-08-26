@@ -141,7 +141,7 @@ def view_files(answer_id):
         return render_template("error.html", message="This file does not exist")
     response = make_response(file.data)
     response.headers['Content-Type'] = file.mimetype
-    response.headers['Content-Disposition'] = 'inline; filename=%s.pdf' % file.name
+    response.headers['Content-Disposition'] = 'inline; filename=%s' % file.name
     return response
 
 

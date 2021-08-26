@@ -49,11 +49,11 @@ def sudo_enable_disable(user_id):
 @admin_role_required
 def sudo_delete_user(user_id):
     user_query = db_session.query(Users).filter(Users.id == user_id)
-
-    if not user_query.first():
+    user = user_query.first()
+    if not user:
         return render_template("error.html", message="This user not exist")
 
-    for f in user_query.forms_created:
+    for f in user.forms_created:
         delete_form(f.id)
 
     db_session.query(Answers).filter(Answers.user_id == user_id).delete()

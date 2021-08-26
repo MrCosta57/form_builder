@@ -89,7 +89,7 @@ def form_edit_main_info(form_id):
         db_session.commit()
 
         # goes to /<form_id>/edit
-        return redirect(url_for('form_management_BP.form_edit', form_id=form_id))
+        return redirect(url_for('form_edit_BP.form_edit', form_id=form_id))
 
     return render_template("form_edit_main_info.html", form=current_form.first())
 

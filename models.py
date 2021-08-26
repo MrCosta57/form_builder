@@ -20,7 +20,7 @@ class Users(Base, UserMixin):
     surname = Column(String(255), nullable=False)
     date = Column(Date(), nullable=False)
 
-    email = Column(String(255), unique=True)
+    email = Column(String(255), unique=True, nullable=False)
     username = Column(String(255), unique=True, nullable=False)
     password = Column(String(255), nullable=False)
 
@@ -35,7 +35,7 @@ class Users(Base, UserMixin):
 class Forms(Base):
     __tablename__ = 'forms'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
     dataCreation = Column(DateTime())
     description = Column(String(255))
     creator_id = Column(Integer, ForeignKey(Users.id), nullable=False)
@@ -47,9 +47,8 @@ class Forms(Base):
 # Tables for n to n relationship
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
-    id = Column(Integer(), primary_key=True)
-    user_id = Column('user_id', Integer(), ForeignKey('users.id', ondelete='CASCADE'))
-    role_id = Column('role_id', Integer(), ForeignKey('roles.id'))
+    user_id = Column('user_id', Integer(), ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    role_id = Column('role_id', Integer(), ForeignKey('roles.id'), primary_key=True)
 
 
 class FilledBy(Base):
@@ -75,7 +74,7 @@ class FormsQuestions(Base):
 class Tags(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    argument = Column(String(), unique=True)
+    argument = Column(String(), unique=True, nullable=False)
 
     questions = relationship('Questions', secondary='tags_questions', back_populates='tags')
 
@@ -83,7 +82,7 @@ class Tags(Base):
 class Questions(Base):
     __tablename__ = 'questions'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    text = Column(Text)
+    text = Column(Text, nullable=False)
 
     tags = relationship('Tags', secondary='tags_questions', back_populates='questions')
     answers = relationship('Answers', back_populates='question')
