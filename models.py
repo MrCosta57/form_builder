@@ -75,7 +75,7 @@ class FormsQuestions(Base):
 class Tags(Base):
     __tablename__ = 'tags'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    argument = Column(String(255), unique=True)
+    argument = Column(String(), unique=True)
 
     questions = relationship('Questions', secondary='tags_questions', back_populates='tags')
 
@@ -83,7 +83,7 @@ class Tags(Base):
 class Questions(Base):
     __tablename__ = 'questions'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    text = Column(String(255))
+    text = Column(Text)
 
     tags = relationship('Tags', secondary='tags_questions', back_populates='questions')
     answers = relationship('Answers', back_populates='question')
@@ -148,7 +148,7 @@ class Files(Base):
 class SeqAnswers(Base):
     __tablename__ = 'seq_answers'
     id = Column(Integer, ForeignKey(Answers.id, ondelete='CASCADE'), primary_key=True)
-    content = Column(String, primary_key=True)
+    content = Column(Text, primary_key=True)
 
 
 # Triggers in Plpgsql
