@@ -123,7 +123,7 @@ def form_edit_question(form_id, question_id):
                 db_session.add(q)
                 db_session.commit()
 
-                db_session.add(MultipleChoiceQuestions(idS=q.id))
+                db_session.add(MultipleChoiceQuestions(id=q.id))
                 db_session.commit()
 
                 tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all
