@@ -230,11 +230,9 @@ def question_db(type, req, form_id, question_id):
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand},
-                            synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand})
 
         elif tipo_domanda == "single":
-
             # add the new question
             q = Questions(text=text_question)
             db_session.add(q)
@@ -259,8 +257,7 @@ def question_db(type, req, form_id, question_id):
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand},
-                            synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand})
 
         elif tipo_domanda == "multiple_choice":
             # add the new question
@@ -287,8 +284,7 @@ def question_db(type, req, form_id, question_id):
             elif type == 'edit':
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
                     FormsQuestions.question_id == question_id) \
-                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand},
-                            synchronize_session=False)
+                    .update({FormsQuestions.question_id: q.id, FormsQuestions.mandatory: mand})
 
         db_session.commit()
 

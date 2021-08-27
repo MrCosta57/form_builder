@@ -51,12 +51,6 @@ class RolesUsers(Base):
     role_id = Column('role_id', Integer(), ForeignKey('roles.id'), primary_key=True)
 
 
-class FilledBy(Base):
-    __tablename__ = 'filled_by'
-    user_id = Column('user_id', Integer(), ForeignKey('users.id'), primary_key=True)
-    form_id = Column('form_id', Integer(), ForeignKey('forms.id'), primary_key=True)
-
-
 class TagsQuestions(Base):
     __tablename__ = 'tags_questions'
     tag_id = Column('tag_id', Integer(), ForeignKey('tags.id'), primary_key=True)
