@@ -9,10 +9,17 @@ users_info_BP = Blueprint('users_info_BP', __name__, url_prefix='/users_info')
 @auth_required()
 @admin_role_required
 def sudo_view_users_info():
+    superusers = db_session.query(Users.id).join(RolesUsers, Users.id == RolesUsers.user_id). \
+        join(Roles, Roles.id == RolesUsers.role_id).filter(Roles.name == "SuperUser")
     admins = db_session.query(Users.id).join(RolesUsers, Users.id == RolesUsers.user_id). \
         join(Roles, Roles.id == RolesUsers.role_id).filter(Roles.name == "Admin")
-    users = db_session.query(Users).filter(Users.id.not_in(admins)).all()
-    return render_template("users_info.html", users=users)
+
+    users = db_session.query(Users).filter(Users.id.not_in(superusers)).all()
+    std_users = db_session.query(Users).filter(Users.id.not_in(superusers)).filter(Users.id.not_in(admins)).all()
+
+    admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+    superuser_role = db_session.query(Roles).filter(Roles.name == "SuperUser").first()
+    return render_template("users_info.html", users=users, admin_role=admin_role, superuser_role=superuser_role, std_users=std_users)
 
 
 @users_info_BP.route("/<user_id>/enable")
@@ -71,4 +78,34 @@ def sudo_delete_form(form_id):
     if not form:
         return render_template("error.html", message="This form not exist")
     delete_form(form_id)
+    return redirect(url_for("users_info_BP.sudo_view_users_info"))
+
+
+@users_info_BP.route("/<user_id>/grant")
+@auth_required()
+@superuser_role_required
+def sudo_grant_user(user_id):
+    user = db_session.query(Users).filter(Users.id == user_id).first()
+    role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+    if not user:
+        return render_template("error.html", message="This user not exist")
+
+    from app import user_datastore
+    user_datastore.add_role_to_user(user, role)
+    db_session.commit()
+    return redirect(url_for("users_info_BP.sudo_view_users_info"))
+
+
+@users_info_BP.route("/<user_id>/revoke")
+@auth_required()
+@superuser_role_required
+def sudo_revoke_user(user_id):
+    user = db_session.query(Users).filter(Users.id == user_id).first()
+    role = db_session.query(Roles).filter(Roles.name == "Admin").first()
+    if not user:
+        return render_template("error.html", message="This user not exist")
+
+    from app import user_datastore
+    user_datastore.remove_role_from_user(user, role)
+    db_session.commit()
     return redirect(url_for("users_info_BP.sudo_view_users_info"))

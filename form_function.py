@@ -35,6 +35,18 @@ def admin_role_required(f):
     return decorated_function
 
 
+def superuser_role_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        admin_role = db_session.query(Roles).filter(Roles.name == "SuperUser").first()
+        if admin_role not in current_user.roles:
+            return render_template("error.html", message="You do not have permission to view that page")
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 def populate_tags():
     db_session.add_all([Tags(argument="Informazioni personali"),
                         Tags(argument="Organizzazione"),

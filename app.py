@@ -102,6 +102,7 @@ def init():
 
 def create_roles():
     user_datastore.create_role(name="Admin", description="App administrator")
+    user_datastore.create_role(name="SuperUser", description="User with all privileges")
     user_datastore.create_role(name="Standard User", description="Standard app user")
     db_session.commit()
 
@@ -113,6 +114,10 @@ def create_admin_user():
     db_session.commit()
     admin = db_session.query(Users).filter(Users.id == 1).first()
     role = user_datastore.find_role("Admin")
+    user_datastore.add_role_to_user(admin, role)
+    role = user_datastore.find_role("SuperUser")
+    user_datastore.add_role_to_user(admin, role)
+    role = user_datastore.find_role("Standard User")
     user_datastore.add_role_to_user(admin, role)
     db_session.commit()
 
