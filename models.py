@@ -38,7 +38,7 @@ class Forms(Base):
     name = Column(String(255), nullable=False)
     dataCreation = Column(DateTime())
     description = Column(String(255))
-    creator_id = Column(Integer, ForeignKey(Users.id), nullable=False)
+    creator_id = Column(Integer, ForeignKey(Users.id, ondelete='CASCADE'), nullable=False)
 
     questions = relationship('Questions', secondary='forms_questions')
     answers = relationship('Answers', back_populates='form')
@@ -59,7 +59,7 @@ class TagsQuestions(Base):
 
 class FormsQuestions(Base):
     __tablename__ = 'forms_questions'
-    form_id = Column('form_id', Integer(), ForeignKey('forms.id'), primary_key=True)
+    form_id = Column('form_id', Integer(), ForeignKey('forms.id', ondelete='CASCADE'), primary_key=True)
     question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
     mandatory = Column('mandatory', Boolean(), default=False, nullable=False)
     has_file = Column(Boolean, default=False, nullable=False)
@@ -119,9 +119,9 @@ class PossibleAnswersM(Base):
 class Answers(Base):
     __tablename__ = 'answers'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    form_id = Column(Integer, ForeignKey(Forms.id), nullable=False)
-    question_id = Column(Integer, ForeignKey(Questions.id), nullable=False)
-    user_id = Column(Integer, ForeignKey(Users.id), nullable=False)
+    form_id = Column(Integer, ForeignKey(Forms.id, ondelete='CASCADE'), nullable=False)
+    question_id = Column(Integer, ForeignKey(Questions.id, ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey(Users.id, ondelete='CASCADE'), nullable=False)
 
     question = relationship('Questions', back_populates='answers')
     text = relationship('SeqAnswers')

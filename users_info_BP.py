@@ -60,11 +60,6 @@ def sudo_delete_user(user_id):
     if not user:
         return render_template("error.html", message="This user not exist")
 
-    for f in user.forms_created:
-        delete_form(f.id)
-
-    db_session.query(Answers).filter(Answers.user_id == user_id).delete()
-
     user_query.delete()
     db_session.commit()
     return redirect(url_for("users_info_BP.sudo_view_users_info"))

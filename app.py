@@ -174,9 +174,6 @@ def user_profile():
         if not is_admin:
             id_user = current_user.id
             logout_user()
-            form_list = db_session.query(Forms).filter(Forms.creator_id == id_user)
-            for f in form_list:
-                delete_form(f.id)
 
             db_session.query(Users).filter(Users.id == id_user).delete()
             db_session.commit()
