@@ -68,10 +68,7 @@
                             box2.innerHTML = '<label>Template Name</label><br>\n'+
                                              '<select name="template" class="form-select" onChange="mostra_form(this); submit_f(this)">\n' +
                                 '                                <option value="" selected> </option>\n' +
-                                '                                <option value="party">Party</option>\n' +
-                                '                                <option value="events">Event</option>\n' +
-                                '                                <option value="info">General Info</option>\n' +
-                                '                                <option value="meeting">Meeting</option>\n' +
+                                '                                {%for f in forms%}<option value={{f.id}}>{{f.name}}</option>\n{%endfor%}'+
                                 '                            </select>'
                         } else if(v_imp === "no") {
                             /*Name + Description input text*/
@@ -88,14 +85,13 @@
                         const value = v.value;
 
                         /*For every type of the template show a preview: see form_edit for the HTML code to do this*/
-                        if(value === "party")
-                        {
-                            box.innerHTML = '<div class="container">\n' +
+                        if(value !== ""){
+                            var str = '<div class="container">\n' +
                                 '        <p><b>Template Questions Peview:</b></p>\n'+
                                 '        <ol>\n' +
-                                '        {% for f in forms %}\n' +
-                                '        {% if f.id == 1 %}\n' +
-                                '        {% for q in f.questions %}\n' +
+                                '        {% for f in forms %}\n';
+                                 if ({{f.id}}==value) {
+                                str+='        {% for q in f.questions %}\n' +
                                 '            <li>{{q.text}}</li>\n' +
                                 '            {% if q.single %}\n' +
                                 '                {% for q1 in q.single%}\n' +
@@ -114,110 +110,14 @@
                                 '                    </ul>\n' +
                                 '                {% endfor %}\n' +
                                 '            {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        {% endif %}\n' +
-                                '        {% endfor %}\n' +
+                                '        {% endfor %}\n'
+                                 }
+                                str+='        {% endfor %}\n' +
                                 '        </ol>' +
                                 '</div>'
+                                box.innerHTML=str;
                         }
-                        else if(value === "events")
-                        {
-                            box.innerHTML = '<div class="container">\n' +
-                                '        <p><b>Template Questions Peview:</b></p>\n'+
-                                '        <ol>\n' +
-                                '        {% for f in forms %}\n' +
-                                '        {% if f.id == 3 %}\n' +
-                                '        {% for q in f.questions %}\n' +
-                                '            <li>{{q.text}}</li>\n' +
-                                '            {% if q.single %}\n' +
-                                '                {% for q1 in q.single%}\n' +
-                                '                    <ul>\n' +
-                                '                    {% for a in q1.possible_answers%}\n' +
-                                '                        <li >{{a.content}}</li>\n' +
-                                '                    {% endfor %}\n' +
-                                '                    </ul>\n' +
-                                '                {% endfor %}\n' +
-                                '            {% elif q.multiple_choice %}\n' +
-                                '                {% for q1 in q.multiple_choice%}\n' +
-                                '                    <ul type="square">\n' +
-                                '                    {% for a in q1.possible_answers%}\n' +
-                                '                        <li >{{a.content}}</li>\n' +
-                                '                    {% endfor %}\n' +
-                                '                    </ul>\n' +
-                                '                {% endfor %}\n' +
-                                '            {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        </ol>' +
-                                '</div>'
-                        }
-                        else if(value === "info")
-                        {
-                            box.innerHTML = '<div class="container">\n' +
-                                '        <p><b>Template Questions Peview:</b></p>\n'+
-                                '        <ol>\n' +
-                                '        {% for f in forms %}\n' +
-                                '        {% if f.id == 4 %}\n' +
-                                '        {% for q in f.questions %}\n' +
-                                '            <li>{{q.text}}</li>\n' +
-                                '            {% if q.single %}\n' +
-                                '                {% for q1 in q.single%}\n' +
-                                '                    <ul>\n' +
-                                '                    {% for a in q1.possible_answers%}\n' +
-                                '                        <li >{{a.content}}</li>\n' +
-                                '                    {% endfor %}\n' +
-                                '                    </ul>\n' +
-                                '                {% endfor %}\n' +
-                                '            {% elif q.multiple_choice %}\n' +
-                                '                {% for q1 in q.multiple_choice%}\n' +
-                                '                    <ul type="square">\n' +
-                                '                    {% for a in q1.possible_answers%}\n' +
-                                '                        <li >{{a.content}}</li>\n' +
-                                '                    {% endfor %}\n' +
-                                '                    </ul>\n' +
-                                '                {% endfor %}\n' +
-                                '            {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        </ol>' +
-                                '</div>'
-                        }
-                        else if(value === "meeting")
-                        {
-                            box.innerHTML = '<div class="container">\n' +
-                                '        <p><b>Template Questions Peview:</b></p>\n'+
-                                '        <ol>\n' +
-                                '        {% for f in forms %}\n' +
-                                '        {% if f.id == 2 %}\n' +
-                                '        {% for q in f.questions %}\n' +
-                                '            <li>{{q.text}}</li>\n' +
-                                '            {% if q.single %}\n' +
-                                '                {% for q1 in q.single%}\n' +
-                                '                    <ul>\n' +
-                                '                    {% for a in q1.possible_answers%}\n' +
-                                '                        <li >{{a.content}}</li>\n' +
-                                '                    {% endfor %}\n' +
-                                '                    </ul>\n' +
-                                '                {% endfor %}\n' +
-                                '            {% elif q.multiple_choice %}\n' +
-                                '                {% for q1 in q.multiple_choice%}\n' +
-                                '                    <ul type="square">\n' +
-                                '                    {% for a in q1.possible_answers%}\n' +
-                                '                        <li >{{a.content}}</li>\n' +
-                                '                    {% endfor %}\n' +
-                                '                    </ul>\n' +
-                                '                {% endfor %}\n' +
-                                '            {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        {% endif %}\n' +
-                                '        {% endfor %}\n' +
-                                '        </ol>' +
-                                '</div>'
-                        }
-                        else if(value === "")
-                        {
+                        else{
                             box.innerHTML='';
                         }
                     }

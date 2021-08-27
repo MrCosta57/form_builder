@@ -26,7 +26,7 @@
             <h5>{{q.text}}</h5>
             {% for a, f in answers%}
                 {% if a.question_id == q.id%}
-                    <li>
+                    <li style="margin-bottom: 0.5rem">
                         <b>Username: {{a.user.username}}</b>&nbsp;&nbsp;&nbsp;&nbsp;
                         {% for t in a.text %}
                             {{t.content}}; &nbsp;&nbsp;&nbsp;&nbsp;

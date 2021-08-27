@@ -2,6 +2,7 @@ from flask import Blueprint, request, redirect, url_for
 from flask_security import auth_required
 
 from form_function import *
+
 form_add_BP = Blueprint('form_add_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
 
@@ -28,26 +29,36 @@ def form_create():
         if imp == "si":
             template = req.get("template")  # scelta del template da parte dell'utente
 
-            if template == "party":
+            if template == '1':
                 template_party(current_user.id, nome, descrizione)
-            if template == "events":
+            elif template == '2':
                 template_events(current_user.id, nome, descrizione)
-            if template == "info":
+            elif template == '3':
                 template_contacts(current_user.id, nome, descrizione)
-            if template == "meeting":
+            elif template == '4':
                 template_meets(current_user.id, nome, descrizione)
+            else:
+                new_form = Forms(name=nome, dataCreation=datetime.now(),
+                                 description=descrizione,
+                                 creator_id=current_user.id)
+                db_session.add(new_form)
+                db_session.commit()
+                curr_formsquestions = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == int(template)).all()
+                for q in curr_formsquestions:
+                    db_session.add(FormsQuestions(form_id=new_form.id, question_id=q.question_id, mandatory=q.mandatory, has_file=q.has_file))
 
         # Creazione di un nuovo form
         else:
             db_session.add(Forms(name=nome, dataCreation=datetime.now(),
                                  description=descrizione,
                                  creator_id=current_user.id))
+
         db_session.commit()
         return redirect(url_for('form_view_BP.form'))
 
     # GET, passati template per anteprima
     forms_template = db_session.query(Forms).filter((Forms.id == 1) | (Forms.id == 2) | (Forms.id == 3) |
-                                                    (Forms.id == 4))
+                                                    (Forms.id == 4) | (Forms.creator_id == current_user.id))
     return render_template("form_create.html", user=current_user, forms=forms_template)
 
 
