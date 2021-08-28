@@ -7,17 +7,18 @@ from flask_security import Security, auth_required, logout_user, \
     SQLAlchemySessionUserDatastore
 from flask_security.forms import ConfirmRegisterForm, Required
 from flask_security.utils import hash_password
+from flask_babelex import Babel
 from wtforms import TextField, DateField
+from dotenv import load_dotenv
 
-from users_info_BP import users_info_BP
 from form_function import *
+from users_info_BP import users_info_BP
 from form_edit_BP import form_edit_BP
 from form_add_BP import form_add_BP
 from form_view_BP import form_view_BP
+
 from database import init_db, db_session
 from models import *
-from flask_babelex import Babel
-from dotenv import load_dotenv
 from datetime import date, datetime
 
 # SETUP FLASK
@@ -48,7 +49,7 @@ app.config['SECURITY_RECOVERABLE'] = True
 app.config['SECURITY_CHANGEABLE'] = True
 app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
 
-# Generate a nice key using secrets.token_urlsafe()
+# Generate a nice key using secrets.token_urlsafe() inside a .env file
 if not os.path.isfile('.env'):
     confFile = open('.env', 'w')
     confFile.write('SECRET_KEY=' + str(secrets.token_urlsafe()) + '\n')
@@ -79,7 +80,7 @@ security = Security(app, user_datastore, confirm_register_form=ExtendedConfirmRe
 mail = Mail(app)
 babel = Babel(app)
 
-# Monkeypatching Flask-babelex
+# Monkeypatching Flask-babelex (necessary to setup flask-security)
 babel.domain = 'flask_user'
 babel.translation_directories = 'translations'
 
@@ -89,7 +90,7 @@ babel.translation_directories = 'translations'
 def init():
     if not user_datastore.find_user(email="admin@db.com"):
         create_roles()
-        create_admin_user()
+        create_superuser()
         create_standard_users()
         populate_tags()
         init_base_question()
@@ -100,6 +101,7 @@ def init():
         init_base_answers()
 
 
+# Create all the roles
 def create_roles():
     user_datastore.create_role(name="Admin", description="App administrator")
     user_datastore.create_role(name="SuperUser", description="User with all privileges")
@@ -107,21 +109,28 @@ def create_roles():
     db_session.commit()
 
 
-def create_admin_user():
+# create the first user with all the roles
+def create_superuser():
     user_datastore.create_user(email="admin@db.com", password=hash_password("password"),
                                username="admin", name="Admin", surname="Admin", date=date.today(),
                                confirmed_at=datetime.now())
     db_session.commit()
+
     admin = db_session.query(Users).filter(Users.id == 1).first()
+
     role = user_datastore.find_role("Admin")
     user_datastore.add_role_to_user(admin, role)
+
     role = user_datastore.find_role("SuperUser")
     user_datastore.add_role_to_user(admin, role)
+
     role = user_datastore.find_role("Standard User")
     user_datastore.add_role_to_user(admin, role)
+
     db_session.commit()
 
 
+# Create other 2 standard user
 def create_standard_users():
     user_datastore.create_user(email="andrea_marin@db.com", password=hash_password("password"),
                                username="andreamarin35", name="Andrea", surname="Marin", date=date.today(),
@@ -148,6 +157,7 @@ def home():
     return render_template("index.html", user=current_user)
 
 
+# icon of the webpage
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/images'),
@@ -162,16 +172,19 @@ def logout():
     return redirect(url_for('home'))
 
 
-# Visualize the user profile
+# GET: Visualize the user profile
+# POST: Delete the user
 @app.route("/profile", methods=['GET', 'POST'])
 @auth_required()
 def user_profile():
+    superuser_role = db_session.query(Roles).filter(Roles.name == "SuperUser").first()
     admin_role = db_session.query(Roles).filter(Roles.name == "Admin").first()
-    is_admin = False
-    if admin_role in current_user.roles:
-        is_admin = True
+    is_superuser = True if (superuser_role in current_user.roles) else False
+    is_admin = True if (admin_role in current_user.roles) else False
+
     if request.method == 'POST':
-        if not is_admin:
+        # The superuser can not be deleted
+        if not is_superuser:
             id_user = current_user.id
             logout_user()
 
@@ -179,9 +192,11 @@ def user_profile():
             db_session.commit()
             return redirect(url_for("home"))
 
-    return render_template("profile.html", user=current_user, is_admin=is_admin)
+    return render_template("profile.html", user=current_user, is_superuser=is_superuser, is_admin=is_admin)
 
 
+# GET: render the page to edit the profile
+# POST: send the request with the edit field
 @app.route("/profile/edit", methods=['GET', 'POST'])
 @auth_required()
 def edit_profile():
@@ -198,15 +213,13 @@ def edit_profile():
     return render_template("edit_profile.html", user=current_user)
 
 
+# Endpoint necessary to add a role to a new user
 @app.route("/add_role_post")
 @auth_required()
 def add_role():
-    assigned = db_session.query(RolesUsers).join(Roles, RolesUsers.role_id == Roles.id).\
-        filter(and_(RolesUsers.user_id == current_user.id, Roles.name == "Standard User")).all()
-    if not assigned:
+    if not current_user.roles:
         role = user_datastore.find_role("Standard User")
-        user = db_session.query(Users).filter(Users.id == current_user.id).first()
-        user_datastore.add_role_to_user(user, role)
+        user_datastore.add_role_to_user(current_user, role)
         db_session.commit()
     return redirect(url_for("home"))
 

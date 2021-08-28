@@ -3,31 +3,33 @@ from flask_security import auth_required
 
 from form_function import *
 
+# Contains endpoints relative ad adding new elements in the db
 form_add_BP = Blueprint('form_add_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
 
-# Permette di creare o importare un form specificando nome e descrizione
+# GET: show the template to create a new form
+# POST: send a request to create or import a new form
 @form_add_BP.route("/form_create", methods=['GET', 'POST'])
 @auth_required()
 def form_create():
     if request.method == "POST":
         req = request.form
 
-        imp = req.get("import")  # Per controllare se si vuole importare o no template
+        imp = req.get("import")  # if the user want to import an exisitng form
 
-        nome = req.get("name")  # nome del form
+        nome = req.get("name")  # form's name
 
-        # Controlliamo che l'utente non abbia un form con lo stesso nome
+        # Checking that a form with the same name is not present
         exist_form = db_session.query(Forms).filter(Forms.name == nome).filter(
             Forms.creator_id == current_user.id).first()
         if exist_form:
             return render_template("error.html", message="You have already created a form with this name")
 
-        descrizione = req.get("description")  # descrizione del form
+        descrizione = req.get("description")  # form's description
 
-        # caso import template
+        # if import
         if imp == "si":
-            template = req.get("template")  # scelta del template da parte dell'utente
+            template = req.get("template")  # id of the template/form
 
             if template == '1':
                 template_party(current_user.id, nome, descrizione)
@@ -43,11 +45,12 @@ def form_create():
                                  creator_id=current_user.id)
                 db_session.add(new_form)
                 db_session.commit()
+
                 curr_formsquestions = db_session.query(FormsQuestions).filter(FormsQuestions.form_id == int(template)).all()
                 for q in curr_formsquestions:
                     db_session.add(FormsQuestions(form_id=new_form.id, question_id=q.question_id, mandatory=q.mandatory, has_file=q.has_file))
 
-        # Creazione di un nuovo form
+        # if not import
         else:
             db_session.add(Forms(name=nome, dataCreation=datetime.now(),
                                  description=descrizione,
@@ -56,13 +59,14 @@ def form_create():
         db_session.commit()
         return redirect(url_for('form_view_BP.form'))
 
-    # GET, passati template per anteprima
+    # we pass the templates/form the user can import
     forms_template = db_session.query(Forms).filter((Forms.id == 1) | (Forms.id == 2) | (Forms.id == 3) |
                                                     (Forms.id == 4) | (Forms.creator_id == current_user.id))
     return render_template("form_create.html", user=current_user, forms=forms_template)
 
 
-# Add a question to a specific form
+# GET: render the template with the dynamic form to create a question
+# POST: insert a new question in the current form
 @form_add_BP.route("/<form_id>/add_question", methods=['GET', 'POST'])
 @auth_required()
 @creator_or_admin_role_required
@@ -75,7 +79,9 @@ def form_add_question(form_id):
     if request.method == "POST":
         req = request.form
 
-        message = question_db("add", req, form_id, -1)  # function that add/edit a question in the db
+        # function that add/edit a question in the db
+        # if an error raises, the function will return the message error
+        message = question_db("add", req, form_id, -1)
 
         if message:
             return render_template("error.html", message=message)
@@ -83,7 +89,9 @@ def form_add_question(form_id):
             # goes to /<form_id>/edit
             return redirect(url_for('form_edit_BP.form_edit', form_id=form_id))
 
-    # GET, necessario passare tutti i tags esistenti per caso di import
+    # For the import of an existing question is necessary to pass some data to the template
+
+    # List of the tags
     tags = db_session.query(Tags)
 
     # Questions created by the users
@@ -98,6 +106,7 @@ def form_add_question(form_id):
     # Base Questions
     q3 = db_session.query(Questions).filter(Questions.id > 0).filter(Questions.id < 28)
 
+    # List of importable questions
     questions = (q.union(q2)).union(q3)
 
     return render_template("question_add.html", form=current_form, tags=tags, questions=questions, edit=False)

@@ -32,6 +32,14 @@ class Users(Base, UserMixin):
     forms_created = relationship('Forms')
 
 
+# Tables for n to n relationship
+class RolesUsers(Base):
+    __tablename__ = 'roles_users'
+    user_id = Column('user_id', Integer(), ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
+    role_id = Column('role_id', Integer(), ForeignKey('roles.id'), primary_key=True)
+
+
+# FORMS
 class Forms(Base):
     __tablename__ = 'forms'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -45,18 +53,6 @@ class Forms(Base):
 
 
 # Tables for n to n relationship
-class RolesUsers(Base):
-    __tablename__ = 'roles_users'
-    user_id = Column('user_id', Integer(), ForeignKey('users.id', ondelete='CASCADE'), primary_key=True)
-    role_id = Column('role_id', Integer(), ForeignKey('roles.id'), primary_key=True)
-
-
-class TagsQuestions(Base):
-    __tablename__ = 'tags_questions'
-    tag_id = Column('tag_id', Integer(), ForeignKey('tags.id'), primary_key=True)
-    question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
-
-
 class FormsQuestions(Base):
     __tablename__ = 'forms_questions'
     form_id = Column('form_id', Integer(), ForeignKey('forms.id', ondelete='CASCADE'), primary_key=True)
@@ -65,14 +61,7 @@ class FormsQuestions(Base):
     has_file = Column(Boolean, default=False, nullable=False)
 
 
-class Tags(Base):
-    __tablename__ = 'tags'
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    argument = Column(String(), unique=True, nullable=False)
-
-    questions = relationship('Questions', secondary='tags_questions', back_populates='tags')
-
-
+# QUESTIONS
 class Questions(Base):
     __tablename__ = 'questions'
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -116,6 +105,23 @@ class PossibleAnswersM(Base):
     content = Column(String, primary_key=True)
 
 
+# TAGS
+class Tags(Base):
+    __tablename__ = 'tags'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    argument = Column(String(), unique=True, nullable=False)
+
+    questions = relationship('Questions', secondary='tags_questions', back_populates='tags')
+
+
+# Tables for n to n relationship
+class TagsQuestions(Base):
+    __tablename__ = 'tags_questions'
+    tag_id = Column('tag_id', Integer(), ForeignKey('tags.id'), primary_key=True)
+    question_id = Column('question_id', Integer(), ForeignKey('questions.id'), primary_key=True)
+
+
+# ANSWERS
 class Answers(Base):
     __tablename__ = 'answers'
     id = Column(Integer, primary_key=True, autoincrement=True)

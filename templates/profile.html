@@ -17,10 +17,11 @@
         <form name="edit_form" method="POST">
             <a href="/profile/edit"><button type="button" class="btn btn-primary">Edit Profile</button></a>&nbsp&nbsp
             <a href="/change"><button type="button" class="btn btn-primary">Change Password</button></a>&nbsp&nbsp
-            {%if not is_admin%}
+            {%if not is_superuser%}
             <input type="submit" value="DELETE PROFILE" class="btn btn-danger">
-            {%else%}
-            <a href="/users_info"><button type="button" class="btn btn-green">View user profiles</button></a>&nbsp&nbsp
+            {%endif%}
+            {%if is_admin%}
+            <a href="/users_info"><button type="button" class="btn btn-green">View users profiles</button></a>&nbsp&nbsp
             {%endif%}
         </form>
         <!--<a href="/logout"><button type="button" class="btn btn-primary">LOGOUT</button></a><br><br>-->

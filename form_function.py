@@ -9,6 +9,9 @@ from models import *
 from datetime import datetime
 
 
+# DECORATORS
+
+# checking if the current_user is admin or creator of a form
 def creator_or_admin_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -23,6 +26,7 @@ def creator_or_admin_role_required(f):
     return decorated_function
 
 
+# Checking if the current_user is admin
 def admin_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -35,6 +39,7 @@ def admin_role_required(f):
     return decorated_function
 
 
+# Checking if the current_user is superuser
 def superuser_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -47,6 +52,9 @@ def superuser_role_required(f):
     return decorated_function
 
 
+# FUNCTIONS
+
+# Base tags
 def populate_tags():
     db_session.add_all([Tags(argument="Informazioni personali"),
                         Tags(argument="Organizzazione"),
@@ -61,6 +69,7 @@ def populate_tags():
     db_session.commit()
 
 
+# Base questions
 def init_base_question():
     db_session.add_all([Questions(text="Nome"),  # 1
                         Questions(text="Cognome"),
@@ -178,18 +187,15 @@ def init_base_question():
 
 # function that add or edit a question in the db (with tags and possible answers)
 def question_db(type, req, form_id, question_id):
-    # mandatory
-    mand = req.get("mandatory")
-    if mand == "on":
-        mand = True
-    else:
-        mand = False
 
-    # Question already exists
+    # Checking if the questions is mandatory
+    mand = True if (req.get("mandatory") == "on") else False
+
+    # if import a questions
     if req.get("choose") == "si":
-        id_q = req.get("question_choose")  # Menu a tendina con lista domande
+        id_q = req.get("question_choose")  # Getting the id of the question the user want to import
 
-        # add or edit
+        # link the question with the form (insert or update)
         if type == 'add':
             db_session.add(FormsQuestions(form_id=form_id, question_id=id_q, mandatory=mand))
         elif type == 'edit':
@@ -198,25 +204,31 @@ def question_db(type, req, form_id, question_id):
                 .update({FormsQuestions.question_id: id_q, FormsQuestions.mandatory: mand}, synchronize_session=False)
         db_session.commit()
 
-    # new Question
+    # if not import a questions
     else:
-        tag_list = req.getlist("tag_choose")  # Menu tendina: scelta tag
+        tag_list = req.getlist("tag_choose")  # List of string with the id of chosen tags
 
         # create new Tag
         for tag in tag_list:
+            # If in the tag list is also present the string "new"
             if tag == "nuovo":
-                new_tag = req.get("tag_aggiunto")  # form input text tag
-                # add the tag to the database
+
+                new_tag = req.get("tag_aggiunto")  # Text of the Tag
+
+                # Cheking if the ag already exists and adding the tag to the database
                 if db_session.query(Tags).filter(Tags.argument == new_tag).first():
                     return "THIS TAG ALREADY EXISTS"
+
                 aux = Tags(argument=new_tag)
                 db_session.add(aux)
                 db_session.commit()
+
+                # Replace "new" with the tag id
                 tag_list.remove("nuovo")
                 tag_list = tag_list + [str(aux.id)]
 
-        tipo_domanda = req.get("tipo_domanda")  # Menu tendina: open, single, multiple_choice
-        text_question = req.get("text_question")  # form input text, domanda
+        tipo_domanda = req.get("tipo_domanda")  # Open, single or multiple_choice
+        text_question = req.get("text_question")  # Text of the questions
 
         # Type of the question
         if tipo_domanda == "open":
@@ -226,17 +238,17 @@ def question_db(type, req, form_id, question_id):
             db_session.add(q)
             db_session.commit()
 
-            has_file = False
-            if req.get('file_choose') == 'si':
-                has_file = True
+            # In open questions we check has_file checkbox
+            has_file = True if (req.get('file_choose') == 'si') else False
+
             db_session.add(OpenQuestions(id=q.id))
             db_session.commit()
 
-            # link the question with tag
+            # link the question with the tags
             for t in tag_list:
                 db_session.add(TagsQuestions(tag_id=int(t), question_id=q.id))
 
-            # link the question with the form
+            # link the question with the form (insert or update)
             if type == 'add':
                 db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand, has_file=has_file))
             elif type == 'edit':
@@ -249,10 +261,11 @@ def question_db(type, req, form_id, question_id):
             q = Questions(text=text_question)
             db_session.add(q)
             db_session.commit()
+
             db_session.add(SingleQuestions(id=q.id))
             db_session.commit()
 
-            # link the quuestion with the tag
+            # link the question with the tags
             for t in tag_list:
                 db_session.add(TagsQuestions(tag_id=int(t), question_id=q.id))
 
@@ -263,7 +276,7 @@ def question_db(type, req, form_id, question_id):
                 cont = req.get(str(i))  # form input text: content of possible answers
                 db_session.add(PossibleAnswersS(idPosAnswS=q.id, content=cont))
 
-            # link the question with form
+            # link the question with the form (insert or update)
             if type == 'add':
                 db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand))
             elif type == 'edit':
@@ -279,7 +292,7 @@ def question_db(type, req, form_id, question_id):
             db_session.add(MultipleChoiceQuestions(id=q.id))
             db_session.commit()
 
-            # link the quuestion with the tag
+            # link the question with the tags
             for t in tag_list:
                 db_session.add(TagsQuestions(tag_id=int(t), question_id=q.id))
 
@@ -290,7 +303,7 @@ def question_db(type, req, form_id, question_id):
                 cont = req.get(str(i))  # form input text: content of possible answers
                 db_session.add(PossibleAnswersM(idPosAnswM=q.id, content=cont))
 
-            # link the question with form
+            # link the question with the form (insert or update)
             if type == 'add':
                 db_session.add(FormsQuestions(form_id=form_id, question_id=q.id, mandatory=mand))
             elif type == 'edit':
@@ -301,8 +314,8 @@ def question_db(type, req, form_id, question_id):
         db_session.commit()
 
 
+# Deleting the form (all the other tables take advantages from CASCADE property)
 def delete_form(f_id):
-    # infine elimino il form
     db_session.query(Forms).filter(Forms.id == f_id).delete()
     db_session.commit()
 

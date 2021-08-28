@@ -3,30 +3,35 @@ from flask_security import auth_required
 from werkzeug.utils import secure_filename
 
 from form_function import *
+
+# Contains endpoints relative at viewing elements in the db
 form_view_BP = Blueprint('form_view_BP', __name__, template_folder='templates/form', url_prefix='/form')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 
-# Endpoint for the list of forms of the current user.
-# From here you can: edit the form; copy the link of the form; create a new form; delete a Form
-#                    check all the anserw of the form
+# GET: visualize the list of the form with some buttons:
+#       - Creating a new form
+#       - Editing a form
+#       - Copy the link of the form
+#       - Deleting a form
+# POST: request of delete a specific form
 @form_view_BP.route("/", methods=['GET', 'POST'])
 @auth_required()
 def form():
-    # richiesta in post di eliminare il form, viene passato id attraverso hidden form
     if request.method == 'POST':
         req = request.form
-        f_id = req.get("form")
 
+        f_id = req.get("form")  # Hidden form necessary to get the id
         delete_form(f_id)
+
         return redirect(url_for('form_view_BP.form'))
 
-    # GET sull'endpoint
     forms_list = db_session.query(Forms).filter(Forms.creator_id == current_user.id)
     return render_template("forms_list.html", user=current_user, forms=forms_list)
 
 
-# Compiling a specific form
+# GET: what users see qhen they compile a form
+# POST: send the answer of a form
 @form_view_BP.route("/<form_id>/viewform", methods=['GET', 'POST'])
 @auth_required()
 def form_view(form_id):
@@ -60,8 +65,8 @@ def form_view(form_id):
                     flash('Some file are not allowed', 'file_error')
                     return redirect(request.url)
 
-        # If a user answers the form we save the POST info
         req = request.form
+
         # Get for every answered question
         for q in current_form.questions:
             if not q.multiple_choice:
@@ -76,7 +81,8 @@ def form_view(form_id):
 
             # Check if the question is open question and if it allows file adding
             for tmp in q.open:
-                query_has_file = db_session.query(FormsQuestions).filter(FormsQuestions.question_id == tmp.id).filter(FormsQuestions.has_file).first()
+                query_has_file = db_session.query(FormsQuestions).filter(FormsQuestions.question_id == tmp.id).\
+                    filter(FormsQuestions.has_file).first()
                 if query_has_file:
                     # File memorization (the name and the extension was checked before)
                     file = request.files['file_' + str(tmp.id)]
@@ -88,7 +94,7 @@ def form_view(form_id):
                         db_session.commit()
 
             # we add all the answers (if the users leave a blank multiple choice/single answer we don't memorize
-            # anything)
+            # anything--> we prevent error in the javascript graphs)
             for t in text:
                 if t:
                     db_session.add(SeqAnswers(id=ans.id, content=t))
@@ -99,7 +105,7 @@ def form_view(form_id):
 
         return redirect(url_for('home'))
 
-    # The creator of a form can only edit the form
+    # The creator of a form can only edit the form and not answer it
     questions = db_session.query(Questions, FormsQuestions).filter(FormsQuestions.form_id == form_id).filter(
         Questions.id == FormsQuestions.question_id)
     if current_user.id != current_form.creator_id:
@@ -122,9 +128,11 @@ def form_answers(form_id):
     if not current_form:
         return render_template("error.html", message="This form does not exist")
 
-    # List of all the answers of this for
+    # List of all the answers of this form
     answers = db_session.query(Answers, Files).join(Files, Answers.id == Files.answer_id, isouter=True).filter(
         Answers.form_id == form_id)
+
+    # Number of all the answers
     total_answers = db_session.query(Answers.user_id).filter(Answers.form_id == form_id).group_by(
         Answers.user_id).count()
 
@@ -132,19 +140,24 @@ def form_answers(form_id):
                            total_answers=total_answers)
 
 
+# Visualize file of a specific answer
 @form_view_BP.route("/answers/<answer_id>")
 @auth_required()
 @creator_or_admin_role_required
 def view_files(answer_id):
+    # Getting the file
     file = db_session.query(Files).filter(Files.answer_id == answer_id).first()
     if not file:
         return render_template("error.html", message="This file does not exist")
+
+    # creating an http-response message with the file
     response = make_response(file.data)
     response.headers['Content-Type'] = file.mimetype
     response.headers['Content-Disposition'] = 'inline; filename=%s' % file.name
     return response
 
 
+# Permit to download a csv-file with the answers of the form
 @form_view_BP.route("/<form_id>/download_csv")
 @auth_required()
 @creator_or_admin_role_required
@@ -153,13 +166,17 @@ def download_csv_answers(form_id):
     if not current_form:
         return render_template("error.html", message="This form does not exist")
 
+    # Format of the csv lines
     answers_all = db_session.query(Users.username, Questions.text, SeqAnswers.content).filter(
         Answers.form_id == form_id).filter(
         Answers.id == SeqAnswers.id).filter(Users.id == Answers.user_id).filter(Questions.id == Answers.question_id)
+
+    # Creating the csv file
     csv = ''
     for a in answers_all:
         csv = csv + a.username + ',' + a.text + ',' + a.content + '\n'
 
+    # sending the csv file via http-response
     return Response(
         csv,
         mimetype="text/csv",

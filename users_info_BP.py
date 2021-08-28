@@ -2,9 +2,11 @@ from flask import Blueprint, redirect, url_for
 from flask_security import auth_required
 from form_function import *
 
+# Management of the user by Admin or SuperUser
 users_info_BP = Blueprint('users_info_BP', __name__, url_prefix='/users_info')
 
 
+# Admin + SuperUser --> can see all the users with their forms
 @users_info_BP.route("/")
 @auth_required()
 @admin_role_required
@@ -22,6 +24,8 @@ def sudo_view_users_info():
     return render_template("users_info.html", users=users, admin_role=admin_role, superuser_role=superuser_role, std_users=std_users)
 
 
+# Admin --> can enable all the Standard User
+# SuperUser --> can enable all the Admin and Standard User
 @users_info_BP.route("/<user_id>/enable")
 @auth_required()
 @admin_role_required
@@ -36,6 +40,8 @@ def sudo_enable_enable(user_id):
     return redirect(url_for("users_info_BP.sudo_view_users_info"))
 
 
+# Admin --> can disable all the Standard User
+# SuperUser --> can disable all the Admin and Standard User
 @users_info_BP.route("/<user_id>/disable")
 @auth_required()
 @admin_role_required
@@ -51,6 +57,8 @@ def sudo_enable_disable(user_id):
     return redirect(url_for("users_info_BP.sudo_view_users_info"))
 
 
+# Admin --> can delete all the Standard User
+# SuperUser --> can delete all the Admin and Standard User
 @users_info_BP.route("/<user_id>/delete")
 @auth_required()
 @admin_role_required
@@ -65,6 +73,8 @@ def sudo_delete_user(user_id):
     return redirect(url_for("users_info_BP.sudo_view_users_info"))
 
 
+# Admin --> can delete all the Standard User's form
+# SuperUser --> can delete all the Admin and Standard User's form
 @users_info_BP.route("/form/<form_id>/delete")
 @auth_required()
 @admin_role_required
@@ -76,6 +86,7 @@ def sudo_delete_form(form_id):
     return redirect(url_for("users_info_BP.sudo_view_users_info"))
 
 
+# SuperUser --> can grant Admin privileges to a Standard User
 @users_info_BP.route("/<user_id>/grant")
 @auth_required()
 @superuser_role_required
@@ -91,6 +102,7 @@ def sudo_grant_user(user_id):
     return redirect(url_for("users_info_BP.sudo_view_users_info"))
 
 
+# SuperUser --> can revoke Admin privileges to a Standard User
 @users_info_BP.route("/<user_id>/revoke")
 @auth_required()
 @superuser_role_required
