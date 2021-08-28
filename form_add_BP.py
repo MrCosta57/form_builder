@@ -28,7 +28,7 @@ def form_create():
         descrizione = req.get("description")  # form's description
 
         # if import
-        if imp == "si":
+        if imp == "yes":
             template = req.get("template")  # id of the template/form
 
             if template == '1':

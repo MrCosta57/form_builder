@@ -192,7 +192,7 @@ def question_db(type, req, form_id, question_id):
     mand = True if (req.get("mandatory") == "on") else False
 
     # if import a questions
-    if req.get("choose") == "si":
+    if req.get("choose") == "yes":
         id_q = req.get("question_choose")  # Getting the id of the question the user want to import
 
         # link the question with the form (insert or update)
@@ -211,9 +211,9 @@ def question_db(type, req, form_id, question_id):
         # create new Tag
         for tag in tag_list:
             # If in the tag list is also present the string "new"
-            if tag == "nuovo":
+            if tag == "new":
 
-                new_tag = req.get("tag_aggiunto")  # Text of the Tag
+                new_tag = req.get("tag_added")  # Text of the Tag
 
                 # Cheking if the ag already exists and adding the tag to the database
                 if db_session.query(Tags).filter(Tags.argument == new_tag).first():
@@ -224,10 +224,10 @@ def question_db(type, req, form_id, question_id):
                 db_session.commit()
 
                 # Replace "new" with the tag id
-                tag_list.remove("nuovo")
+                tag_list.remove("new")
                 tag_list = tag_list + [str(aux.id)]
 
-        tipo_domanda = req.get("tipo_domanda")  # Open, single or multiple_choice
+        tipo_domanda = req.get("question_type")  # Open, single or multiple_choice
         text_question = req.get("text_question")  # Text of the questions
 
         # Type of the question

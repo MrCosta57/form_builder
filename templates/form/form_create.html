@@ -16,7 +16,7 @@
                         <h3>Would you like to import a form template?</h3>
                         <select name="import" class="form-select" onChange="import_template(this)">
                             <option value="" selected> </option>
-                            <option value="si">Yes</option>
+                            <option value="yes">Yes</option>
                             <option value="no">No</option>
                         </select>
 
@@ -26,7 +26,7 @@
 
                         <span id="template list"></span>
 
-                        <span id="mostra form"></span>
+                        <span id="show form"></span>
 
                         <br><br><span id="submit"></span>
 
@@ -35,28 +35,24 @@
                 </form>
                 <script type='text/javascript'>
 
-                    let name = false; /*sia name che descprition devono essere inseriti per far apparire submit*/
-                    let desc = false;
+                    /*variable for template*/
                     let temp = false;
 
                     function import_template(imp) {
                         const v_imp = imp.value;
 
+                        /*clear all boxes*/
                         const box = document.getElementById('name');
                         const box2 = document.getElementById('template list');
-                        const box3 = document.getElementById('mostra form');
-                        const box4 = document.getElementById('submit');
+                        const box3 = document.getElementById('show form').innerHTML = '';
+                        const box4 = document.getElementById('submit').innerHTML = '';
 
                         box.innerHTML = '';
                         box2.innerHTML = '';
-                        box3.innerHTML = '';
-                        box4.innerHTML = '';
 
-                        name = false;
-                        desc = false;
                         temp = true;
 
-                        if (v_imp === "si") {
+                        if (v_imp === "yes") {
                             temp = false;
                             /*Name + Description input text*/
                             box.innerHTML = '<label>Form Name</label><br>\n' +
@@ -66,7 +62,7 @@
 
                             /*Menu with template possible*/
                             box2.innerHTML = '<label>Template Name</label><br>\n'+
-                                             '<select name="template" class="form-select" onChange="mostra_form(this); submit_f(this)">\n' +
+                                             '<select name="template" class="form-select" onChange="show_form(this); submit_f(this)">\n' +
                                 '                                <option value="" selected> </option>\n' +
                                 '                                {%for f in forms%}<option value={{f.id}}>{{f.name}}</option>\n{%endfor%}'+
                                 '                            </select>'
@@ -80,8 +76,8 @@
                         }
                     }
 
-                    function mostra_form(v) {
-                        const box = document.getElementById('mostra form');
+                    function show_form(v) {
+                        const box = document.getElementById('show form');
                         const value = v.value;
 
                         /*For every type of the template show a preview: see form_edit for the HTML code to do this*/

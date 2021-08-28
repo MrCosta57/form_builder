@@ -17,9 +17,13 @@
     <div class="container">
         <!--For all the question in the form:
                                     -element in ol: name question + EDIT + DELETE
+                                                    mandatory (checkbox)
+                                                    allow file (checkbox)
                                     -if current question is sinlge/multiple:
                                             -sublist ul in wich each element is a possible answers
             At the end: ADD QUESTION-->
+
+        <!-- The template Form can not be edited (1<=id<=4) -->
         <ol>
         {% for q, m in questions %}
                     <li>
@@ -38,8 +42,10 @@
 
                     {% if q.open %}
                         <br><br>
+                        <!--Creating form for allows file (only Open Questions) -->
                         <form id="allows_file_form_{{q.id}}" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
                             <div class="form-check form-switch">
+                                <!--Hidden form necessary to understand which checkbox is changed -->
                                 <input type="hidden" name="allows_file_hidden" value="1">
                                 <input class="form-check-input" type="checkbox" name="checkBox_file" id="c_file_id_{{q.id}}"
                                        onchange="document.getElementById('allows_file_form_{{q.id}}').submit()"
@@ -70,8 +76,10 @@
                 {% endfor %}
             {% endif %}
             {% if form.id > 4 %}
+            <!--Creating form for mandatory (all the Questions) -->
             <form id="mandatory_form_{{q.id}}" method="POST" action="/form/{{form.id}}/{{q.id}}/flag">
                 <div class="form-check form-switch">
+                    <!--Hidden form necessary to understand which checkbox is changed -->
                     <input type="hidden" name="mand_hidden" value="1">
                     <input class="form-check-input" type="checkbox" name="checkBox_mandatory" id="c_mand_id_{{q.id}}"
                            onchange="document.getElementById('mandatory_form_{{q.id}}').submit()"
@@ -90,16 +98,4 @@
         <br><br><br><br>
     </div>
 
-    <!-- TODO Togliere
-    <script>
-        function set_allows_file_js(elem, q_id){
-            if (elem.checked) {
-                console.log(q_id + " " + elem.checked)
-                //location.reload()
-            } else {
-                console.log(q_id + " " + elem.checked)
-                //location.reload()
-            }
-        }
-    </script>-->
 {% endblock %}

@@ -47,15 +47,15 @@
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
 
-                    /*crea variabili contatori per ogni tipo di risposta*/
+                    /*Variable for every possible answers*/
                     {% for q1 in q.single %}
                         {% for x in q1.possible_answers %}
-                            //Codice python per la creazione di variabili "lecite"
+                            //Creating "legit" variable name
                             var _{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %} = 0
                         {% endfor %}
                     {% endfor %}
 
-                    /*aumenta i contatori in base al numero di risposte date*/
+                    /*incremting variable for every answer*/
                     {% for a, f in answers%}
                         {% if a.question_id == q.id%}
                             {% for t in a.text %}
@@ -64,15 +64,15 @@
                         {% endif %}
                     {% endfor %}
 
-                    /*costruisco il grafico sul contesto del canvas*/
+                    /*Building the graphs*/
                     var myChart = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
-                            /*le labels sono i tipi di possibili risposte*/
+                            /*labels: content of possible_asnwers*/
                             labels: [{% for q1 in q.single %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
                             datasets: [{
                                 label: '{{q.text}}',
-                                /*richiama le variabili*/
+                                /*we use the variables*/
                                 data: [{% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
                                 borderWidth: 1,
                                 backgroundColor: [
@@ -100,14 +100,15 @@
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
 
-                    /*crea variabili contatori per ogni tipo ri risposta*/
+                    /*Variable for every possible answers*/
                     {% for q1 in q.multiple_choice %}
                         {% for x in q1.possible_answers %}
+                            //Creating "legit" variable name
                             var _{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %} = 0
                         {% endfor %}
                     {% endfor %}
 
-                    /*aumenta i contatori in base al numero di risposte date*/
+                    /*incremting variable for every answer*/
                     {% for a,f in answers%}
                         {% if a.question_id == q.id%}
                             {% for t in a.text %}
@@ -116,15 +117,15 @@
                         {% endif %}
                     {% endfor %}
 
-                    /*costruisco il grafico sul contesto del canvas*/
+                    /*Building the graphs*/
                     var myChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
-                            /*le labels sono i tipi di possibili risposte*/
+                            /*labels: content of possible_asnwers*/
                             labels: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
                             datasets: [{
                                 label: '{{q.text}}',
-                                /*richiama le variabili*/
+                                /*we use the variables*/
                                 data: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
                                 borderWidth: 1,
                                 backgroundColor: [
@@ -141,7 +142,7 @@
                         options: {
                             responsive: false,
                             maintainAspectRatio: false,
-                            /*rimuovo quadratino colorato su titolo grafico nel caso di bar graph*/
+                            /*in this type of graphs we remove the coulerd box of the title*/
                             plugins: {
                                 legend: {
                                     labels: {

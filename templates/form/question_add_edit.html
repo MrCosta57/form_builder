@@ -41,9 +41,9 @@
             {% if not edit or q.open%}
                 <h3>Would you like to import some existing questions?</h3>
                 <label>
-                    <select name="choose" class="form-select" onChange="seleziona_tag(this)">
+                    <select name="choose" class="form-select" onChange="select_tag(this)">
                         <option value="" selected> </option>
-                        <option value="si">Yes</option>
+                        <option value="yes">Yes</option>
                         <option value="no">No</option>
                     </select>
                 </label>
@@ -59,27 +59,27 @@
                 </label>
             {% endif %}
 
-            <span id="obbligo">
+            <span id="mand">
                 <h3>This question would be mandatory?</h3>
                     <input type="checkbox" class="form-check-input" style="padding: 1rem;" name="mandatory">
                 <br><br>
             </span>
 
-            <span id="modifica"></span>
+            <span id="edit"></span>
 
-            <span id="seleziona tag"></span>
+            <span id="select tag"></span>
 
-            <span id="nuovo tag"></span>
+            <span id="new tag"></span>
 
-            <span id ="seleziona tipo di domanda"></span>
+            <span id ="question type"></span>
 
-            <span id="inserisci domanda"></span>
+            <span id="insert question"></span>
 
-            <span id="inserisci file"></span>
+            <span id="insert file"></span>
 
-            <span id ="mostra domanda"></span>
+            <span id ="show question"></span>
 
-            <span id="inserisci possibili risposte"></span>
+            <span id="insert possibile answers"></span>
 
             <span id="submit">
 
@@ -89,58 +89,62 @@
 
 
     	<script type='text/javascript'>
+            /*import*/
             let v_choose = null;
+
+            /*number of possible answers*/
             let n = 0;
-            /*vuoi importare domande?, oppure numero possibili risposte*/
+            
+            /*import questions?, or number possible answers*/
             function check(c) {
                 n = 0;
                 const v_c = c.value;
-                const box = document.getElementById('modifica');
-                document.getElementById('seleziona tag').innerHTML = '';
-                document.getElementById('nuovo tag').innerHTML = '';
-                document.getElementById('seleziona tipo di domanda').innerHTML = '';
-                document.getElementById('inserisci domanda').innerHTML = '';
-                document.getElementById('inserisci file').innerHTML = '';
-                document.getElementById('mostra domanda').innerHTML = '';
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                const box = document.getElementById('edit');
+                document.getElementById('select tag').innerHTML = '';
+                document.getElementById('new tag').innerHTML = '';
+                document.getElementById('question type').innerHTML = '';
+                document.getElementById('insert question').innerHTML = '';
+                document.getElementById('insert file').innerHTML = '';
+                document.getElementById('show question').innerHTML = '';
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML = '';
 
                 if (v_c === "question") {
                     box.innerHTML = '<h3>Would you like to import some existing questions?</h3>\n' +
                         '                <label>\n' +
-                        '                    <select name="choose" class="form-select" onChange="seleziona_tag(this)">\n' +
+                        '                    <select name="choose" class="form-select" onChange="select_tag(this)">\n' +
                         '                        <option value="" selected> </option>\n' +
-                        '                        <option value="si">Yes</option>\n' +
+                        '                        <option value=yes>Yes</option>\n' +
                         '                        <option value="no">No</option>\n' +
                         '                    </select>\n' +
                         '                </label>'
                 } else if(v_c === "possible_a") {
                     box.innerHTML = '<h3>How many possible answers do you want to put?</h3>\n' +
-                            '        <input id="n" type="text" class="form-control" name="number_answers" value="{{number}}" onkeyup="possibili_risposte(this)"><br><br>';
+                            '        <input id="n" type="text" class="form-control" name="number_answers" value="{{number}}" onkeyup="possible_asnwers(this)"><br><br>';
 
-                    /*necessarie per creare di default il tasto submit e le risposte esistenti*/
-                    possibili_risposte(document.getElementById('n'))
+                    /*necessary to create submit button e possible answers*/
+                    possible_asnwers(document.getElementById('n'))
                     submit_f(document.getElementById('n'))
                 }
             }
 
-            /*menu a tendina con tutti i possibili tag*/
-            function seleziona_tag(choose) {
+            /*select possible tag*/
+            function select_tag(choose) {
                 v_choose = choose.value;
-                const box = document.getElementById('seleziona tag');
-                document.getElementById('nuovo tag').innerHTML = '';
-                document.getElementById('seleziona tipo di domanda').innerHTML = '';
-                document.getElementById('inserisci domanda').innerHTML = '';
-                document.getElementById('inserisci file').innerHTML = '';
-                document.getElementById('mostra domanda').innerHTML = '';
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                const box = document.getElementById('select tag');
+                document.getElementById('new tag').innerHTML = '';
+                document.getElementById('question type').innerHTML = '';
+                document.getElementById('insert question').innerHTML = '';
+                document.getElementById('insert file').innerHTML = '';
+                document.getElementById('show question').innerHTML = '';
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML = '';
 
-                if (v_choose === "si") {
+                if (v_choose === "yes") {
                     box.innerHTML = '<h3>Select the question tag argument</h3>' +
-                        '<select name="tag_choose" class="form-select" onChange="inserisci_domanda(this)">\n' +
+                        '<select name="tag_choose" class="form-select" onChange="insert_question(this)">\n' +
                         '                <option value="" selected> </option>\n' +
                         '                {% for t in tags %}\n' +
                         '                <option value="{{t.argument}}">{{t.argument}}</option>\n' +
@@ -148,56 +152,48 @@
                         '            </select>';
                 } else if(v_choose === "no") {
                     box.innerHTML = '<h3>Select the question tag argument (or select multiple with ctrl/cmd)</h3>' +
-                        '<select name="tag_choose" class="form-select" onChange="nuovo_tag(this); tipo_domanda(this)" multiple style="height: 8rem;">\n' +
+                        '<select name="tag_choose" class="form-select" onChange="new_tag(this); question_type(this)" multiple style="height: 8rem;">\n' +
                         '                <option value="" selected> </option>\n' +
                         '                {% for t in tags %}\n' +
                         '                <option value="{{t.id}}">{{t.argument}}</option>\n' +
                         '                {% endfor %}\n' +
-                        '                <option id="new" value="nuovo">New Argument</option>\n' +
+                        '                <option id="new" value="new">New Argument</option>\n' +
                         '            </select>';
                 }
             }
 
-            /*se non import input text per nuovo tag*/
-            function nuovo_tag(tag_choose) {
+            /*if new tag*/
+            function new_tag(tag_choose) {
 
-                const box = document.getElementById('nuovo tag');
-                document.getElementById('seleziona tipo di domanda').innerHTML = '';
-                document.getElementById('inserisci domanda').innerHTML = '';
-                document.getElementById('inserisci file').innerHTML = '';
-                document.getElementById('mostra domanda').innerHTML = '';
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                const box = document.getElementById('new tag');
+                document.getElementById('question type').innerHTML = '';
+                document.getElementById('insert question').innerHTML = '';
+                document.getElementById('insert file').innerHTML = '';
+                document.getElementById('show question').innerHTML = '';
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML = '';
 
                 if(document.getElementById('new').selected){
                         box.innerHTML = '<h3>Insert the new tag argument</h3>' +
-                                '<input type="text" class="form-control" name="tag_aggiunto"><br><br>';
+                                '<input type="text" class="form-control" name="tag_added"><br><br>';
                 }
-                /*for (var i=0, iLen=options.length; i<iLen; i++) {
-                    opt = options[i];
-
-                    if (opt.selected && opt === 'nuovo') {
-                        box.innerHTML = '<h3>Insert the new tag argument</h3>' +
-                            '<input type="text" class="form-control" name="tag_aggiunto"><br><br>';
-                    }
-                }*/
             }
 
-            /*se non timport menu a tendina per il tipo della domanda*/
-            function tipo_domanda(val) {
-                const box = document.getElementById('seleziona tipo di domanda');
-                document.getElementById('inserisci domanda').innerHTML = '';
-                document.getElementById('inserisci file').innerHTML = '';
-                document.getElementById('mostra domanda').innerHTML = '';
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+            /*not import--> type of the question*/
+            function question_type(val) {
+                const box = document.getElementById('question type');
+                document.getElementById('insert question').innerHTML = '';
+                document.getElementById('insert file').innerHTML = '';
+                document.getElementById('show question').innerHTML = '';
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML = '';
 
                 if (v_choose === "no" && val.value !== "") {
                     box.innerHTML = '<h3>Select a question type</h3>' +
                         '<label>\n' +
-                        '                <select name="tipo_domanda" class="form-select" onChange="inserisci_domanda(this)">\n' +
+                        '                <select name="question_type" class="form-select" onChange="insert_question(this)">\n' +
                         '                    <option value="" selected> </option>\n' +
                         '                    <option value="open">Open</option>\n' +
                         '                    <option value="single">Single</option>\n' +
@@ -209,13 +205,13 @@
                 }
             }
 
-            /*menu a tendina per selezionare domanda nel caso di import
-            * Testo della domanda + eventuale numero possibili risposte se non import*/
-            function inserisci_domanda(type) {
-                const box = document.getElementById('inserisci domanda');
-                document.getElementById('inserisci file').innerHTML = '';
-                document.getElementById('mostra domanda').innerHTML = '';
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+            /*import--> choose question
+            * not import--> text question + eventually possible answers*/
+            function insert_question(type) {
+                const box = document.getElementById('insert question');
+                document.getElementById('insert file').innerHTML = '';
+                document.getElementById('show question').innerHTML = '';
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML='';
 
@@ -223,17 +219,17 @@
                     let tipo = type.value;
                     if(tipo === 'open')
                         box.innerHTML = '<h3>Insert the question text</h3>' +
-                        '<input type="text" class="form-control" name="text_question" onKeyUp="inserisci_file(); submit_f(this)"><br><br>';
+                        '<input type="text" class="form-control" name="text_question" onKeyUp="insert_file(); submit_f(this)"><br><br>';
                     if(tipo === 'single' || tipo === 'multiple_choice'){
                         box.innerHTML = '<h3>Insert the question text</h3>\n' +
                             '            <input type="text" class="form-control" name="text_question"><br><br>' +
                             '            <h3>How many possible answers do you want to put?</h3>' +
-                            '            <input type="text" class="form-control" name="number_answers" onKeyUp="possibili_risposte(this); submit_f(this)"><br><br>';
+                            '            <input type="text" class="form-control" name="number_answers" onKeyUp="possible_asnwers(this); submit_f(this)"><br><br>';
                     }
                 } else if(v_choose === "si" && type.value !== ""){
                     const tag = type.value;
                     let str = '<h3>Select the question</h3>' +
-                        '<select name="question_choose" class="form-select" onChange="mostra_domanda(this); submit_f(this)">\n' +
+                        '<select name="question_choose" class="form-select" onChange="show_question(this); submit_f(this)">\n' +
                         '<option value="" selected> </option>\n';
 
                     {% for t in tags %}
@@ -253,11 +249,11 @@
                 }
 
             }
-            /*Selezione se aggiungere o no un file*/
-            function inserisci_file(){
-                const box = document.getElementById('inserisci file');
-                document.getElementById('mostra domanda').innerHTML = '';
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+            /*insert or not a file*/
+            function insert_file(){
+                const box = document.getElementById('insert file');
+                document.getElementById('show question').innerHTML = '';
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML='';
 
@@ -271,12 +267,12 @@
             }
 
 
-            /*Mostra la domanda nel caso di import*/
-            function mostra_domanda(id) {
+            /*import--> show question*/
+            function show_question(id) {
                 const id_q = id.value;
 
-                const box = document.getElementById('mostra domanda');
-                document.getElementById('inserisci possibili risposte').innerHTML = '';
+                const box = document.getElementById('show question');
+                document.getElementById('insert possibile answers').innerHTML = '';
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML=''
 
@@ -305,9 +301,11 @@
                 {% endfor %}
             }
 
-            function possibili_risposte(number) {
+            /*edit--> show previous possibile answers
+            * add--> show input text for n possible answers*/
+            function possible_asnwers(number) {
                 const v_number = number.value;
-                const box = document.getElementById('inserisci possibili risposte');
+                const box = document.getElementById('insert possibile answers');
                 document.getElementById('submit').innerHTML = '';
                 box.innerHTML=''
 
@@ -347,7 +345,9 @@
             }
 
 
-            let vett = new Array(n);
+
+
+            /*checking possibile answer--> necessary for the correct behaviour of chart.js in form_anwers.html*/
             function submit_f(val) {
                 const box = document.getElementById('submit');
                 box.innerHTML = '';
@@ -356,7 +356,7 @@
                 let findDuplicates = arr => arr.filter((item, index) => arr.indexOf(item) !== index)
 
                 /*array that contains possible answers without spaces and symbols*/
-
+                let vett = new Array(n);
 
                 for(let i=1; i<=n; i++){
                     let campo = document.getElementById(i.toString()).value

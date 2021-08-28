@@ -24,12 +24,15 @@
           {% endif %}
         {% endwith %}
         <br>
-
+        <!-- mySubmit() check if multiple_choice question mandatory are blank -->
         <form action="" onsubmit="return mySubmit()" method="POST" name="form" enctype="multipart/form-data">
+
             <!--For all the question in the form create:
                             -open: input text name=q.id
                             -single: set of input radio name=q.id
-                            -multiple_choice: set of input checkbox name=q.id-->
+                            -multiple_choice: set of input checkbox name=q.id
+                 REquired attribue: only if mandatory
+                 File: only if has_file-->
             {% for q, m in questions %}
                     {% if q.open and m.has_file%}<br><br>{%endif%}
                     <label class="form-label">{{q.text}}{%if m.mandatory %} *{% endif %}</label><br>
@@ -134,7 +137,7 @@
 
 
 
-        /* Controlla domande a risposta multipla obbligatorie */
+        /* Check mandatory multiple_choice questions */
         function mySubmit() {
             {% for q, m in questions%}
                 {%if m.mandatory and q.multiple_choice%}
@@ -142,7 +145,7 @@
                     let value = '';
                     for (let i = 0; i < radios.length; i++) {
                         if (radios[i].type === 'checkbox' && radios[i].checked) {
-                            // get value, set checked flag or do whatever you need to
+                            // get value
                             value = radios[i].value;
                         }
                     }
