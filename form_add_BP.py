@@ -109,4 +109,4 @@ def form_add_question(form_id):
     # List of importable questions
     questions = (q.union(q2)).union(q3)
 
-    return render_template("question_add.html", form=current_form, tags=tags, questions=questions, edit=False)
+    return render_template("question_add_edit.html", form=current_form, tags=tags, questions=questions, edit=False)

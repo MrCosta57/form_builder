@@ -220,7 +220,7 @@ def form_edit_question(form_id, question_id):
     elif current_question.multiple_choice:
         number = db_session.query(PossibleAnswersM).filter(PossibleAnswersM.idPosAnswM == question_id).count()
 
-    return render_template("question_add.html", form=current_form, tags=tags, questions=questions, q=current_question,
+    return render_template("question_add_edit.html", form=current_form, tags=tags, questions=questions, q=current_question,
                            edit=True, number=number)
 
 
