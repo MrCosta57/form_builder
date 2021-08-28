@@ -31,7 +31,7 @@
                             -open: input text name=q.id
                             -single: set of input radio name=q.id
                             -multiple_choice: set of input checkbox name=q.id
-                 REquired attribue: only if mandatory
+                 Required attribute: only if mandatory
                  File: only if has_file-->
             {% for q, m in questions %}
                     {% if q.open and m.has_file%}<br><br>{%endif%}

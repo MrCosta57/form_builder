@@ -2,11 +2,11 @@ from flask import Blueprint, redirect, url_for
 from flask_security import auth_required
 from form_function import *
 
-# Management of the user by Admin or SuperUser
+# Users management endpoints for Admin or SuperUser roles
 users_info_BP = Blueprint('users_info_BP', __name__, url_prefix='/users_info')
 
 
-# Admin + SuperUser --> can see all the users with their forms
+# Admin + SuperUser --> can see all the users and their forms
 @users_info_BP.route("/")
 @auth_required()
 @admin_role_required

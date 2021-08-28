@@ -3,12 +3,12 @@ from flask import request, redirect, url_for, Blueprint
 from flask_security import auth_required
 from form_function import *
 
-# Contains endpoints relative at editing existing elements in the db
+# Contains endpoints relative for editing existing elements in the db
 form_edit_BP = Blueprint('form_edit_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
 
-# GET: render a form preview with the possibility of editing several thing
-# POST: request of removing a question from the form
+# GET: render a form preview with the possibility of edit several things
+# POST: request for removing a question from the form
 @form_edit_BP.route("/<form_id>/edit", methods=['GET', 'POST'])
 @auth_required()
 @creator_or_admin_role_required
@@ -22,7 +22,7 @@ def form_edit(form_id):
 
         id_q = req.get("question")  # Hidden form that grants the id of the question
 
-        # We need to "de-link" the question from the form
+        # We need to unlink the question from the form
         db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
             filter(FormsQuestions.question_id == id_q).delete()
         db_session.commit()
@@ -37,8 +37,8 @@ def form_edit(form_id):
     return render_template("form_edit.html", user=current_user, questions=questions, form=current_form)
 
 
-# Only POST: request sended from the page edit form
-# Permit to edit if a specific question is mandatory/has_file
+# Only POST: request sent from the page "edit form"
+# Allows to modify if a specific question is mandatory/has_file
 @form_edit_BP.route("/<form_id>/<question_id>/flag", methods=['POST'])
 @auth_required()
 @creator_or_admin_role_required
@@ -50,7 +50,7 @@ def edit_mand_or_files(form_id, question_id):
 
     req = request.form
 
-    # Hidden form useful to understand what type of request is sended
+    # Hidden form useful to understand what type of request is sent
     if 'allows_file_hidden' in req:
         file = False
         # Checking value of checkbox
@@ -61,7 +61,7 @@ def edit_mand_or_files(form_id, question_id):
             filter(FormsQuestions.question_id == question_id).update({"has_file": file})
         db_session.commit()
 
-    # Hidden form useful to understand what type of request is sended
+    # Hidden form useful to understand what type of request is sent
     if 'mand_hidden' in req:
         mand = False
         # Checking value of checkbox
@@ -75,8 +75,8 @@ def edit_mand_or_files(form_id, question_id):
     return redirect(url_for("form_edit_BP.form_edit", form_id=form_id))
 
 
-# GET: render the page edit form main info
-# POST: send a request of editing the name/description of the current form
+# GET: render the page for editing the form main info (name and description)
+# POST: store the edited current form name/description
 @form_edit_BP.route("/<form_id>/editMainInfo", methods=['GET', 'POST'])
 @auth_required()
 @creator_or_admin_role_required
@@ -104,8 +104,8 @@ def form_edit_main_info(form_id):
     return render_template("form_edit_main_info.html", form=current_form.first())
 
 
-# GET: Render the template with the dynamic form to create a question (smilar to add questions)
-# POST: Request to editing a specific question (the entire question/only the possible answers)
+# GET: render the template with some dynamic html forms to create a question (smilar to add questions)
+# POST: Request for editing a specific question (the entire question/only the possible answers)
 @form_edit_BP.route("/<form_id>/<question_id>", methods=['GET', 'POST'])
 @auth_required()
 @creator_or_admin_role_required
@@ -129,7 +129,7 @@ def form_edit_question(form_id, question_id):
         # if the user want to change the possible answers
         if c == 'possible_a':
             if current_question.multiple_choice:
-                # add the new question (identical to the previous one)
+                # add the new question (same to the previous one)
                 q = Questions(text=current_question.text)
                 db_session.add(q)
                 db_session.commit()
@@ -138,7 +138,7 @@ def form_edit_question(form_id, question_id):
                 db_session.commit()
 
                 tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all
-                # link the question with the tag (identical to the previous one)
+                # link the question with the tag (same to the previous one)
                 for t in tags:
                     db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
 
@@ -155,7 +155,7 @@ def form_edit_question(form_id, question_id):
 
             elif current_question.single:
 
-                # add the new question (identical to the previous one)
+                # add the new question (same to the previous one)
                 q = Questions(text=current_question.text)
                 db_session.add(q)
                 db_session.commit()
@@ -164,7 +164,7 @@ def form_edit_question(form_id, question_id):
                 db_session.commit()
 
                 tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all()
-                # link the question with the tag (identical to the previous one)
+                # link the question with the tag (same to the previous one)
                 for t in tags:
                     db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
 
@@ -193,8 +193,7 @@ def form_edit_question(form_id, question_id):
         # goes to /<form_id>/edit
         return redirect(url_for('form_edit_BP.form_edit', form_id=form_id))
 
-    # For the import of an existing question is necessary to pass some data to the template
-
+    # For importing the existing question is necessary to pass some data to the template
     # List of the tags
     tags = db_session.query(Tags)
 

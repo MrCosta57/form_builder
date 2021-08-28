@@ -1,4 +1,4 @@
-from database import Base
+from database import *
 from flask_security import UserMixin, RoleMixin
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, Column, Integer, \

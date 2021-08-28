@@ -4,17 +4,17 @@ from werkzeug.utils import secure_filename
 
 from form_function import *
 
-# Contains endpoints relative at viewing elements in the db
+# Contains endpoints relative for viewing elements in the db
 form_view_BP = Blueprint('form_view_BP', __name__, template_folder='templates/form', url_prefix='/form')
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 
-# GET: visualize the list of the form with some buttons:
+# GET: Displays the list of the form with some buttons:
 #       - Creating a new form
 #       - Editing a form
 #       - Copy the link of the form
 #       - Deleting a form
-# POST: request of delete a specific form
+# POST: request to delete a specific form
 @form_view_BP.route("/", methods=['GET', 'POST'])
 @auth_required()
 def form():
@@ -30,8 +30,8 @@ def form():
     return render_template("forms_list.html", user=current_user, forms=forms_list)
 
 
-# GET: what users see qhen they compile a form
-# POST: send the answer of a form
+# GET: what users see when they compile a form
+# POST: send the form answers for the memorization
 @form_view_BP.route("/<form_id>/viewform", methods=['GET', 'POST'])
 @auth_required()
 def form_view(form_id):
@@ -119,7 +119,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-# Visualize the answers of a specific form
+# Display the answers for a specific form
 @form_view_BP.route("/<form_id>/answers")
 @auth_required()
 @creator_or_admin_role_required
@@ -140,7 +140,7 @@ def form_answers(form_id):
                            total_answers=total_answers)
 
 
-# Visualize file of a specific answer
+# Display files for a specific answer
 @form_view_BP.route("/answers/<answer_id>")
 @auth_required()
 @creator_or_admin_role_required
@@ -157,7 +157,7 @@ def view_files(answer_id):
     return response
 
 
-# Permit to download a csv-file with the answers of the form
+# Route that allows to download a CSV file with all the answers of the form
 @form_view_BP.route("/<form_id>/download_csv")
 @auth_required()
 @creator_or_admin_role_required

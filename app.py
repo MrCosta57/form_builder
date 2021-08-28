@@ -17,7 +17,6 @@ from form_edit_BP import form_edit_BP
 from form_add_BP import form_add_BP
 from form_view_BP import form_view_BP
 
-from database import init_db, db_session
 from models import *
 from datetime import date, datetime
 
@@ -53,13 +52,12 @@ app.config['SECURITY_RESET_PASSWORD_WITHIN'] = '1 days'
 if not os.path.isfile('.env'):
     confFile = open('.env', 'w')
     confFile.write('SECRET_KEY=' + str(secrets.token_urlsafe()) + '\n')
-    # Bcrypt is set as default SECURITY_PASSWORD_HASH, which requires a salt
-    # Generate a good salt using: secrets.SystemRandom().getrandbits(128)
     confFile.write('SECURITY_PASSWORD_SALT=' + str(secrets.SystemRandom().getrandbits(128)))
     confFile.close()
 
 load_dotenv()
 
+# Reading vars from file .env created before
 app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
 app.config['SECURITY_PASSWORD_SALT'] = os.environ['SECURITY_PASSWORD_SALT']
 
@@ -85,10 +83,11 @@ babel.domain = 'flask_user'
 babel.translation_directories = 'translations'
 
 
-# Populate database
+# Database population
 @app.before_first_request
 def init():
     if not user_datastore.find_user(email="admin@db.com"):
+        create_mat_view()
         create_roles()
         create_superuser()
         create_standard_users()
@@ -109,7 +108,7 @@ def create_roles():
     db_session.commit()
 
 
-# create the first user with all the roles
+# Create the first user with all the roles
 def create_superuser():
     user_datastore.create_user(email="admin@db.com", password=hash_password("password"),
                                username="admin", name="Admin", surname="Admin", date=date.today(),
@@ -130,7 +129,7 @@ def create_superuser():
     db_session.commit()
 
 
-# Create other 2 standard user
+# Create the other 2 standard users
 def create_standard_users():
     user_datastore.create_user(email="andrea_marin@db.com", password=hash_password("password"),
                                username="andreamarin35", name="Andrea", surname="Marin", date=date.today(),
@@ -157,7 +156,7 @@ def home():
     return render_template("index.html", user=current_user)
 
 
-# icon of the webpage
+# Favicon of the webpages
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/images'),
@@ -172,8 +171,8 @@ def logout():
     return redirect(url_for('home'))
 
 
-# GET: Visualize the user profile
-# POST: Delete the user
+# GET: visualize the user profile
+# POST: delete the user
 @app.route("/profile", methods=['GET', 'POST'])
 @auth_required()
 def user_profile():
@@ -196,7 +195,7 @@ def user_profile():
 
 
 # GET: render the page to edit the profile
-# POST: send the request with the edit field
+# POST: send the request with the edit fields
 @app.route("/profile/edit", methods=['GET', 'POST'])
 @auth_required()
 def edit_profile():

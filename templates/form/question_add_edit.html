@@ -2,15 +2,15 @@
 {% block title %}Forms Answers{% endblock %}
 
 {% block content %}
-    <!--INTERACTIVE FORM EDIT:
-        Possibile Answers-> number and content of possible answers-> Submit
-        Question-> Import -> Choose Tag -> Choose question -> Show previe question -> Submit
+    <!--INTERACTIVE FORM EDITING:
+        Possible Answers -> number and content of possible answers -> Submit
+        Question-> Import -> Choose Tag -> Choose question -> Show preview question -> Submit
         Question-> Not Import -> Choose Tag -> Eventually create Tag -> Type question -> Text Question -> Eventually number and content of possible answers -> Submit
 
         ADD:
-        Import -> Choose Tag -> Choose question -> Show previe question -> Submit
+        Import -> Choose Tag -> Choose question -> Show preview question -> Submit
         Not Import -> Choose Tag -> Eventually create Tag -> Type question -> Text Question -> Eventually number and content of possible answers -> Submit
-        -->
+    -->
     <form name="import_choose" action="#" method="POST">
         <div class="container">
 
@@ -302,7 +302,7 @@
             }
 
             /*edit--> show previous possibile answers
-            * add--> show input text for n possible answers*/
+              add--> show input text for n possible answers*/
             function possible_asnwers(number) {
                 const v_number = number.value;
                 const box = document.getElementById('insert possibile answers');

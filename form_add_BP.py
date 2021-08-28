@@ -3,11 +3,11 @@ from flask_security import auth_required
 
 from form_function import *
 
-# Contains endpoints relative ad adding new elements in the db
+# Contains endpoints relative for adding new elements in the db
 form_add_BP = Blueprint('form_add_BP', __name__, template_folder='templates/form', url_prefix='/form')
 
 
-# GET: show the template to create a new form
+# GET: render template to create a new form
 # POST: send a request to create or import a new form
 @form_add_BP.route("/form_create", methods=['GET', 'POST'])
 @auth_required()
@@ -15,7 +15,7 @@ def form_create():
     if request.method == "POST":
         req = request.form
 
-        imp = req.get("import")  # if the user want to import an exisitng form
+        imp = req.get("import")  # if the user want to import an exisiting form
 
         nome = req.get("name")  # form's name
 
@@ -59,13 +59,13 @@ def form_create():
         db_session.commit()
         return redirect(url_for('form_view_BP.form'))
 
-    # we pass the templates/form the user can import
+    # we pass the templates/forms that the user can import
     forms_template = db_session.query(Forms).filter((Forms.id == 1) | (Forms.id == 2) | (Forms.id == 3) |
                                                     (Forms.id == 4) | (Forms.creator_id == current_user.id))
     return render_template("form_create.html", user=current_user, forms=forms_template)
 
 
-# GET: render the template with the dynamic form to create a question
+# GET: render the template with some dynamic html forms to create a question
 # POST: insert a new question in the current form
 @form_add_BP.route("/<form_id>/add_question", methods=['GET', 'POST'])
 @auth_required()
@@ -75,12 +75,12 @@ def form_add_question(form_id):
     if not current_form:
         return render_template("error.html", message="This form not exist")
 
-    # if a request of adding a question is send
+    # if a request for adding a question is sent
     if request.method == "POST":
         req = request.form
 
         # function that add/edit a question in the db
-        # if an error raises, the function will return the message error
+        # if an error is raised, the function will return the message error
         message = question_db("add", req, form_id, -1)
 
         if message:
@@ -89,8 +89,7 @@ def form_add_question(form_id):
             # goes to /<form_id>/edit
             return redirect(url_for('form_edit_BP.form_edit', form_id=form_id))
 
-    # For the import of an existing question is necessary to pass some data to the template
-
+    # For importing the existing question is necessary to pass some data to the template
     # List of the tags
     tags = db_session.query(Tags)
 

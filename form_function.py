@@ -2,16 +2,14 @@ from functools import wraps
 
 from flask import render_template
 from flask_login import current_user
-from sqlalchemy import false, and_
+from sqlalchemy import false, and_, text, select
 
-from database import db_session
 from models import *
 from datetime import datetime
 
 
 # DECORATORS
-
-# checking if the current_user is admin or creator of a form
+# checking if the current_user is an admin or the form creator
 def creator_or_admin_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -26,7 +24,7 @@ def creator_or_admin_role_required(f):
     return decorated_function
 
 
-# Checking if the current_user is admin
+# Checking if the current_user is an admin
 def admin_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -39,7 +37,7 @@ def admin_role_required(f):
     return decorated_function
 
 
-# Checking if the current_user is superuser
+# Checking if the current_user is the superuser
 def superuser_role_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -53,7 +51,6 @@ def superuser_role_required(f):
 
 
 # FUNCTIONS
-
 # Base tags
 def populate_tags():
     db_session.add_all([Tags(argument="Informazioni personali"),
@@ -187,7 +184,6 @@ def init_base_question():
 
 # function that add or edit a question in the db (with tags and possible answers)
 def question_db(type, req, form_id, question_id):
-
     # Checking if the questions is mandatory
     mand = True if (req.get("mandatory") == "on") else False
 
@@ -320,6 +316,18 @@ def delete_form(f_id):
     db_session.commit()
 
 
+# Materialized views creation
+def create_mat_view():
+    conn = engine.connect()
+    conn.execute(
+        "CREATE MATERIALIZED VIEW f_questions AS SELECT questions.* FROM questions, forms_questions, " +
+        "forms WHERE forms_questions.question_id = questions.id AND forms_questions.form_id = forms.id")
+    conn.execute(
+        "CREATE MATERIALIZED VIEW f_answers AS SELECT answers.* FROM answers, forms " +
+        "WHERE answers.form_id = forms.id")
+    conn.close()
+
+
 # TEMPLATE FUNCTION
 def template_party(id_user, name, description):
     f = Forms(name=name, dataCreation=datetime.now(),
@@ -389,6 +397,7 @@ def template_contacts(id_user, name, description):
     db_session.commit()
 
 
+# Base answers
 def init_base_answers():
     # Andrea Marin: standard user
     user_id = 2
