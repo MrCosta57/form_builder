@@ -125,6 +125,7 @@ def form_edit_question(form_id, question_id):
         req = request.form
 
         c = req.get("change")  # Check if the user want to change question or possible answers
+        mand = req.get("mandatory") == "on"
 
         # if the user want to change the possible answers
         if c == 'possible_a':
@@ -151,7 +152,7 @@ def form_edit_question(form_id, question_id):
 
                 # Update the question in the form
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
-                    filter(FormsQuestions.question_id == question_id).update({"question_id": q.id})
+                    filter(FormsQuestions.question_id == question_id).update({"question_id": q.id, "mandatory": mand})
 
             elif current_question.single:
 
@@ -177,7 +178,7 @@ def form_edit_question(form_id, question_id):
 
                 # Update the question in the form
                 db_session.query(FormsQuestions).filter(FormsQuestions.form_id == form_id). \
-                    filter(FormsQuestions.question_id == question_id).update({"question_id": q.id})
+                    filter(FormsQuestions.question_id == question_id).update({"question_id": q.id, "mandatory": mand})
 
             db_session.commit()
 
