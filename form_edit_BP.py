@@ -137,7 +137,7 @@ def form_edit_question(form_id, question_id):
                 db_session.add(MultipleChoiceQuestions(id=q.id))
                 db_session.commit()
 
-                tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all
+                tags = db_session.query(TagsQuestions).filter(TagsQuestions.question_id == question_id).all()
                 # link the question with the tag (same to the previous one)
                 for t in tags:
                     db_session.add(TagsQuestions(tag_id=t.tag_id, question_id=q.id))
@@ -219,8 +219,12 @@ def form_edit_question(form_id, question_id):
     elif current_question.multiple_choice:
         number = db_session.query(PossibleAnswersM).filter(PossibleAnswersM.idPosAnswM == question_id).count()
 
+    mand = db_session.query(FormsQuestions.mandatory).filter(FormsQuestions.form_id == form_id).filter(
+        question_id == FormsQuestions.question_id).first()[0]
+
+
     return render_template("question_add_edit.html", form=current_form, tags=tags, questions=questions, q=current_question,
-                           edit=True, number=number)
+                           edit=True, number=number, mand=mand)
 
 
 

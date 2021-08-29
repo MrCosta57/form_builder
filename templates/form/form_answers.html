@@ -128,7 +128,7 @@
                         {% endif %}
                     {% endfor %}
 
-                    if({% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}==0 && {% endfor %}{% endfor %}true)
+                    if({% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}==0 && {% endfor %}{% endfor %}true)
                     {
                         var elem = document. getElementById("{{q.id}}");
                         elem.parentNode.removeChild(elem);

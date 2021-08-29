@@ -185,7 +185,7 @@ def init_base_question():
 # function that add or edit a question in the db (with tags and possible answers)
 def question_db(type, req, form_id, question_id):
     # Checking if the questions is mandatory
-    mand = True if (req.get("mandatory") == "on") else False
+    mand = req.get("mandatory") == "on"
 
     # if import a questions
     if req.get("choose") == "yes":
@@ -235,7 +235,7 @@ def question_db(type, req, form_id, question_id):
             db_session.commit()
 
             # In open questions we check has_file checkbox
-            has_file = True if (req.get('file_choose') == 'si') else False
+            has_file = req.get('file_choose') == 'si'
 
             db_session.add(OpenQuestions(id=q.id))
             db_session.commit()

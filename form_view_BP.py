@@ -86,7 +86,7 @@ def form_view(form_id):
                 if query_has_file:
                     # File memorization (the name and the extension was checked before)
                     file = None
-                    if ('file_' + str(tmp.id)) not in request.files:
+                    if ('file_' + str(tmp.id)) in request.files:
                         file = request.files['file_' + str(tmp.id)]
                     if file:
                         filename = secure_filename(file.filename)

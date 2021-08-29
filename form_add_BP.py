@@ -71,6 +71,7 @@ def form_create():
 @auth_required()
 @creator_or_admin_role_required
 def form_add_question(form_id):
+
     current_form = db_session.query(Forms).filter(Forms.id == form_id).first()
     if not current_form:
         return render_template("error.html", message="This form not exist")

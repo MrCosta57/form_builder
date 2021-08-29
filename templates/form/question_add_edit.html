@@ -60,8 +60,8 @@
             {% endif %}
 
             <span id="mand">
-                <h3>This question would be mandatory?</h3>
-                    <input type="checkbox" class="form-check-input" style="padding: 1rem;" name="mandatory">
+                <h3>Would this question be mandatory?</h3>
+                    <input type="checkbox" class="form-check-input" style="padding: 1rem;" name="mandatory" {%if mand%}checked{%endif%}>
                 <br><br>
             </span>
 
