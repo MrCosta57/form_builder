@@ -43,6 +43,7 @@
 
             {% if q.single %}
                 <canvas id={{q.id}} width="300" height="300"></canvas>
+                <span id="error{{q.id}}"></span>
 
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
@@ -64,38 +65,48 @@
                         {% endif %}
                     {% endfor %}
 
-                    /*Building the graphs*/
-                    var myChart = new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            /*labels: content of possible_asnwers*/
-                            labels: [{% for q1 in q.single %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
-                            datasets: [{
-                                label: '{{q.text}}',
-                                /*we use the variables*/
-                                data: [{% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
-                                borderWidth: 1,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.4)',
-                                    'rgba(54, 162, 235, 0.4)',
-                                    'rgba(255, 206, 86, 0.4)',
-                                    'rgba(75, 192, 192, 0.4)',
-                                    'rgba(153, 102, 255, 0.4)',
-                                    'rgba(255, 159, 64, 0.4)',
-                                    'rgba(238, 130, 238, 0.4)'
-                                ]
-                            }]
-                        },
-                        options: {
-                            responsive: false,
-                            maintainAspectRatio: false
-                        }
-                    });
+                    if({% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}==0 && {% endfor %}{% endfor %}true)
+                    {
+                        var elem = document. getElementById("{{q.id}}");
+                        elem.parentNode.removeChild(elem);
+                        document.getElementById("error{{q.id}}").innerHTML="<p>There are not answers yet</p>";
+                    }
+                    else
+                    {
+                        /*Building the graphs*/
+                        var myChart = new Chart(ctx, {
+                            type: 'doughnut',
+                            data: {
+                                /*labels: content of possible_asnwers*/
+                                labels: [{% for q1 in q.single %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
+                                datasets: [{
+                                    label: '{{q.text}}',
+                                    /*we use the variables*/
+                                    data: [{% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.4)',
+                                        'rgba(54, 162, 235, 0.4)',
+                                        'rgba(255, 206, 86, 0.4)',
+                                        'rgba(75, 192, 192, 0.4)',
+                                        'rgba(153, 102, 255, 0.4)',
+                                        'rgba(255, 159, 64, 0.4)',
+                                        'rgba(238, 130, 238, 0.4)'
+                                    ]
+                                }]
+                            },
+                            options: {
+                                responsive: false,
+                                maintainAspectRatio: false
+                            }
+                        });
+                    }
                 </script>
             {% endif %}
 
             {% if q.multiple_choice %}
                 <canvas id={{q.id}} width="300" height="300"></canvas>
+                <span id="error{{q.id}}"></span>
 
                 <script>
                     var ctx = document.getElementById( {{q.id}} ).getContext("2d");
@@ -117,41 +128,50 @@
                         {% endif %}
                     {% endfor %}
 
-                    /*Building the graphs*/
-                    var myChart = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            /*labels: content of possible_asnwers*/
-                            labels: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
-                            datasets: [{
-                                label: '{{q.text}}',
-                                /*we use the variables*/
-                                data: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
-                                borderWidth: 1,
-                                backgroundColor: [
-                                    'rgba(255, 99, 132, 0.4)',
-                                    'rgba(54, 162, 235, 0.4)',
-                                    'rgba(255, 206, 86, 0.4)',
-                                    'rgba(75, 192, 192, 0.4)',
-                                    'rgba(153, 102, 255, 0.4)',
-                                    'rgba(255, 159, 64, 0.4)',
-                                    'rgba(238, 130, 238, 0.4)'
-                                ]
-                            }]
-                        },
-                        options: {
-                            responsive: false,
-                            maintainAspectRatio: false,
-                            /*in this type of graphs we remove the coulerd box of the title*/
-                            plugins: {
-                                legend: {
-                                    labels: {
-                                        boxWidth: 0,
+                    if({% for q1 in q.single %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}==0 && {% endfor %}{% endfor %}true)
+                    {
+                        var elem = document. getElementById("{{q.id}}");
+                        elem.parentNode.removeChild(elem);
+                        document.getElementById("error{{q.id}}").innerHTML="<p>There are not answers yet</p>";
+                    }
+                    else
+                    {
+                        /*Building the graphs*/
+                        var myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                /*labels: content of possible_asnwers*/
+                                labels: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}'{{x.content}}', {% endfor %}{% endfor %}],
+                                datasets: [{
+                                    label: '{{q.text}}',
+                                    /*we use the variables*/
+                                    data: [{% for q1 in q.multiple_choice %}{% for x in q1.possible_answers %}_{% for c in x.content %}{% if (c >= 'A' and c <= 'z') or (c >= '0' and c <= '9') %}{{c}}{% endif %}{% endfor %}, {% endfor %}{% endfor %}],
+                                    borderWidth: 1,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.4)',
+                                        'rgba(54, 162, 235, 0.4)',
+                                        'rgba(255, 206, 86, 0.4)',
+                                        'rgba(75, 192, 192, 0.4)',
+                                        'rgba(153, 102, 255, 0.4)',
+                                        'rgba(255, 159, 64, 0.4)',
+                                        'rgba(238, 130, 238, 0.4)'
+                                    ]
+                                }]
+                            },
+                            options: {
+                                responsive: false,
+                                maintainAspectRatio: false,
+                                /*in this type of graphs we remove the coulerd box of the title*/
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            boxWidth: 0,
+                                        }
                                     }
                                 }
                             }
-                        }
-                    });
+                        });
+                    }
                 </script>
             {% endif %}
 
