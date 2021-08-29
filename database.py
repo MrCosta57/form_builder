@@ -8,7 +8,8 @@ psw = "root"
 ipAddr = "localhost"
 port = "5432"
 dbName = "form"
-engine = create_engine('postgresql+psycopg2://'+user+':'+psw+'@'+ipAddr+':'+port+'/'+dbName, pool_size=15, max_overflow=50)
+engine = create_engine('postgresql+psycopg2://'+user+':'+psw+'@'+ipAddr+':'+port+'/'+dbName, pool_size=15,
+                       max_overflow=50, isolation_level='REPEATABLE READ')
 
 Base = declarative_base()
 db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
