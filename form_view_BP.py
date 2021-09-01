@@ -143,10 +143,10 @@ def form_answers(form_id):
 
 
 # Display files for a specific answer
-@form_view_BP.route("/answers/<answer_id>")
+@form_view_BP.route("/<form_id>/answers/<answer_id>")
 @auth_required()
 @creator_or_admin_role_required
-def view_files(answer_id):
+def view_files(form_id, answer_id):
     # Getting the file
     file = db_session.query(Files).filter(Files.answer_id == answer_id).first()
     if not file:
